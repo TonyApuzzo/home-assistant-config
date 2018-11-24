@@ -1,0 +1,6 @@
+sensor.hank_hkzwso03_smart_plug_previous_reading_2:
+  ignored: true
+  polling_intensity: 0
+sensor.hank_hkzwso03_smart_plug_previous_reading:
+  ignored: true
+  polling_intensity: 0

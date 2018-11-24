@@ -1,0 +1,36 @@
+
+media_player_cast:
+  entities:
+    - media_player.everywhere_
+    - media_player.family_room_tv
+    - media_player.master_bedroom
+    - media_player.office_
+    - media_player.onkyo_txrz820_4f772a
+
+media_player_avr:
+  entities:
+    - media_player.downstairs_txrz820
+    #- media_player.downstairs_txrz820_zone_2
+    #- media_player.downstairs_txrz820_zone_3
+    - media_player.rxv475_a16974
+    - media_player.upstairs_tx8050
+    #- media_player.upstairs_tx8050_zone_2
+
+media_player_other:
+  entities:
+    - media_player.tonysroku3
+    - media_player.tonys_office_roku
+    - media_player.samsung_pdp60_pn60f8500
+
+# I hate to type
+template:
+  name: |
+    {{ states.group.template.name }}
+    {% set groups = ['automations', 'media_player', 'binary_sensor', 'sensor', 'switch', 'cover'] %}
+    {% for g in groups %}
+    {{g}}_list:
+      entities:
+      {% for s in states[g] %}
+        - {{ s.entity_id }}
+      {% endfor -%}
+    {% endfor %}

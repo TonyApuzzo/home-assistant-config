@@ -1,0 +1,92 @@
+media_player.master_bedroom:
+  icon: mdi:google-chrome
+  hidden: yes
+media_player.everywhere_:
+  icon: mdi:speaker-wireless
+  hidden: yes
+media_player.office_:
+  icon: mdi:google-chrome
+  hidden: yes
+media_player.onkyo_txrz820_4f772a:
+  icon: mdi:google-chrome
+  hidden: yes
+media_player.family_room_tv:
+  icon: mdi:youtube-tv
+  hidden: yes
+  
+media_player.downstairs_txrz820:
+  icon: mdi:surround-sound
+  hidden: yes
+media_player.downstairs_txrz820_zone_2: 
+  icon: mdi:surround-sound
+  hidden: yes
+media_player.downstairs_txrz820_zone_3: 
+  icon: mdi:surround-sound
+  hidden: yes
+media_player.upstairs_tx8050: 
+  icon: mdi:radio
+  hidden: yes
+media_player.upstairs_tx8050_zone_2: 
+  icon: mdi:radio
+  hidden: yes
+media_player.rxv475_a16974: 
+  icon: mdi:surround-sound
+  hidden: yes
+
+media_player.tonysroku3: 
+  icon: mdi:alpha-r-box
+  hidden: yes
+media_player.tonys_office_roku: 
+  icon: mdi:alpha-r-box
+  hidden: yes
+media_player.samsung_pdp60_pn60f8500: 
+  icon: mdi:television
+  hidden: yes
+
+group.media_player_cast:
+  hidden: yes
+
+switch.denon_cd:
+  icon: mdi:disc-player
+  
+sensor.fridge_temperature:
+  icon: mdi:fridge-outline
+
+group.template:
+  hidden: yes
+group.all_automations: 
+  hidden: yes
+group.all_lights: 
+  hidden: yes
+group.all_covers: 
+  hidden: yes
+group.all_remotes: 
+  hidden: yes
+group.all_switches:
+  hidden: yes
+sensor.linear_gd00z4_garage_door_opener_remote_controller_access_control:
+  hidden: yes
+sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_level:
+  hidden: yes
+sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_type:
+  hidden: yes
+sensor.linear_gd00z4_garage_door_opener_remote_controller_burglar:
+  hidden: yes
+sensor.linear_gd00z4_garage_door_opener_remote_controller_sourcenodeid:
+  hidden: yes
+binary_sensor.linear_gd00z4_garage_door_opener_remote_controller_sensor:
+  hidden: yes
+sensor.hank_hkzwso03_smart_plug_previous_reading:
+  hidden: yes
+sensor.hank_hkzwso03_smart_plug_previous_reading_2:
+  hidden: yes
+sensor.vision_zg8101_garage_door_detector_alarm_level:
+  hidden: yes
+sensor.vision_zg8101_garage_door_detector_alarm_type:
+  hidden: yes
+sensor.vision_zg8101_garage_door_detector_burglar:
+  hidden: yes
+sensor.vision_zg8101_garage_door_detector_sourcenodeid:
+  hidden: yes
+binary_sensor.vision_zg8101_garage_door_detector_sensor:
+  hidden: yes

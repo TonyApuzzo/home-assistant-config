@@ -1,0 +1,33 @@
+#
+# This .gitattributes file is used to accomodate a multi-OS environment
+# where the target is Linux and the editing is done either in Linux
+# or (via Samba) on Windows.
+#
+# You should also include the following in the repository
+#   git config core.eol lf
+#   git config core.autocrlf input
+#
+
+# Autodetect text files
+* text=auto
+
+# ...Unless the name matches the following
+# overriding patterns
+
+# Definitively text files 
+*.txt text
+*.c text
+*.h text
+*.yaml text
+*.yml text
+*.j2 text
+*.xml text
+*.md text
+*.conf text
+*.ini text
+*.toml text
+
+# Ensure those won't be messed up with
+*.jpg binary
+*.mp3 binary
+*.data binary

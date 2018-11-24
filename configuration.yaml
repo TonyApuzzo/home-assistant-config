@@ -1,0 +1,393 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: !secret home_elevation
+  # metric for Metric, imperial for Imperial
+  unit_system: !secret home_unit_system
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: !secret home_time_zone
+  # Customization file
+  customize: !include customize.yaml
+
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+# Monitor BLE Device Presence
+device_tracker:
+  - platform: bluetooth_tracker
+  - platform: bluetooth_le_tracker
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# https://www.home-assistant.io/components/http/
+http: !include private.http.yaml
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+  
+recorder:
+  db_url: !secret home_db_url
+  purge_keep_days: 10
+  exclude:
+    domains:
+      - automation
+      - weblink
+      - updater
+    entities:
+      - sun.sun # Don't record sun data
+      - sensor.last_boot # Comes from 'systemmonitor' sensor platform
+      - sensor.moon
+      - group.template
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+map:
+
+# Track the sun
+sun:
+
+# Sensors
+sensor:
+  # Weather prediction
+  #- platform: yr
+
+  # Track the moon
+  - platform: moon
+
+  # Raspberry Pi System Resources
+  - platform: systemmonitor
+    resources:
+      - type: processor_use
+      - type: memory_use_percent
+      - type: swap_use_percent
+
+  # Custom Sensors
+  - platform: template
+    sensors:
+      # Difference between max and minimum temperature in the house
+      ecobee_spread:
+        friendly_name: 'Temperature Spread'
+        unit_of_measurement: 'Δ°F'
+        device_class: temperature
+        value_template: >-
+          {% set t = [
+            states('sensor.lilbee_temperature'),
+            states('sensor.office_temperature'),
+            states('sensor.thermostat_temperature')
+            ] | map('regex_replace', '(^[-+]?[0-9]*\.?[0-9]+$)|.*', '\\1') 
+              | reject('eq', '') 
+              | map('float')
+              | list %}
+          {% set spread = t|max - t|min if t else 0 %}
+          {{ spread | round(2) }}
+      openevse_session_energy:
+        friendly_name: "OpenEVSE Session Energy"
+        icon_template: mdi:gauge
+        unit_of_measurement: 'kWh'
+        value_template: >-
+          {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
+          {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
+          {%- if ret|regex_search(rgx) -%}
+            {%- set v = ret | regex_findall_index(rgx) -%}
+            {{- (v|float / 3600000)|round(2) -}}
+          {% else %}
+            {{ none }}
+          {% endif %}
+      openevse_state:
+        icon_template: >-
+          {% set value = states('sensor.openevse_mqtt_state') %}
+          {% if value == "1" %}
+            mdi:power-plug-off
+          {% elif value == "2" %}
+            mdi:car-electric
+          {% elif value == "3" %}
+            mdi:battery-charging
+          {% else %}
+            mdi:battery-unknown
+          {% endif %}
+        value_template: >-
+          {% set value = states('sensor.openevse_mqtt_state') %}
+          {% if value == "1" %}
+            Disconnected
+          {% elif value == "2" %}
+            Idle
+          {% elif value == "3" %}
+            Charging
+          {% else %}
+            Unknown-{{ value }}
+          {% endif %}
+
+  # OpenEVSE MQTT Tracker
+  - platform: mqtt
+    name: "OpenEVSE Temp 1"
+    state_topic: "openevse/temp1"
+    unit_of_measurement: '°F'
+    device_class: temperature
+    value_template: >-
+      {%- macro C2F(temperature) -%}
+      {% set tmp = (((temperature *9) /50.0) + 32) %}
+      {{- "%0.2f" % tmp -}}
+      {%- endmacro -%}
+      {{- C2F(value|float)|float -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Temp 2"
+    state_topic: "openevse/temp2"
+    unit_of_measurement: '°F'
+    device_class: temperature
+    value_template: >-
+      {%- macro C2F(temperature) -%}
+      {% set tmp = (((temperature *9) /50.0) + 32) %}
+      {{- "%0.2f" % tmp -}}
+      {%- endmacro -%}
+      {{- C2F(value|float)|float -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Temp 3"
+    state_topic: "openevse/temp3"
+    unit_of_measurement: '°F'
+    device_class: temperature
+    value_template: >-
+      {%- macro C2F(temperature) -%}
+      {% set tmp = (((temperature *9) /50.0) + 32) %}
+      {{- "%0.2f" % tmp -}}
+      {%- endmacro -%}
+      {{- C2F(value|float)|float -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Charging Current"
+    icon: mdi:current-ac
+    state_topic: "openevse/amp"
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- (value|float / 1000.0) | round(1) -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Pilot Current"
+    icon: mdi:current-ac
+    state_topic: "openevse/pilot"
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- value|int -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Total Energy"
+    icon: mdi:gauge-full
+    state_topic: "openevse/wh"
+    unit_of_measurement: "kWh"
+    value_template: >-
+      {{- value|float / 1000 | round(2) -}}
+
+  - platform: mqtt
+    name: "OpenEVSE MQTT State"
+    state_topic: "openevse/state"
+
+  # Use OpenEVSE RAPI API to Retrieve the active charging current
+  # https://www.home-assistant.io/components/sensor.rest/
+  # Example: 
+  #  curl curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
+  #  $OK 40629846 165327^27
+  - platform: rest
+    name: "OpenEVSE RAPI $GU"
+    resource: 'http://openevse.local./r?json=1&rapi=$GU'
+    json_attributes: [ 'cmd', 'ret' ]
+    authenticaion: digest
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+
+# Text to speech
+tts:
+  - platform: google
+
+# Cloud
+cloud:
+
+# Lutron Caseta
+lutron_caseta:
+  host: !secret home_lutron_caseta_host
+  keyfile: /ssl/caseta.key
+  certfile: /ssl/caseta.crt
+  ca_certs: /ssl/caseta-bridge.crt
+
+weather:
+  - platform: darksky
+    api_key: !secret DARKSKY_API_KEY
+    monitored_conditions:
+    - minutely_summary
+
+# ecobee thermostat
+ecobee:
+  api_key: !secret ECOBEE_API_KEY
+  hold_temp: "False"
+
+# Harmony Remote
+remote:
+  - platform: harmony
+    name: "Family Room" 
+    activity: "TiVo Bolt"
+
+# Receivers
+media_player:
+  - platform: onkyo
+    host: tx-8050.local.
+    name: Upstairs TX-8050
+
+  - platform: onkyo
+    host: tx-rz820.local.
+    name: Downstairs TX-RZ820
+    sources:
+      am: AM
+      aux: AUX
+      bd-dvd: BD/DVD
+      bluetooth: Bluetooth
+      cbl-sat: CBL/SAT
+      cd: CD
+      fm: FM
+      game: GAME
+      net: NET
+      pc: PC
+      phono: PHONO
+      strm-box: STRM BOX
+      tv: TV
+
+# Switches
+switch:
+  - platform: vesync
+    username: !secret VESYNC_USERNAME
+    password: !secret VESYNC_PASSWORD
+
+  - platform: template
+    switches:
+      all_audio:
+        friendly_name: "All Audio"
+        value_template: >-
+          {{ is_state('group.media_player_avr', 'on') }}
+        icon_template: mdi:boombox
+        turn_off:             
+          - service: homeassistant.turn_off
+            data_template:
+              entity_id:
+                - group.all_remotes
+                - group.media_player_avr
+                - group.media_player_cast
+        turn_on:
+          - service: homeassistant.turn_on
+            data_template:
+              entity_id: 
+                - group.media_player_avr
+
+      thermostat_fan_mode:
+        friendly_name: "Thermostat Fan Mode"
+        value_template: "{{ state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 }}"
+        icon_template: >-
+          {% if state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -%}
+            mdi:fan
+          {%- else -%}
+            mdi:fan-off
+          {%- endif %}
+        turn_on:
+          - service: climate.ecobee_set_fan_min_on_time
+            data:
+              entity_id: climate.thermostat
+              fan_min_on_time: 60
+        turn_off:
+          - service: climate.ecobee_set_fan_min_on_time
+            data:
+              entity_id: climate.thermostat
+              fan_min_on_time: 0
+
+# Lights
+light:
+  - platform: template
+    lights:
+      switch_front_foyer_chandelier:
+        friendly_name: Front Foyer_Chandelier
+        level_template: '{{ 255 if is_state("switch.front_foyer_chandelier", "on") else 0 }}'
+        value_template: '{{ is_state("switch.front_foyer_chandelier", "on") }}'
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.front_foyer_chandelier
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.front_foyer_chandelier
+        set_level:
+          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          entity_id: switch.front_foyer_chandelier
+
+  - platform: template
+    lights:
+      switch_front_porch_light:
+        friendly_name: Front Porch_Light
+        level_template: '{{ 255 if is_state("switch.front_porch_light", "on") else 0 }}'
+        value_template: '{{ is_state("switch.front_porch_light", "on") }}'
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.front_porch_light
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.front_porch_light
+        set_level:
+          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          entity_id: switch.front_porch_light
+
+  - platform: template
+    lights:
+      switch_living_room_floor_lamp:
+        friendly_name: Living Room_Floor Lamp
+        level_template: '{{ 255 if is_state("switch.vesync", "on") else 0 }}'
+        value_template: '{{ is_state("switch.vesync", "on") }}'
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.vesync
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.vesync
+        set_level:
+          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          entity_id: switch.vesync
+
+  - platform: template
+    lights:
+      switch_kitchen_lights:
+        friendly_name: Kitchen_Lights
+        level_template: '{{ 255 if is_state("switch.kitchen_lights", "on") else 0 }}'
+        value_template: '{{ is_state("switch.kitchen_lights", "on") }}'
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.kitchen_lights
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.kitchen_lights
+        set_level:
+          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          entity_id: switch.kitchen_lights
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml

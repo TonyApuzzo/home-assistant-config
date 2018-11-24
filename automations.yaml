@@ -1,0 +1,200 @@
+- alias: "Normalize Temperature"
+  initial_state: on
+  trigger:
+    - entity_id: sensor.ecobee_spread
+      platform: state
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.ecobee_spread
+      above: 2.8
+  action:
+    - service: climate.ecobee_set_fan_min_on_time
+      entity_id: climate.thermostat
+      data_template:
+        fan_min_on_time: >-
+          {{- 30 if states('sensor.ecobee_spread')|float >= 3.0 
+                   and states('sensor.thermostat_temperature')|float >= 65.0 else 0 -}}
+
+- alias: "Listen to CDs started from Harmony Hub"
+  hide_entity: true
+  trigger:
+    platform: state
+    entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: >-
+      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
+        false
+      {%- else -%}
+        {{ trigger.to_state.attributes.current_activity == "Listen to CDs" }}
+      {%- endif -%}
+  action:
+    service: switch.turn_on
+    entity_id: switch.denon_cd
+
+- alias: "Listen to CDs ended from Harmony Hub"
+  hide_entity: true
+  trigger:
+    platform: state
+    entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: >-
+      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
+        false
+      {%- else -%}
+        {{ trigger.from_state.attributes.current_activity == "Listen to CDs" }}
+      {%- endif -%}
+  action:
+    service: switch.turn_off
+    entity_id: switch.denon_cd
+
+- alias: Casting to Yamaha RX-V475
+  hide_entity: true
+  trigger:
+  - platform: state
+    entity_id: media_player.office_
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere_
+    to: playing
+  condition:
+    condition: template
+    value_template: |-
+      {{ trigger.from_state.attributes.state is none or
+         trigger.from_state.attributes.state != "playing" }}
+  action:
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.rxv475_a16974
+  - service: media_player.select_source
+    data:
+      entity_id: media_player.rxv475_a16974
+      source: AV4
+
+- alias: Casting to Onkyo TX-8050
+  hide_entity: true
+  trigger:
+  - platform: state
+    entity_id: media_player.master_bedroom
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere_
+    to: playing
+  condition:
+    condition: template
+    value_template: |-
+      {{ trigger.from_state.attributes.state is none or
+         trigger.from_state.attributes.state != "playing" }}
+  action:
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.upstairs_tx8050
+  - service: media_player.select_source
+    data:
+      entity_id: media_player.upstairs_tx8050
+      source: GAME
+
+- alias: Casting to Onkyo TX-RZ820
+  hide_entity: true
+  trigger:
+  - platform: state
+    entity_id: media_player.onkyo_txrz820_4f772a
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere_
+    to: playing
+  condition:
+    condition: template
+    value_template: |-
+      {{ trigger.from_state.attributes.state is none or
+         trigger.from_state.attributes.state != "playing" }}
+  action:
+  - service: remote.turn_on
+    data:
+      entity_id: remote.family_room_harmony_hub
+      activity: "Network Music"
+
+# When casting to Chromecast Video, start the corresponding Harmony Activity
+- alias: "Casting to Family Room TV"
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: media_player.family_room_tv
+      to: "playing"
+      from: "off"
+  condition:
+    condition: template
+    value_template: |-
+      {{ trigger.from_state.attributes.state is none or
+         trigger.from_state.attributes.state != "playing" }}
+  action:
+    - service: remote.turn_on
+      data:
+        entity_id: remote.family_room_harmony_hub
+        activity: "Watch Chromecast"
+
+- alias: "Casting to Family Room TV ended from Harmony Hub"
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: >-
+      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
+        false
+      {%- else -%}
+        {{ trigger.from_state.attributes.current_activity == "Watch Chromecast" and 
+           trigger.to_state.attributes.current_activity != "Watch Chromecast" }}
+      {%- endif -%}
+  action:
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.family_room_tv
+    - service: media_player.turn_off
+      data:
+        entity_id: media_player.family_room_tv
+
+- alias: "Fridge Temperature Warning"
+  id: fridge_alarm
+  initial_state: on
+  trigger:
+    - platform: state
+      entity_id: sensor.fridge_temperature
+  condition:
+    condition: template
+    value_template: >-
+      {%- if is_state('sensor.fridge_temperature', 'unknown') -%}
+        false
+      {%- else -%}
+        {%- set t = states('sensor.fridge_temperature')|float -%}
+        {{- 33.0 > t or t > 40.0 -}}
+      {%- endif -%}
+   # entity_id: sensor.fridge_temperature
+  action:
+     service: persistent_notification.create
+     data:
+       notification_id: warning_fridge_temperature
+       message: "Fridge temperature {{states.sensor.fridge_temperature.state_with_unit}} at {{now().strftime('%c')}}!"
+       title: "Fridge Temp out of Range!"
+
+- alias: "Garage Warning"
+  id: garage_warning
+  initial_state: on
+  trigger:
+    platform: state
+    entity_id: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
+    to: 'open'
+    for:
+      minutes: 15
+  action:
+    - condition: template
+      value_template: '{{ not is_state("cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label", "closed") }}'
+    - service: persistent_notification.create
+      data_template:
+        notification_id: garage_warning
+        title: "Garage Door is {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!"
+        message: "The garage door has been {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }} for at least 15 minutes, consider closing it."
+
+# vim: ts=2 sw=2 expandtab ai
