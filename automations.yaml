@@ -76,7 +76,7 @@
   hide_entity: true
   trigger:
   - platform: state
-    entity_id: media_player.master_bedroom
+    entity_id: media_player.master_bedroom_
     to: playing
   - platform: state
     entity_id: media_player.everywhere_

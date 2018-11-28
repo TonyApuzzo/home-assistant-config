@@ -54,15 +54,15 @@ views:
           entity: media_player.family_room_tv
       - type: conditional
         conditions:
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_
             state_not: "off"
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_
             state_not: "unknown"
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.master_bedroom
+          entity: media_player.master_bedroom_
       - type: conditional
         conditions:
           - entity: media_player.o_p
@@ -268,7 +268,7 @@ views:
         type: entities
         entities:
           - light.master_bedroom_cove_lights
-          - media_player.master_bedroom
+          - media_player.master_bedroom_
           - media_player.upstairs_tx8050
           - sensor.lilbee_temperature
           - binary_sensor.lilbee_occupancy
