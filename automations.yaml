@@ -8,8 +8,23 @@
     value_template: >-
       {{ is_state('sensor.environment', 'PROD') }}
   action:
+    # Turn on all automations -- this overrides the defaults set individually, so if we
+    # want to have specific automations not running in Prod, this line will need to be
+    # replaced with individual turn_on calls.
     - service: automation.turn_on
-      entity_id: "automation.normalize_temperature"
+
+- alias: "Setup Dev Environment"
+  initial_state: on
+  trigger:
+    platform: homeassistant
+    event: start
+  condition:
+    condition: template
+    value_template: >-
+      {{ is_state('sensor.environment', 'DEV') }}
+  action:
+    # Don't start any automations automatically in Dev.
+    #- service: automation.turn_on
 
 - alias: "Normalize Temperature"
   initial_state: off
@@ -29,6 +44,7 @@
                    and states('sensor.thermostat_temperature')|float >= 65.0 else 0 -}}
 
 - alias: "Listen to CDs started from Harmony Hub"
+  initial_state: off
   hide_entity: true
   trigger:
     platform: state
@@ -46,6 +62,7 @@
     entity_id: switch.denon_cd
 
 - alias: "Listen to CDs ended from Harmony Hub"
+  initial_state: off
   hide_entity: true
   trigger:
     platform: state
@@ -63,6 +80,7 @@
     entity_id: switch.denon_cd
 
 - alias: Casting to Yamaha RX-V475
+  initial_state: off
   hide_entity: true
   trigger:
   - platform: state
@@ -86,6 +104,7 @@
       source: AV4
 
 - alias: Casting to Onkyo TX-8050
+  initial_state: off
   hide_entity: true
   trigger:
   - platform: state
@@ -109,6 +128,7 @@
       source: GAME
 
 - alias: Casting to Onkyo TX-RZ820
+  initial_state: off
   hide_entity: true
   trigger:
   - platform: state
@@ -130,6 +150,7 @@
 
 # When casting to Chromecast Video, start the corresponding Harmony Activity
 - alias: "Casting to Family Room TV"
+  initial_state: off
   hide_entity: true
   trigger:
     - platform: state
@@ -148,6 +169,7 @@
         activity: "Watch Chromecast"
 
 - alias: "Casting to Family Room TV ended from Harmony Hub"
+  initial_state: off
   hide_entity: true
   trigger:
     - platform: state
@@ -171,7 +193,7 @@
 
 - alias: "Fridge Temperature Warning"
   id: fridge_alarm
-  initial_state: on
+  initial_state: off
   trigger:
     - platform: state
       entity_id: sensor.fridge_temperature
@@ -194,7 +216,7 @@
 
 - alias: "Garage Warning"
   id: garage_warning
-  initial_state: on
+  initial_state: off
   trigger:
     platform: state
     entity_id: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
