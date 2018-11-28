@@ -90,6 +90,10 @@ sensor:
   # Custom Sensors
   - platform: template
     sensors:
+      environment:
+        friendly_name: 'Environment'
+        value_template: !secret ENVIRONMENT
+        
       # Difference between max and minimum temperature in the house
       ecobee_spread:
         friendly_name: 'Temperature Spread'
@@ -254,6 +258,9 @@ remote:
 
 # Receivers
 media_player:
+  - platform: roku
+    scan_interval: 20
+
   - platform: onkyo
     host: tx-8050.local.
     name: Upstairs TX-8050
