@@ -13,6 +13,12 @@ homeassistant:
   # Customization file
   customize: !include customize.yaml
 
+logger:
+  default: info
+  logs:
+    homeassistant.components.lutron_caseta: debug
+    homeassistant.components.media_player.onkyo: debug
+
 # Show links to resources in log and frontend
 #introduction:
 
@@ -42,7 +48,7 @@ updater:
   
 recorder:
   db_url: !secret home_db_url
-  purge_keep_days: 10
+  purge_keep_days: 4
   exclude:
     domains:
       - automation
@@ -51,7 +57,6 @@ recorder:
     entities:
       - sun.sun # Don't record sun data
       - sensor.last_boot # Comes from 'systemmonitor' sensor platform
-      - sensor.moon
       - group.template
 
 # Discover some devices automatically
@@ -78,7 +83,7 @@ sensor:
   #- platform: yr
 
   # Track the moon
-  - platform: moon
+  #- platform: moon
 
   # Raspberry Pi System Resources
   - platform: systemmonitor
@@ -242,8 +247,13 @@ lutron_caseta:
 weather:
   - platform: darksky
     api_key: !secret DARKSKY_API_KEY
+    forecast:
+      - 0
     monitored_conditions:
-    - minutely_summary
+      - summary
+      - icon
+      - temperature
+      - moon_phase
 
 # ecobee thermostat
 ecobee:

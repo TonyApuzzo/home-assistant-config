@@ -158,18 +158,19 @@ views:
           entity: media_player.upstairs_tx8050
 # **END** Media Player Conditionals
 
-      - title: Whole House
+      - type: entities
+        title: Whole House
         id: whole_house
-        type: entities
         entities:
-          - switch.all_audio
-          - scene.exterior_on
-          - scene.interior_on
-          - scene.lights_out
-          - sensor.ecobee_spread
-          - automation.normalize_temperature
-          - switch.thermostat_fan_mode
-          - media_player.everywhere_
+          - entity: switch.all_audio
+          - entity: scene.exterior_on
+          - entity: scene.interior_on
+          - entity: scene.lights_out
+          - entity: scene.goodbye
+          - entity: sensor.ecobee_spread
+          - entity: automation.normalize_temperature
+          - entity: switch.thermostat_fan_mode
+          - entity: media_player.everywhere_
 
       - title: Dining Room
         id: dining_room
@@ -301,7 +302,6 @@ views:
         type: entities
         entities:
           - sun.sun
-          - sensor.moon
           - entity: weather.dark_sky
             name: Weather by Dark Sky
           - entity: weather.thermostat
