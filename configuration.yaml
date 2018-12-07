@@ -88,6 +88,9 @@ sensor:
   # Raspberry Pi System Resources
   - platform: systemmonitor
     resources:
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
       - type: processor_use
       - type: memory_use_percent
       - type: swap_use_percent

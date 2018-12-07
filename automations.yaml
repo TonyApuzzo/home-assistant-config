@@ -24,7 +24,16 @@
       {{ is_state('sensor.environment', 'DEV') }}
   action:
     # Don't start any automations automatically in Dev.
-    #- service: automation.turn_on
+    # - service: automation.turn_on
+
+- alias: "Goodbye"
+  initial_state: on
+  trigger:
+    - platform: state
+      entity_id: scene.goodbye
+  action:
+    - service: switch.toggle
+      entity_id: switch.hank_hkzwso03_smart_plug
 
 - alias: "Normalize Temperature"
   initial_state: off
@@ -155,8 +164,8 @@
   trigger:
     - platform: state
       entity_id: media_player.family_room_tv
+      # from: "off"
       to: "playing"
-      from: "off"
   condition:
     condition: template
     value_template: |-
