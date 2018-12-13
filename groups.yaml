@@ -6,6 +6,7 @@ media_player_cast:
     - media_player.master_bedroom_
     - media_player.office_
     - media_player.onkyo_txrz820_4f772a
+    - media_player.shield
 
 media_player_avr:
   entities:
@@ -13,14 +14,13 @@ media_player_avr:
     #- media_player.downstairs_txrz820_zone_2
     #- media_player.downstairs_txrz820_zone_3
     - media_player.rxv475_a16974
-    - media_player.upstairs_tx8050
+    #- media_player.upstairs_tx8050
     #- media_player.upstairs_tx8050_zone_2
 
-media_player_other:
+media_player_roku:
   entities:
     - media_player.tonysroku3
     - media_player.tonys_office_roku
-    - media_player.samsung_pdp60_pn60f8500
 
 # I hate to type
 template:

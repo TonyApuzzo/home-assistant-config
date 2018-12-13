@@ -65,6 +65,17 @@ views:
           entity: media_player.master_bedroom_
       - type: conditional
         conditions:
+          - entity: media_player.shield
+            state_not: "off"
+          - entity: media_player.shield
+            state_not: "unknown"
+          - entity: media_player.shield
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.shield
+      - type: conditional
+        conditions:
           - entity: media_player.o_p
             state_not: "off"
           - entity: media_player.o_p
@@ -116,15 +127,15 @@ views:
         card:
           type: media-control
           entity: media_player.rxv475_a16974
-      - type: conditional
-        conditions:
-          - entity: media_player.samsung_pdp60_pn60f8500
-            state_not: "off"
-          - entity: media_player.samsung_pdp60_pn60f8500
-            state_not: "unknown"
-        card:
-          type: media-control
-          entity: media_player.samsung_pdp60_pn60f8500
+#      - type: conditional
+#        conditions:
+#          - entity: media_player.samsung_pdp60_pn60f8500
+#            state_not: "off"
+#          - entity: media_player.samsung_pdp60_pn60f8500
+#            state_not: "unknown"
+#        card:
+#          type: media-control
+#          entity: media_player.samsung_pdp60_pn60f8500
       - type: conditional
         conditions:
           - entity: media_player.tonys_office_roku
@@ -147,15 +158,15 @@ views:
         card:
           type: media-control
           entity: media_player.tonysroku3
-      - type: conditional
-        conditions:
-          - entity: media_player.upstairs_tx8050
-            state_not: "off"
-          - entity: media_player.upstairs_tx8050
-            state_not: "unknown"
-        card:
-          type: media-control
-          entity: media_player.upstairs_tx8050
+      #- type: conditional
+      #  conditions:
+      #    - entity: media_player.upstairs_tx8050
+      #      state_not: "off"
+      #    - entity: media_player.upstairs_tx8050
+      #      state_not: "unknown"
+      #  card:
+      #    type: media-control
+      #    entity: media_player.upstairs_tx8050
 # **END** Media Player Conditionals
 
       - type: entities
@@ -196,6 +207,7 @@ views:
           - light.family_room_landing
           - remote.family_room_harmony_hub
           - media_player.downstairs_txrz820
+          - entity: media_player.shield
           - entity: media_player.family_room_tv
             name: Chromecast Video
           - entity: media_player.onkyo_txrz820_4f772a
@@ -263,17 +275,17 @@ views:
         entities:
           - light.upstairs_hallway_landing
 
-      - title: Master Bedroom
+      - type: entities
+        title: Master Bedroom
         id: master_bedroom
         show_header_toggle: false
-        type: entities
         entities:
-          - light.master_bedroom_cove_lights
-          - media_player.master_bedroom_
-          - media_player.upstairs_tx8050
-          - sensor.lilbee_temperature
-          - binary_sensor.lilbee_occupancy
-
+          - entity: light.master_bedroom_cove_lights
+          - entity: switch.hank_hkzwso03_smart_plug_switch_2
+          #- entity: media_player.upstairs_tx8050
+          - entity: media_player.master_bedroom_
+          - entity: sensor.lilbee_temperature
+          - entity: binary_sensor.lilbee_occupancy
       - title: Garage
         id: garage
         type: entities
@@ -306,3 +318,14 @@ views:
             name: Weather by Dark Sky
           - entity: weather.thermostat
             name: Weather by Ecobee
+
+      - title: System
+        id: system
+        type: entities
+        entities:
+          - entity: sensor.load_1m
+          - entity: sensor.load_5m
+          - entity: sensor.load_15m
+          - entity: sensor.memory_use_percent
+          - entity: sensor.processor_use
+          - entity: sensor.swap_use_percent

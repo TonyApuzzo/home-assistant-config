@@ -112,29 +112,29 @@
       entity_id: media_player.rxv475_a16974
       source: AV4
 
-- alias: Casting to Onkyo TX-8050
-  initial_state: off
-  hide_entity: true
-  trigger:
-  - platform: state
-    entity_id: media_player.master_bedroom_
-    to: playing
-  - platform: state
-    entity_id: media_player.everywhere_
-    to: playing
-  condition:
-    condition: template
-    value_template: |-
-      {{ trigger.from_state.attributes.state is none or
-         trigger.from_state.attributes.state != "playing" }}
-  action:
-  - service: media_player.turn_on
-    data:
-      entity_id: media_player.upstairs_tx8050
-  - service: media_player.select_source
-    data:
-      entity_id: media_player.upstairs_tx8050
-      source: GAME
+#- alias: Casting to Onkyo TX-8050
+#  initial_state: off
+#  hide_entity: true
+#  trigger:
+#  - platform: state
+#    entity_id: media_player.master_bedroom_
+#    to: playing
+#  - platform: state
+#    entity_id: media_player.everywhere_
+#    to: playing
+#  condition:
+#    condition: template
+#    value_template: |-
+#      {{ trigger.from_state.attributes.state is none or
+#         trigger.from_state.attributes.state != "playing" }}
+#  action:
+#  - service: media_player.turn_on
+#    data:
+#      entity_id: media_player.upstairs_tx8050
+#  - service: media_player.select_source
+#    data:
+#      entity_id: media_player.upstairs_tx8050
+#      source: GAME
 
 - alias: Casting to Onkyo TX-RZ820
   initial_state: off
@@ -199,6 +199,49 @@
     - service: media_player.turn_off
       data:
         entity_id: media_player.family_room_tv
+
+# When casting to SHEILD, start the corresponding Harmony Activity
+- alias: "Casting to SHIELD"
+  initial_state: off
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: media_player.shield
+      # from: "off"
+      to: "playing"
+  condition:
+    condition: template
+    value_template: |-
+      {{ trigger.from_state.attributes.state is none or
+         trigger.from_state.attributes.state != "playing" }}
+  action:
+    - service: remote.turn_on
+      data:
+        entity_id: remote.family_room_harmony_hub
+        activity: "SHIELD TV"
+
+- alias: "Casting to SHIELD ended from Harmony Hub"
+  initial_state: off
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: >-
+      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
+        false
+      {%- else -%}
+        {{ trigger.from_state.attributes.current_activity == "SHIELD TV" and 
+           trigger.to_state.attributes.current_activity != "SHIELD TV" }}
+      {%- endif -%}
+  action:
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.shield
+    - service: media_player.turn_off
+      data:
+        entity_id: media_player.shield
 
 - alias: "Fridge Temperature Warning"
   id: fridge_alarm

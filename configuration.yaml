@@ -15,9 +15,9 @@ homeassistant:
 
 logger:
   default: info
-  logs:
-    homeassistant.components.lutron_caseta: debug
-    homeassistant.components.media_player.onkyo: debug
+#  logs:
+#    homeassistant.components.lutron_caseta: debug
+#    homeassistant.components.media_player.onkyo: debug
 
 # Show links to resources in log and frontend
 #introduction:
@@ -29,9 +29,9 @@ frontend:
 config:
 
 # Monitor BLE Device Presence
-device_tracker:
-  - platform: bluetooth_tracker
-  - platform: bluetooth_le_tracker
+#device_tracker:
+#  - platform: bluetooth_tracker
+#  - platform: bluetooth_le_tracker
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # https://www.home-assistant.io/components/http/
@@ -274,9 +274,9 @@ media_player:
   - platform: roku
     scan_interval: 20
 
-  - platform: onkyo
-    host: tx-8050.local.
-    name: Upstairs TX-8050
+#  - platform: onkyo
+#    host: tx-8050.local.
+#    name: Upstairs TX-8050
 
   - platform: onkyo
     host: tx-rz820.local.
