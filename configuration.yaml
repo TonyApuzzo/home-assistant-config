@@ -10,6 +10,8 @@ homeassistant:
   unit_system: !secret home_unit_system
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: !secret home_time_zone
+  # Load packages
+  packages: !include_dir_named packages
   # Customization file
   customize: !include customize.yaml
 
@@ -49,18 +51,13 @@ updater:
   # Optional, allows Home Assistant developers to focus on popular components.
   # include_used_components: true
   
+# Recorder is a disaster, so record very little
 recorder:
-  db_url: !secret home_db_url
-  purge_keep_days: 4
-  exclude:
+  purge_keep_days: 2
+  include:
     domains:
-      - automation
-      - weblink
-      - updater
-    entities:
-      - sun.sun # Don't record sun data
-      - sensor.last_boot # Comes from 'systemmonitor' sensor platform
-      - group.template
+      - cover
+      - sensor
 
 # Discover some devices automatically
 discovery:
@@ -79,6 +76,22 @@ map:
 
 # Track the sun
 sun:
+
+input_select:
+  chromecast:
+    name: chromecast
+    options:
+      - media_player.everywhere_
+      - media_player.downstairs_txrz820
+      - media_player.family_room_tv
+      - media_player.master_bedroom_
+      - media_player.o_p
+      - media_player.office_
+      - media_player.onkyo_txrz820_4f772a
+      - media_player.rxv475_a16974
+      - media_player.shield
+      - media_player.tonys_office_roku
+      - media_player.tonysroku3
 
 # Sensors
 sensor:
@@ -242,6 +255,14 @@ tts:
 
 # Cloud
 cloud:
+
+scene:
+  - name: KBCO Holiday
+    entities:
+      media_player.everywhere_:
+        state: playing
+        media_content_id: http://ccice.streamguys.com/holiday_kbco_96.mp3
+        media_content_type: music
 
 # Lutron Caseta
 lutron_caseta:

@@ -170,6 +170,18 @@ views:
 # **END** Media Player Conditionals
 
       - type: entities
+        title: Chromecast Radio
+        id: radio
+        icon: mdi:radio
+        entities:
+          - input_select.chromecast_radio_station
+          - input_text.custom_station
+          - input_select.chromecast_radio_speakers
+          - input_number.volume_radio
+          - script.play_chromecast_radio
+          - script.stop_chromecast_radio
+
+      - type: entities
         title: Whole House
         id: whole_house
         entities:
@@ -221,6 +233,10 @@ views:
         type: entities
         entities:
           - light.switch_front_porch_light
+          - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
+            name: Temperature
+          - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
+            name: Motion
 
       - title: Kitchen
         id: kitchen

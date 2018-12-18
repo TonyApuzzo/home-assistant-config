@@ -1,3 +1,6 @@
+scene.kbco_holiday:
+  icon: mdi:pine-tree-box
+
 media_player.master_bedroom_:
   icon: mdi:google-chrome
   hidden: yes
@@ -16,7 +19,7 @@ media_player.family_room_tv:
 media_player.shield:
   icon: mdi:youtube-tv
   hidden: yes
-  
+
 media_player.downstairs_txrz820:
   icon: mdi:surround-sound
   hidden: yes

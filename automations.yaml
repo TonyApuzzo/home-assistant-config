@@ -43,14 +43,14 @@
   condition:
     - condition: numeric_state
       entity_id: sensor.ecobee_spread
-      above: 2.8
+      above: 2.6
   action:
     - service: climate.ecobee_set_fan_min_on_time
       entity_id: climate.thermostat
       data_template:
         fan_min_on_time: >-
-          {{- 30 if states('sensor.ecobee_spread')|float >= 3.0 
-                   and states('sensor.thermostat_temperature')|float >= 65.0 else 0 -}}
+          {{- 30 if states('sensor.ecobee_spread')|float > 3.0 
+                   and states('sensor.thermostat_temperature')|float >= 66.0 else 0 -}}
 
 - alias: "Listen to CDs started from Harmony Hub"
   initial_state: off
