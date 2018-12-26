@@ -43,7 +43,7 @@
   condition:
     - condition: numeric_state
       entity_id: sensor.ecobee_spread
-      above: 2.6
+      above: 2.0
   action:
     - service: climate.ecobee_set_fan_min_on_time
       entity_id: climate.thermostat
@@ -112,30 +112,6 @@
       entity_id: media_player.rxv475_a16974
       source: AV4
 
-#- alias: Casting to Onkyo TX-8050
-#  initial_state: off
-#  hide_entity: true
-#  trigger:
-#  - platform: state
-#    entity_id: media_player.master_bedroom_
-#    to: playing
-#  - platform: state
-#    entity_id: media_player.everywhere_
-#    to: playing
-#  condition:
-#    condition: template
-#    value_template: |-
-#      {{ trigger.from_state.attributes.state is none or
-#         trigger.from_state.attributes.state != "playing" }}
-#  action:
-#  - service: media_player.turn_on
-#    data:
-#      entity_id: media_player.upstairs_tx8050
-#  - service: media_player.select_source
-#    data:
-#      entity_id: media_player.upstairs_tx8050
-#      source: GAME
-
 - alias: Casting to Onkyo TX-RZ820
   initial_state: off
   hide_entity: true
@@ -157,50 +133,7 @@
       entity_id: remote.family_room_harmony_hub
       activity: "Network Music"
 
-# When casting to Chromecast Video, start the corresponding Harmony Activity
-- alias: "Casting to Family Room TV"
-  initial_state: off
-  hide_entity: true
-  trigger:
-    - platform: state
-      entity_id: media_player.family_room_tv
-      # from: "off"
-      to: "playing"
-  condition:
-    condition: template
-    value_template: |-
-      {{ trigger.from_state.attributes.state is none or
-         trigger.from_state.attributes.state != "playing" }}
-  action:
-    - service: remote.turn_on
-      data:
-        entity_id: remote.family_room_harmony_hub
-        activity: "Watch Chromecast"
-
-- alias: "Casting to Family Room TV ended from Harmony Hub"
-  initial_state: off
-  hide_entity: true
-  trigger:
-    - platform: state
-      entity_id: remote.family_room_harmony_hub
-  condition:
-    condition: template
-    value_template: >-
-      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
-        false
-      {%- else -%}
-        {{ trigger.from_state.attributes.current_activity == "Watch Chromecast" and 
-           trigger.to_state.attributes.current_activity != "Watch Chromecast" }}
-      {%- endif -%}
-  action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.family_room_tv
-    - service: media_player.turn_off
-      data:
-        entity_id: media_player.family_room_tv
-
-# When casting to SHEILD, start the corresponding Harmony Activity
+# When casting to SHIELD, start the corresponding Harmony Activity
 - alias: "Casting to SHIELD"
   initial_state: off
   hide_entity: true
@@ -283,5 +216,47 @@
         notification_id: garage_warning
         title: "Garage Door is {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!"
         message: "The garage door has been {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }} for at least 15 minutes, consider closing it."
+
+- alias: "Turn on Porch Light when motion detected"
+  id: outdoor_motion
+  initial_state: off
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.vision_zp3102_pir_motion_sensor_alarm_level
+    above: 0
+  condition:
+    condition: or
+    conditions:
+      - condition: sun
+        after: sunset
+      - condition: sun
+        before: sunrise
+      - condition: state
+        entity_id: light.switch_front_porch_light
+        state: 'off'
+      - condition: state
+        entity_id: timer.outdoor_motion
+        state: active
+  action:
+    - service: light.turn_on
+      data:
+        entity_id: light.switch_front_porch_light
+    - service: timer.start
+      data:
+        entity_id: timer.outdoor_motion
+        duration: '00:01:00'
+
+- alias: "Turn off Porch Light after motion timeout"
+  id: motion_timeout
+  initial_state: off
+  trigger:
+    platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.outdoor_motion
+  action:
+    - service: light.turn_off
+      data:
+        entity_id: light.switch_front_porch_light
 
 # vim: ts=2 sw=2 expandtab ai
