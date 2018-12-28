@@ -57,12 +57,13 @@ timer:
 
 # Recorder is a disaster, so record as little as possible
 recorder:
-  purge_keep_days: 2
-  include:
-    domains:
-      - cover
-      - sensor
-      - binary_sensor
+  purge_keep_days: 10
+  db_url: !secret recorder_db_url
+#  include:
+#    domains:
+#      - cover
+#      - sensor
+#      - binary_sensor
 
 # Discover some devices automatically
 discovery:
@@ -150,6 +151,7 @@ sensor:
             {{ none }}
           {% endif %}
       openevse_state:
+        friendly_name: "OpenEVSE State"
         icon_template: >-
           {% set value = states('sensor.openevse_mqtt_state') %}
           {% if value == "1" %}
@@ -177,30 +179,6 @@ sensor:
   - platform: mqtt
     name: "OpenEVSE Temp 1"
     state_topic: "openevse/temp1"
-    unit_of_measurement: '°F'
-    device_class: temperature
-    value_template: >-
-      {%- macro C2F(temperature) -%}
-      {% set tmp = (((temperature *9) /50.0) + 32) %}
-      {{- "%0.2f" % tmp -}}
-      {%- endmacro -%}
-      {{- C2F(value|float)|float -}}
-
-  - platform: mqtt
-    name: "OpenEVSE Temp 2"
-    state_topic: "openevse/temp2"
-    unit_of_measurement: '°F'
-    device_class: temperature
-    value_template: >-
-      {%- macro C2F(temperature) -%}
-      {% set tmp = (((temperature *9) /50.0) + 32) %}
-      {{- "%0.2f" % tmp -}}
-      {%- endmacro -%}
-      {{- C2F(value|float)|float -}}
-
-  - platform: mqtt
-    name: "OpenEVSE Temp 3"
-    state_topic: "openevse/temp3"
     unit_of_measurement: '°F'
     device_class: temperature
     value_template: >-
@@ -245,9 +223,9 @@ sensor:
   #  $OK 40629846 165327^27
   - platform: rest
     name: "OpenEVSE RAPI $GU"
-    resource: 'http://openevse.local./r?json=1&rapi=$GU'
+    resource: 'http://openevse/r?json=1&rapi=$GU'
     json_attributes: [ 'cmd', 'ret' ]
-    authenticaion: digest
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
 
@@ -259,16 +237,10 @@ tts:
 cloud:
 
 scene:
-  - name: KBCO Holiday
-    entities:
-      media_player.everywhere_:
-        state: playing
-        media_content_id: http://ccice.streamguys.com/holiday_kbco_96.mp3
-        media_content_type: music
 
 # Lutron Caseta
 lutron_caseta:
-  host: !secret home_lutron_caseta_host
+  host: !secret lutron_caseta_host
   keyfile: /ssl/caseta.key
   certfile: /ssl/caseta.crt
   ca_certs: /ssl/caseta-bridge.crt
@@ -295,13 +267,13 @@ remote:
     name: "Family Room" 
     activity: "TiVo Bolt"
 
-# Receivers
+# Media Players
 media_player:
   - platform: roku
     scan_interval: 20
 
   - platform: onkyo
-    host: tx-rz820.local.
+    host: tx-rz820
     name: Downstairs TX-RZ820
     sources:
       am: AM

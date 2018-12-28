@@ -49,8 +49,15 @@
       entity_id: climate.thermostat
       data_template:
         fan_min_on_time: >-
-          {{- 30 if states('sensor.ecobee_spread')|float > 3.0 
-                   and states('sensor.thermostat_temperature')|float >= 66.0 else 0 -}}
+          {%- if states('sensor.thermostat_temperature')|float < 66.0 -%}
+            0
+          {%- elif states('sensor.ecobee_spread')|float > 5 -%}
+            60
+          {%- elif states('sensor.ecobee_spread')|float > 3 -%}
+            30
+          {%- else -%}
+            0
+          {%- endif -%}
 
 - alias: "Listen to CDs started from Harmony Hub"
   initial_state: off
@@ -93,10 +100,13 @@
   hide_entity: true
   trigger:
   - platform: state
-    entity_id: media_player.office_
+    entity_id: media_player.office_chromecast
     to: playing
   - platform: state
     entity_id: media_player.everywhere_
+    to: playing
+  - platform: state
+    entity_id: media_player.upstairs_audio
     to: playing
   condition:
     condition: template
@@ -110,7 +120,7 @@
   - service: media_player.select_source
     data:
       entity_id: media_player.rxv475_a16974
-      source: AV4
+      source: HDMI1
 
 - alias: Casting to Onkyo TX-RZ820
   initial_state: off
@@ -244,7 +254,7 @@
     - service: timer.start
       data:
         entity_id: timer.outdoor_motion
-        duration: '00:01:00'
+        duration: '00:10:00'
 
 - alias: "Turn off Porch Light after motion timeout"
   id: motion_timeout

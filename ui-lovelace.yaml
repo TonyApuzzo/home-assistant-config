@@ -76,26 +76,26 @@ views:
           entity: media_player.shield
       - type: conditional
         conditions:
-          - entity: media_player.o_p
+          - entity: media_player.upstairs_audio
             state_not: "off"
-          - entity: media_player.o_p
+          - entity: media_player.upstairs_audio
             state_not: "unknown"
-          - entity: media_player.o_p
+          - entity: media_player.upstairs_audio
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.o_p
+          entity: media_player.upstairs_audio
       - type: conditional
         conditions:
-          - entity: media_player.office_
+          - entity: media_player.office_chromecast
             state_not: "off"
-          - entity: media_player.office_
+          - entity: media_player.office_chromecast
             state_not: "unknown"
-          - entity: media_player.office_
+          - entity: media_player.office_chromecast
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.office_
+          entity: media_player.office_chromecast
       - type: conditional
         conditions:
           - entity: media_player.onkyo_txrz820_4f772a
@@ -162,6 +162,7 @@ views:
 
       - type: entities
         title: Chromecast Radio
+        show_header_toggle: False
         id: radio
         icon: mdi:radio
         entities:
@@ -222,6 +223,7 @@ views:
         type: entities
         entities:
           - light.switch_front_porch_light
+          - light.hank_hkzwrgb01_rgb_bulb_level
           - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
             name: Temperature
           - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
@@ -234,21 +236,7 @@ views:
         entities:
           - light.switch_kitchen_lights
           - entity: sensor.fridge_temperature
-            icon: >-
-              {% if is_state('sensor.fridge_temperature', 'unknown') %}
-                mdi:help-circle-outline
-              {% else %}
-                {% if states('sensor.fridge_temperature')|float < 33.0 %}
-                  mdi:snowflake
-                {% else %}
-                  {% if states('sensor.fridge_temperature')|float > 37.0 %}
-                    mdi:fire
-                  {% else %}
-                    mdi:fridge-outline
-                  {% endif %}
-                {% endif %}
-              {% endif %}
-          - binary_sensor.fridge_occupancy
+            icon: mdi:fridge-outline
 
       - title: Living Room
         id: living_room
@@ -266,8 +254,8 @@ views:
         show_header_toggle: false
         type: entities
         entities:
-          - light.hank_hkzwrgb01_rgb_bulb_level
-          - media_player.office_
+          - switch.hank_hkzwso03_smart_plug_switch
+          - media_player.office_chromecast
           - media_player.tonys_office_roku
           - media_player.rxv475_a16974
           - sensor.office_temperature
@@ -302,7 +290,6 @@ views:
           - sensor.openevse_pilot_current
           - sensor.openevse_charging_current
           - sensor.openevse_session_energy
-          - sensor.openevse_temp_1
 
       - title: Thermostat
         id: thermostat

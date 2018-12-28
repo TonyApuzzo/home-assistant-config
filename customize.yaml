@@ -4,8 +4,8 @@ media_player.master_bedroom_:
 media_player.everywhere_:
   icon: mdi:speaker-wireless
   hidden: yes
-media_player.office_:
-  icon: mdi:google-chrome
+media_player.office_chromecast:
+  icon: mdi:youtube-tv
   hidden: yes
 media_player.onkyo_txrz820_4f772a:
   icon: mdi:google-chrome
