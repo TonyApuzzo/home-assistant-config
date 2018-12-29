@@ -223,7 +223,7 @@ sensor:
   #  $OK 40629846 165327^27
   - platform: rest
     name: "OpenEVSE RAPI $GU"
-    resource: 'http://openevse/r?json=1&rapi=$GU'
+    resource: 'http://openevse.local.:80/r?json=1&rapi=$GU'
     json_attributes: [ 'cmd', 'ret' ]
     authentication: digest
     username: !secret OPENEVSE_USERNAME
@@ -273,7 +273,7 @@ media_player:
     scan_interval: 20
 
   - platform: onkyo
-    host: tx-rz820
+    host: tx-rz820.local.
     name: Downstairs TX-RZ820
     sources:
       am: AM
