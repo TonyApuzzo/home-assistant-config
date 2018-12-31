@@ -83,19 +83,6 @@ map:
 # Track the sun
 sun:
 
-input_select:
-  chromecast:
-    name: chromecast
-    options:
-      - media_player.everywhere_
-      - media_player.upstairs_audio
-      - media_player.downstairs_txrz820
-      - media_player.master_bedroom_
-      - media_player.office_
-      - media_player.onkyo_txrz820_4f772a
-      - media_player.rxv475_a16974
-      - media_player.shield
-
 # Sensors
 sensor:
   # Weather prediction
@@ -113,6 +100,23 @@ sensor:
       - type: processor_use
       - type: memory_use_percent
       - type: swap_use_percent
+
+  # Use OpenEVSE RAPI API to Retrieve the active charging current
+  # https://www.home-assistant.io/components/sensor.rest/
+  # Example: 
+  #  curl curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
+  #  $OK 40629846 165327^27
+  - platform: rest
+    name: "OpenEVSE RAPI $GU"
+    resource: 'http://192.168.0.106/r?json=1&rapi=$GU'
+    authentication: digest
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+        User-Agent: Home Assistant
+        Content-Type: application/json
+    json_attributes: [ 'cmd', 'ret' ]
+    value_template: '{{ value_json.ret }}'
 
   # Custom Sensors
   - platform: template
@@ -142,14 +146,18 @@ sensor:
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
         value_template: >-
-          {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
-          {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
-          {%- if ret|regex_search(rgx) -%}
-            {%- set v = ret | regex_findall_index(rgx) -%}
-            {{- (v|float / 3600000)|round(2) -}}
-          {% else %}
-            {{ none }}
-          {% endif %}
+          {%- if states('sensor.openevse_rapi_gu') == 'unknown' -%}
+            0.0
+          {%- else -%}
+            {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
+            {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
+            {%- if ret|regex_search(rgx) -%}
+              {%- set v = ret | regex_findall_index(rgx) -%}
+              {{- (v|float / 3600000)|round(2) -}}
+            {%- else -%}
+              0.0
+            {%- endif -%}
+          {%- endif -%}
       openevse_state:
         friendly_name: "OpenEVSE State"
         icon_template: >-
@@ -216,27 +224,12 @@ sensor:
     name: "OpenEVSE MQTT State"
     state_topic: "openevse/state"
 
-  # Use OpenEVSE RAPI API to Retrieve the active charging current
-  # https://www.home-assistant.io/components/sensor.rest/
-  # Example: 
-  #  curl curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
-  #  $OK 40629846 165327^27
-  - platform: rest
-    name: "OpenEVSE RAPI $GU"
-    resource: 'http://openevse.local.:80/r?json=1&rapi=$GU'
-    json_attributes: [ 'cmd', 'ret' ]
-    authentication: digest
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-
 # Text to speech
 tts:
   - platform: google
 
 # Cloud
 cloud:
-
-scene:
 
 # Lutron Caseta
 lutron_caseta:
@@ -248,6 +241,8 @@ lutron_caseta:
 weather:
   - platform: darksky
     api_key: !secret DARKSKY_API_KEY
+    update_interval:
+      minutes: 5
     forecast:
       - 0
     monitored_conditions:
