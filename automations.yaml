@@ -235,18 +235,19 @@
     entity_id: sensor.vision_zp3102_pir_motion_sensor_alarm_level
     above: 0
   condition:
-    condition: or
+    condition: and
     conditions:
-      - condition: sun
-        after: sunset
-      - condition: sun
-        before: sunrise
       - condition: state
-        entity_id: light.switch_front_porch_light
-        state: 'off'
-      - condition: state
-        entity_id: timer.outdoor_motion
-        state: active
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.switch_front_porch_light
+            state: 'off'
+          - condition: state
+            entity_id: timer.outdoor_motion
+            state: active
   action:
     - service: light.turn_on
       data:
