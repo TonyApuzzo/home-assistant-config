@@ -57,7 +57,7 @@ timer:
 
 # Recorder is a disaster, so record as little as possible
 recorder:
-  purge_keep_days: 10
+  purge_keep_days: 4
   db_url: !secret recorder_db_url
 #  include:
 #    domains:
@@ -230,6 +230,18 @@ tts:
 
 # Cloud
 cloud:
+
+# Emulated Hue (for Alexa integration)
+emulated_hue:
+  expose_by_default: false
+  listen_port: 80
+  entities:
+    switch.hank_hkzwso03_smart_plug_switch:
+      name: "Hank One"
+      hidden: false
+    switch.hank_hkzwso03_smart_plug_switch_2:
+      name: "Bedroom Speakers"
+      hidden: false
 
 # Lutron Caseta
 lutron_caseta:
