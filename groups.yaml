@@ -10,10 +10,10 @@ media_player_cast:
 
 media_player_avr:
   entities:
-    - media_player.downstairs_txrz820
-    #- media_player.downstairs_txrz820_zone_2
-    #- media_player.downstairs_txrz820_zone_3
-    - media_player.rxv475_a16974
+    - media_player.downstairs_tx_rz820
+    #- media_player.downstairs_tx_rz820_zone_2
+    #- media_player.downstairs_tx_rz820_zone_3
+    - media_player.rx_v475_a16974
     #- media_player.upstairs_tx8050
     #- media_player.upstairs_tx8050_zone_2
 

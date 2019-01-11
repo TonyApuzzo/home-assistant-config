@@ -17,13 +17,13 @@ media_player.shield:
   icon: mdi:youtube-tv
   hidden: yes
 
-media_player.downstairs_txrz820:
+media_player.downstairs_tx_rz820:
   icon: mdi:surround-sound
   hidden: yes
-media_player.downstairs_txrz820_zone_2: 
+media_player.downstairs_tx_rz820_zone_2: 
   icon: mdi:surround-sound
   hidden: yes
-media_player.downstairs_txrz820_zone_3: 
+media_player.downstairs_tx_rz820_zone_3: 
   icon: mdi:surround-sound
   hidden: yes
 media_player.upstairs_tx8050: 
@@ -32,7 +32,7 @@ media_player.upstairs_tx8050:
 media_player.upstairs_tx8050_zone_2: 
   icon: mdi:radio
   hidden: yes
-media_player.rxv475_a16974: 
+media_player.rx_v475_a16974: 
   icon: mdi:surround-sound
   hidden: yes
 

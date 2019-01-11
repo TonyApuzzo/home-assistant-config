@@ -116,10 +116,10 @@
   action:
   - service: media_player.turn_on
     data:
-      entity_id: media_player.rxv475_a16974
+      entity_id: media_player.rx_v475_a16974
   - service: media_player.select_source
     data:
-      entity_id: media_player.rxv475_a16974
+      entity_id: media_player.rx_v475_a16974
       source: HDMI1
 
 - alias: Casting to Onkyo TX-RZ820
