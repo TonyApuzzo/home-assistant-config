@@ -234,8 +234,14 @@ cloud:
 # Emulated Hue (for Alexa integration)
 emulated_hue:
   expose_by_default: false
+  host_ip: 192.168.0.101
   listen_port: 80
+  advertise_ip: 192.168.0.101
+  advertise_port: 80
   entities:
+    switch.occupancy:
+      name: "Occupancy"
+      hidden: false
     switch.hank_hkzwso03_smart_plug_switch:
       name: "Hank One"
       hidden: false
@@ -322,6 +328,24 @@ switch:
             data_template:
               entity_id: 
                 - group.media_player_avr
+      occupancy:
+        friendly_name: "Occupancy"
+        value_template: >-
+          {{ is_state('switch.all_audio', 'on') or
+             is_state('group.all_lights', 'on') or
+             is_state('binary_sensor.lilbee_occupancy', 'on') or
+             is_state('binary_sensor.fridge_occupancy', 'on') or
+             is_state('binary_sensor.office_occupancy', 'on') or
+             is_state('binary_sensor.thermostat_occupancy', 'on')
+          }}
+        icon_template: mdi:home-assistant
+        turn_off:             
+          - service: homeassistant.turn_off
+            data_template:
+              entity_id:
+                - switch.all_audio
+                - group.all_lights
+        turn_on:
 
       thermostat_fan_mode:
         friendly_name: "Thermostat Fan Mode"

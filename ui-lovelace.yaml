@@ -176,12 +176,12 @@ views:
       - type: entities
         title: Whole House
         id: whole_house
-        entities:
+        entities:        
+          - entity: switch.occupancy
           - entity: switch.all_audio
           - entity: scene.exterior_on
           - entity: scene.interior_on
           - entity: scene.lights_out
-          - entity: scene.goodbye
           - entity: sensor.ecobee_spread
           - entity: automation.normalize_temperature
           - entity: switch.thermostat_fan_mode

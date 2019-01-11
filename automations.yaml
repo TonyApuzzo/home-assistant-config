@@ -255,7 +255,7 @@
     - service: timer.start
       data:
         entity_id: timer.outdoor_motion
-        duration: '00:10:00'
+        duration: '00:05:00'
 
 - alias: "Turn off Porch Light after motion timeout"
   id: motion_timeout
