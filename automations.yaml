@@ -12,6 +12,7 @@
     # want to have specific automations not running in Prod, this line will need to be
     # replaced with individual turn_on calls.
     - service: automation.turn_on
+      entity_id: all
 
 - alias: "Setup Dev Environment"
   initial_state: on

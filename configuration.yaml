@@ -89,6 +89,8 @@ recorder:
       - sensor.netgear_r6700boing_packets_sent
       - sensor.netgear_r6700boing_packetssec_received
       - sensor.netgear_r6700boing_packetssec_sent
+      - sensor.openevse_rapi_gu
+      - sensor.openevse_state
       - sensor.vision_zp3102_pir_motion_sensor_alarm_type
       - sensor.vision_zp3102_pir_motion_sensor_appliance
       - sensor.vision_zp3102_pir_motion_sensor_burglar
@@ -140,12 +142,13 @@ sensor:
   # Use OpenEVSE RAPI API to Retrieve the active charging current
   # https://www.home-assistant.io/components/sensor.rest/
   # Example: 
-  #  curl curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
+  #  curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
   #  $OK 40629846 165327^27
   - platform: rest
     name: "OpenEVSE RAPI $GU"
     resource: 'http://192.168.0.106/r?json=1&rapi=$GU'
-    authentication: digest
+    force_update: yes
+    authentication: basic
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     headers:
@@ -186,38 +189,44 @@ sensor:
             0.0
           {%- else -%}
             {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
-            {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
-            {%- if ret|regex_search(rgx) -%}
-              {%- set v = ret | regex_findall_index(rgx) -%}
-              {{- (v|float / 3600000)|round(2) -}}
-            {%- else -%}
+            {%- if ret == None -%}
               0.0
+            {%- else -%}
+              {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
+              {%- if ret|regex_search(rgx) -%}
+                {%- set v = ret | regex_findall_index(rgx) -%}
+                {{- (v|float / 3600000)|round(2) -}}
+              {%- else -%}
+                0.0
+              {%- endif -%}
             {%- endif -%}
           {%- endif -%}
       openevse_state:
         friendly_name: "OpenEVSE State"
         icon_template: >-
-          {% set value = states('sensor.openevse_mqtt_state') %}
-          {% if value == "1" %}
+          {%- if is_state('sensor.openevse_mqtt_state', '1') -%}
             mdi:power-plug-off
-          {% elif value == "2" %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
             mdi:car-electric
-          {% elif value == "3" %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
             mdi:battery-charging
-          {% else %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '4') -%}
+            mdi:battery-alert
+          {%- else -%}
             mdi:battery-unknown
-          {% endif %}
+          {%- endif -%}
         value_template: >-
-          {% set value = states('sensor.openevse_mqtt_state') %}
-          {% if value == "1" %}
+          {%- if is_state('sensor.openevse_mqtt_state', '1') -%}
             Disconnected
-          {% elif value == "2" %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
             Idle
-          {% elif value == "3" %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
             Charging
-          {% else %}
+          {%- elif is_state('sensor.openevse_mqtt_state', '4') -%}
+            Error
+          {%- else -%}
             Unknown-{{ value }}
-          {% endif %}
+          {%- endif -%}
 
   # OpenEVSE MQTT Tracker
   - platform: mqtt
@@ -391,13 +400,16 @@ switch:
 
       thermostat_fan_mode:
         friendly_name: "Thermostat Fan Mode"
-        value_template: "{{ state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 }}"
+        value_template: >-
+          {{- state_attr('climate.thermostat', 'fan_min_on_time')!=None
+              and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -}}
         icon_template: >-
-          {% if state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -%}
+          {%- if state_attr('climate.thermostat', 'fan_min_on_time')!=None
+              and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -%}
             mdi:fan
           {%- else -%}
             mdi:fan-off
-          {%- endif %}
+          {%- endif -%}
         turn_on:
           - service: climate.ecobee_set_fan_min_on_time
             data:
