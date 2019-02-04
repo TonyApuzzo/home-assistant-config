@@ -290,6 +290,7 @@ views:
           - sensor.openevse_pilot_current
           - sensor.openevse_charging_current
           - sensor.openevse_session_energy
+          - switch.openevse_enable
 
       - title: Thermostat
         id: thermostat

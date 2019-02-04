@@ -90,7 +90,6 @@ recorder:
       - sensor.netgear_r6700boing_packetssec_received
       - sensor.netgear_r6700boing_packetssec_sent
       - sensor.openevse_rapi_gu
-      - sensor.openevse_state
       - sensor.vision_zp3102_pir_motion_sensor_alarm_type
       - sensor.vision_zp3102_pir_motion_sensor_appliance
       - sensor.vision_zp3102_pir_motion_sensor_burglar
@@ -146,7 +145,7 @@ sensor:
   #  $OK 40629846 165327^27
   - platform: rest
     name: "OpenEVSE RAPI $GU"
-    resource: 'http://192.168.0.106/r?json=1&rapi=$GU'
+    resource: 'http://openevse.local./r?json=1&rapi=$GU'
     force_update: yes
     authentication: basic
     username: !secret OPENEVSE_USERNAME
@@ -155,7 +154,8 @@ sensor:
         User-Agent: Home Assistant
         Content-Type: application/json
     json_attributes: [ 'cmd', 'ret' ]
-    value_template: '{{ value_json.ret }}'
+    value_template: >-
+      {{- state_attr("sensor.openevse_rapi_gu", "ret") -}}
 
   # Custom Sensors
   - platform: template
@@ -180,52 +180,61 @@ sensor:
               | list %}
           {% set spread = t|max - t|min if t else 0 %}
           {{ spread | round(2) }}
+
       openevse_session_energy:
         friendly_name: "OpenEVSE Session Energy"
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
         value_template: >-
           {%- if states('sensor.openevse_rapi_gu') == 'unknown' -%}
-            0.0
+            None
           {%- else -%}
             {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
             {%- if ret == None -%}
-              0.0
+              None
             {%- else -%}
               {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
               {%- if ret|regex_search(rgx) -%}
                 {%- set v = ret | regex_findall_index(rgx) -%}
                 {{- (v|float / 3600000)|round(2) -}}
               {%- else -%}
-                0.0
+                None
               {%- endif -%}
             {%- endif -%}
           {%- endif -%}
       openevse_state:
         friendly_name: "OpenEVSE State"
         icon_template: >-
-          {%- if is_state('sensor.openevse_mqtt_state', '1') -%}
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
             mdi:power-plug-off
           {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
             mdi:car-electric
           {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
             mdi:battery-charging
-          {%- elif is_state('sensor.openevse_mqtt_state', '4') -%}
+          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
             mdi:battery-alert
+          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
+            mdi:sleep
+          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
+            mdi:power-off
           {%- else -%}
             mdi:battery-unknown
           {%- endif -%}
         value_template: >-
-          {%- if is_state('sensor.openevse_mqtt_state', '1') -%}
-            Disconnected
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
+            Ready
           {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
-            Idle
+            Connected
           {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
             Charging
-          {%- elif is_state('sensor.openevse_mqtt_state', '4') -%}
+          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
             Error
+          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
+            Sleeping
+          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
+            Disabled
           {%- else -%}
-            Unknown-{{ value }}
+            Unknown-{{- value -}}
           {%- endif -%}
 
   # OpenEVSE MQTT Tracker
@@ -354,14 +363,46 @@ media_player:
       strm-box: Roku (STRM BOX)
       tv: TV
 
+rest_command:
+  openevse_enable:
+    url: 'http://openevse.local./r?json=1&rapi=$FE'
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+      User-Agent: Home Assistant
+  openevse_disable:
+    url: 'http://openevse.local./r?json=1&rapi=$FD'
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+      User-Agent: Home Assistant
+  openevse_sleep:
+    url: 'http://openevse.local./r?json=1&rapi=$FS'
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+      User-Agent: Home Assistant
+
 # Switches
 switch:
-  - platform: vesync
-    username: !secret VESYNC_USERNAME
-    password: !secret VESYNC_PASSWORD
-
   - platform: template
     switches:
+
+      openevse_enable:
+        friendly_name: "OpenEVSE Enable"
+        turn_off:
+          - service: rest_command.openevse_sleep
+        turn_on:
+          - service: rest_command.openevse_enable
+        icon_template: >-
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -%}
+            mdi:power-plug
+          {%- else -%}
+            mdi:power-plug-off
+          {%- endif -%}
+        value_template: >-
+          {{- states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -}}
+
       all_audio:
         friendly_name: "All Audio"
         value_template: >-
@@ -379,6 +420,7 @@ switch:
             data_template:
               entity_id: 
                 - group.media_player_avr
+
       occupancy:
         friendly_name: "Occupancy"
         value_template: >-
@@ -420,6 +462,11 @@ switch:
             data:
               entity_id: climate.thermostat
               fan_min_on_time: 0
+  # Switch
+  - platform: vesync
+    username: !secret VESYNC_USERNAME
+    password: !secret VESYNC_PASSWORD
+
 
 # Lights
 light:
