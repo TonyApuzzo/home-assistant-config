@@ -33,6 +33,9 @@ lovelace:
 # Enables configuration UI
 config:
 
+# Monitor system health
+system_health:
+
 # Monitor BLE Device Presence
 #device_tracker:
 #  - platform: bluetooth_tracker
@@ -59,6 +62,39 @@ timer:
 recorder:
   purge_keep_days: 4
   db_url: !secret recorder_db_url
+  exclude:
+    entities:
+      - binary_sensor.vision_zp3102_pir_motion_sensor_sensor
+      - sensor.hank_hkzwso03_smart_plug_previous_reading
+      - sensor.hank_hkzwso03_smart_plug_previous_reading_2
+      - sensor.hank_hkzwso03_smart_plug_previous_reading_3
+      - sensor.neo_coolcam_power_plug_12a_alarm_level
+      - sensor.neo_coolcam_power_plug_12a_alarm_type
+      - sensor.neo_coolcam_power_plug_12a_exporting
+      - sensor.neo_coolcam_power_plug_12a_interval
+      - sensor.neo_coolcam_power_plug_12a_interval_2
+      - sensor.neo_coolcam_power_plug_12a_interval_3
+      - sensor.neo_coolcam_power_plug_12a_interval_4
+      - sensor.neo_coolcam_power_plug_12a_power_management
+      - sensor.neo_coolcam_power_plug_12a_previous_reading
+      - sensor.neo_coolcam_power_plug_12a_previous_reading_2
+      - sensor.neo_coolcam_power_plug_12a_previous_reading_3
+      - sensor.neo_coolcam_power_plug_12a_previous_reading_4
+      - sensor.neo_coolcam_power_plug_12a_sourcenodeid
+      - sensor.netgear_r6700boing_bytes_received
+      - sensor.netgear_r6700boing_bytes_sent
+      - sensor.netgear_r6700boing_kbytesec_received
+      - sensor.netgear_r6700boing_kbytesec_sent
+      - sensor.netgear_r6700boing_packets_received
+      - sensor.netgear_r6700boing_packets_sent
+      - sensor.netgear_r6700boing_packetssec_received
+      - sensor.netgear_r6700boing_packetssec_sent
+      - sensor.vision_zp3102_pir_motion_sensor_alarm_type
+      - sensor.vision_zp3102_pir_motion_sensor_appliance
+      - sensor.vision_zp3102_pir_motion_sensor_burglar
+      - sensor.vision_zp3102_pir_motion_sensor_homehealth
+      - sensor.vision_zp3102_pir_motion_sensor_power_management
+      - sensor.vision_zp3102_pir_motion_sensor_sourcenodeid
 #  include:
 #    domains:
 #      - cover
@@ -230,6 +266,12 @@ tts:
 
 # Cloud
 cloud:
+
+# Emulated Roku
+emulated_roku:
+  servers:
+    - name: Home Assistant
+      listen_port: 8060
 
 # Emulated Hue (for Alexa integration)
 emulated_hue:

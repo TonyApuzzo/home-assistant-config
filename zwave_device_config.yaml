@@ -1,6 +1,46 @@
-sensor.hank_hkzwso03_smart_plug_previous_reading_2:
+binary_sensor.vision_zp3102_pir_motion_sensor_sensor:
   ignored: true
-  polling_intensity: 0
 sensor.hank_hkzwso03_smart_plug_previous_reading:
   ignored: true
-  polling_intensity: 0
+sensor.hank_hkzwso03_smart_plug_previous_reading_2:
+  ignored: true
+sensor.hank_hkzwso03_smart_plug_previous_reading_3:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_alarm_level:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_alarm_type:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_exporting:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_interval:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_interval_2:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_interval_3:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_interval_4:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_power_management:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_previous_reading:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_previous_reading_2:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_previous_reading_3:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_previous_reading_4:
+  ignored: true
+sensor.neo_coolcam_power_plug_12a_sourcenodeid:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_alarm_type:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_appliance:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_burglar:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_homehealth:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_power_management:
+  ignored: true
+sensor.vision_zp3102_pir_motion_sensor_sourcenodeid:
+  ignored: true

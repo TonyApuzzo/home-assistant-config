@@ -1,7 +1,7 @@
-media_player.master_bedroom_:
+media_player.master_bedroom:
   icon: mdi:google-chrome
   hidden: yes
-media_player.everywhere_:
+media_player.everywhere:
   icon: mdi:speaker-wireless
   hidden: yes
 media_player.office_chromecast:

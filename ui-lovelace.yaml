@@ -32,15 +32,15 @@ views:
           entity: media_player.downstairs_tx_rz820_zone_3
       - type: conditional
         conditions:
-          - entity: media_player.everywhere_
+          - entity: media_player.everywhere
             state_not: "off"
-          - entity: media_player.everywhere_
+          - entity: media_player.everywhere
             state_not: "unknown"
-          - entity: media_player.everywhere_
+          - entity: media_player.everywhere
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.everywhere_
+          entity: media_player.everywhere
       - type: conditional
         conditions:
           - entity: media_player.upstairs_audio
@@ -54,15 +54,15 @@ views:
           entity: media_player.upstairs_audio
       - type: conditional
         conditions:
-          - entity: media_player.master_bedroom_
+          - entity: media_player.master_bedroom
             state_not: "off"
-          - entity: media_player.master_bedroom_
+          - entity: media_player.master_bedroom
             state_not: "unknown"
-          - entity: media_player.master_bedroom_
+          - entity: media_player.master_bedroom
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.master_bedroom_
+          entity: media_player.master_bedroom
       - type: conditional
         conditions:
           - entity: media_player.shield
@@ -185,7 +185,7 @@ views:
           - entity: sensor.ecobee_spread
           - entity: automation.normalize_temperature
           - entity: switch.thermostat_fan_mode
-          - entity: media_player.everywhere_
+          - entity: media_player.everywhere
 
       - title: Dining Room
         id: dining_room
@@ -276,7 +276,7 @@ views:
         entities:
           - entity: light.master_bedroom_cove_lights
           - entity: switch.hank_hkzwso03_smart_plug_switch_2
-          - entity: media_player.master_bedroom_
+          - entity: media_player.master_bedroom
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
       - title: Garage
