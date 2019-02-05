@@ -4,11 +4,14 @@
 # You can whitelist files/folders with !, these will not be ignored.
 !*.yaml
 !*.yml
+!*.py
 !.gitignore
 !.gitattributes
 !*.md
 !options.xml
 !*.j2
+!custom_components/
+!packages/
 
 # Ignore folders.
 .storage

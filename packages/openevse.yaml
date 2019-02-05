@@ -1,0 +1,279 @@
+---
+# In order to use this, you must have the following configurations created in the base configuration.yaml
+# MQTT
+#
+# Secrets:
+#   OPENEVSE_USER
+#   OPENEVSE_PASSWORD
+#   OPENEVSE_HOST
+
+
+# Sensors
+sensor:
+  # Use OpenEVSE RAPI API to Retrieve the active charging energy
+  # https://www.home-assistant.io/components/sensor.rest/
+  # Example: 
+  #  curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
+  #  $OK 40629846 165327^27
+  - platform: rest
+    name: "OpenEVSE RAPI $GU"
+    resource: 'http://openevse.local./r?json=1&rapi=$GU'
+    force_update: yes
+    authentication: basic
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+        User-Agent: Home Assistant
+        Content-Type: application/json
+    json_attributes: [ 'cmd', 'ret' ]
+    value_template: >-
+      {{- state_attr("sensor.openevse_rapi_gu", "ret") -}}
+  
+  # Get OpenEVSE min/max current from RAPI
+  - platform: rest
+    name: "OpenEVSE RAPI $GC"
+    resource: 'http://openevse.local./r?json=1&rapi=$GC'
+    force_update: yes
+    authentication: basic
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+        User-Agent: Home Assistant
+        Content-Type: application/json
+    json_attributes: [ 'cmd', 'ret' ]
+    value_template: >-
+      {{- state_attr("sensor.openevse_rapi_gc", "ret") -}}
+
+  # Custom Sensors
+  - platform: template
+    sensors:
+      openevse_session_energy:
+        friendly_name: "OpenEVSE Session Energy"
+        icon_template: mdi:gauge
+        unit_of_measurement: 'kWh'
+        value_template: >-
+          {%- if states('sensor.openevse_rapi_gu') == 'unknown' -%}
+            unknown
+          {%- else -%}
+            {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
+            {%- if ret == None -%}
+              unknown
+            {%- else -%}
+              {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
+              {%- if ret|regex_search(rgx) -%}
+                {%- set v = ret | regex_findall_index(rgx) -%}
+                {{- (v|float / 3600000)|round(2) -}}
+              {%- else -%}
+                unknown
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+
+      openevse_state:
+        friendly_name: "OpenEVSE State"
+        icon_template: >-
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
+            mdi:power-plug-off
+          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
+            mdi:car-electric
+          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
+            mdi:battery-charging
+          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
+            mdi:battery-alert
+          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
+            mdi:sleep
+          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
+            mdi:power-off
+          {%- else -%}
+            mdi:battery-unknown
+          {%- endif -%}
+        value_template: >-
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
+            Not Connected
+          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
+            Connected
+          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
+            Charging
+          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
+            Error ({{- states('sensor.openevse_mqtt_state') -}})
+          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
+            Sleeping
+          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
+            Disabled
+          {%- else -%}
+            Unknown ({{- states('sensor.openevse_mqtt_state') -}})
+          {%- endif -%}
+
+  # OpenEVSE MQTT Tracker
+  - platform: mqtt
+    name: "OpenEVSE Temp 1"
+    state_topic: "openevse/temp1"
+    unit_of_measurement: '°F'
+    device_class: temperature
+    value_template: >-
+      {%- macro C2F(temperature) -%}
+      {% set tmp = (((temperature *9) /50.0) + 32) %}
+      {{- "%0.2f" % tmp -}}
+      {%- endmacro -%}
+      {{- C2F(value|float)|float -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Charging Current"
+    icon: mdi:current-ac
+    state_topic: "openevse/amp"
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- (value|float / 1000.0) | round(1) -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Pilot Current"
+    icon: mdi:current-ac
+    state_topic: "openevse/pilot"
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- value|int -}}
+
+  - platform: mqtt
+    name: "OpenEVSE Total Energy"
+    icon: mdi:gauge-full
+    state_topic: "openevse/wh"
+    unit_of_measurement: "kWh"
+    value_template: >-
+      {{- value|float / 1000 | round(2) -}}
+
+  - platform: mqtt
+    name: "OpenEVSE MQTT State"
+    state_topic: "openevse/state"
+
+# Switches
+switch:
+  - platform: template
+    switches:
+      openevse_enable:
+        friendly_name: "OpenEVSE Enable"
+        turn_off:
+          - service: mqtt.publish
+            data:
+              topic: openevse/rapi/in/$FS
+        turn_on:
+          - service: mqtt.publish
+            data:
+              topic: openevse/rapi/in/$FE
+        icon_template: >-
+          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -%}
+            mdi:power-plug
+          {%- else -%}
+            mdi:sleep
+          {%- endif -%}
+        value_template: >-
+          {{- states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -}}
+
+input_number:
+  openevse_current:
+    name: "OpenEVSE Current"
+    unit_of_measurement: "A"
+    min: 10
+    max: 40
+    step: 1
+
+input_select:
+  # Requires use of custom input_select component
+  openevse_service_level:
+    name: OpenEVSE Service Level
+    options:
+      - Auto
+      - Level 1
+      - Level 2
+    values:
+      - "A"
+      - "1"
+      - "2"
+    icon: mdi:target
+
+automation old:
+  - alias: Update OpenEVSE Min/Max Current
+    id: update_openevse_min_max_current
+    trigger:
+      platform: state
+      entity_id: sensor.openevse_rapi_gc
+    condition:
+      condition: template
+      value_template: >-
+        {{ state_attr('sensor.openevse_rapi_gc', 'ret') | regex_match('^\$OK [0-9]+ [0-9]+') }}
+    action:
+      - service: input_number.set_min
+        data_template:
+          entity_id: input_number.openevse_current
+          value: >-
+            {%- set ret = state_attr('sensor.openevse_rapi_gc', 'ret') -%}
+            {%- set rgx = '(?<=^\$OK )([0-9]+) ([0-9]+)' -%}
+            {%- set v = ret | regex_findall_index(rgx) -%}
+            {{- v[0]|int -}}
+      - service: input_number.set_max
+        data_template:
+          entity_id: input_number.openevse_current
+          # Restrict the max to 40A
+          value: >-
+            {%- set ret = state_attr('sensor.openevse_rapi_gc', 'ret') -%}
+            {%- set rgx = '(?<=^\$OK )([0-9]+) ([0-9]+)' -%}
+            {%- set v = ret | regex_findall_index(rgx) -%}
+            {{- [40, v[1]|int]|min -}}
+
+  - alias: Update OpenEVSE Charge Current
+    id: update_openevse_charge_current
+    trigger:
+      platform: state
+      entity_id: sensor.openevse_pilot_current
+    action:
+      service: input_number.set_value
+      data_template:
+        entity_id: input_number.openevse_current
+        value: >-
+          {{- states('sensor.openevse_pilot_current')|int -}}
+
+  - alias: Set OpenEVSE Charge Current
+    id: set_openevse_charge_current
+    trigger:
+      platform: state
+      entity_id: input_number.openevse_current
+    action:
+      service: mqtt.publish
+      data_template:
+        topic: "openevse/rapi/in/$SC"
+        retain: true
+        # Set temporary current value
+        payload: >-
+          {{- states('input_number.openevse_current')|int }} V
+
+  - alias: Update OpenEVSE Service Level
+    id: update_openevse_service_level
+    trigger:
+      platform: mqtt
+      topic: "openevse/rapi/in/$SL"
+    action:
+      service: input_select.select_option
+      data_template:
+        entity_id: input_select.openevse_service_level
+        option: >-
+          {% for option in state_attr("input_select.openevse_service_level", "values") -%}
+            {% if trigger.payload == option -%}
+              {{ state_attr("input_select.openevse_service_level", 'options')[loop.index - 1] }}
+            {%- endif %}
+          {%- endfor %}
+          
+  - alias: Set OpenEVSE Service Level
+    id: set_openevse_service_level
+    trigger:
+      platform: state
+      entity_id: input_select.openevse_service_level
+    action:
+      service: mqtt.publish
+      data_template:
+        topic: "openevse/rapi/in/$SL"
+        retain: true
+        payload: >-
+          {% for option in state_attr("input_select.openevse_service_level", "options") -%}
+            {% if is_state("input_select.openevse_service_level", option) -%}
+              {{ state_attr("input_select.openevse_service_level", 'values')[loop.index - 1] }}
+            {%- endif %}
+          {%- endfor %}

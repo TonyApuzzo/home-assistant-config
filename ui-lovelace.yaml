@@ -284,13 +284,16 @@ views:
         type: entities
         show_header_toggle: false
         entities:
-          - cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
-          - sensor.openevse_state
-          - sensor.openevse_total_energy
-          - sensor.openevse_pilot_current
-          - sensor.openevse_charging_current
-          - sensor.openevse_session_energy
-          - switch.openevse_enable
+          - entity: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
+          - entity: switch.openevse_enable
+          - entity: sensor.openevse_state
+          - entity: sensor.openevse_pilot_current
+          - entity: sensor.openevse_charging_current
+          - entity: sensor.openevse_session_energy
+          - entity: sensor.openevse_total_energy
+          - entity: sensor.openevse_temp_1
+          - entity: input_select.openevse_service_level
+          - entity: input_number.openevse_current
 
       - title: Thermostat
         id: thermostat

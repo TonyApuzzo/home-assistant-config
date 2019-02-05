@@ -1,0 +1,117 @@
+#Initial code and concept Bob_NL https://community.home-assistant.io/t/chromecast-radio-with-station-and-player-selection/12732/1
+#Converted into a package by wills106 https://community.home-assistant.io/t/chromecast-radio-with-station-and-player-selection/12732/419
+group:
+  Radio:
+    name: ChromeCast Radio
+    icon: mdi:radio
+    entities:
+    - input_select.chromecast_radio_station
+    - input_text.custom_station
+    - input_select.chromecast_radio_speakers
+    - input_number.volume_radio
+    - script.play_chromecast_radio
+    - script.stop_chromecast_radio
+
+input_select:
+
+  chromecast_radio_station:
+    name: 'Select Radio Station'
+    icon: mdi:radio
+    options:
+      - Radio Paradise
+      - All Songs Considered 24/7
+      - L'Eko des Garrigues Rock/Eclectic
+      - CRo1 Radiozurnal Czech
+      - KBCO Holiday Channel
+      - Absolute Radio Classic Rock
+      - RealXS Manchester
+      - Custom Station
+    values:
+      - http://stream-dc1.radioparadise.com/aac-320
+      - https://nprdmp-stream02.akacast.akamaistream.net/7/940/364919/v1/npr.akacast.akamaistream.net/nprdmp_stream02
+      - http://91.121.159.124:8000/eko-des-garrigues-max.flac
+      - http://amp.cesnet.cz:8000/cro1.ogg
+      - http://ccice.streamguys.com/holiday_kbco_96.mp3
+      - http://network.absoluteradio.co.uk/core/audio/mp3/live.pls?service=vc
+      - http://media-ice.musicradio.com/RealXSManchesterMP3
+      - http://custom
+
+  chromecast_radio_speakers:
+    name: 'Select Speakers'
+    icon: mdi:speaker-wireless
+    options:
+      - Everywhere
+      - Upstairs
+      - Office
+      - Family Room
+      - Shield
+      - Master Bedroom
+    values:
+      - media_player.everywhere_
+      - media_player.upstairs_audio
+      - media_player.office_chromecast
+      - media_player.onkyo_txrz820_4f772a
+      - media_player.shield
+      - media_player.master_bedroom_
+    initial: Everywhere
+
+input_text:
+  custom_station:
+    name: URL
+    icon: mdi:link-variant
+
+input_number:
+  volume_radio:
+    name: Volume
+    icon: mdi:volume-high
+    initial: 0.3
+    min: 0
+    max: 1
+    step: 0.05
+
+sensor:
+  - platform: template
+    sensors:
+      chromecast_radio_station:
+        entity_id: input_select.chromecast_radio_station
+        friendly_name: Chromecast Radio Station
+        value_template: >
+          {% for option in state_attr("input_select.chromecast_radio_station", "options") -%}
+            {% if is_state("input_select.chromecast_radio_station", option) -%}
+              {{ state_attr("input_select.chromecast_radio_station", 'values')[loop.index - 1] }}
+            {%- endif %}
+          {%- endfor %}
+
+  - platform: template
+    sensors:
+      chromecast_radio_speakers:
+        entity_id: input_select.chromecast_radio_speakers
+        friendly_name: Chromecast Radio Speakers
+        value_template: >
+          {% for option in state_attr("input_select.chromecast_radio_speakers", "options")  -%}
+            {% if is_state("input_select.chromecast_radio_speakers", option) -%}
+              {{ state_attr("input_select.chromecast_radio_speakers", 'values')[loop.index - 1] }}
+            {%- endif %}
+          {%- endfor %}
+
+script:
+  play_chromecast_radio:
+    alias: Cast Selected Radio on Chromecast Speakers
+    sequence:
+      - service: media_player.volume_set
+        data_template:
+          entity_id: sensor.chromecast_radio_speakers
+          volume_level: "{{ states('input_number.volume_radio') | float }}"
+      - service: media_player.play_media
+        data_template:
+          entity_id: "{{ states('sensor.chromecast_radio_speakers') }}"
+          media_content_id: "{{ states('sensor.chromecast_radio_station') }}"
+          media_content_type: music
+
+  stop_chromecast_radio:
+    alias: Stop Playing Radio on ChromeCast
+    sequence:
+      - service: media_player.turn_off
+        data_template:
+          entity_id: "{{ states('sensor.chromecast_radio_speakers') }}"
+          

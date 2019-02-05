@@ -90,6 +90,7 @@ recorder:
       - sensor.netgear_r6700boing_packetssec_received
       - sensor.netgear_r6700boing_packetssec_sent
       - sensor.openevse_rapi_gu
+      - sensor.openevse_rapi_gc
       - sensor.vision_zp3102_pir_motion_sensor_alarm_type
       - sensor.vision_zp3102_pir_motion_sensor_appliance
       - sensor.vision_zp3102_pir_motion_sensor_burglar
@@ -138,25 +139,6 @@ sensor:
       - type: memory_use_percent
       - type: swap_use_percent
 
-  # Use OpenEVSE RAPI API to Retrieve the active charging current
-  # https://www.home-assistant.io/components/sensor.rest/
-  # Example: 
-  #  curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
-  #  $OK 40629846 165327^27
-  - platform: rest
-    name: "OpenEVSE RAPI $GU"
-    resource: 'http://openevse.local./r?json=1&rapi=$GU'
-    force_update: yes
-    authentication: basic
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    headers:
-        User-Agent: Home Assistant
-        Content-Type: application/json
-    json_attributes: [ 'cmd', 'ret' ]
-    value_template: >-
-      {{- state_attr("sensor.openevse_rapi_gu", "ret") -}}
-
   # Custom Sensors
   - platform: template
     sensors:
@@ -180,103 +162,6 @@ sensor:
               | list %}
           {% set spread = t|max - t|min if t else 0 %}
           {{ spread | round(2) }}
-
-      openevse_session_energy:
-        friendly_name: "OpenEVSE Session Energy"
-        icon_template: mdi:gauge
-        unit_of_measurement: 'kWh'
-        value_template: >-
-          {%- if states('sensor.openevse_rapi_gu') == 'unknown' -%}
-            None
-          {%- else -%}
-            {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
-            {%- if ret == None -%}
-              None
-            {%- else -%}
-              {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
-              {%- if ret|regex_search(rgx) -%}
-                {%- set v = ret | regex_findall_index(rgx) -%}
-                {{- (v|float / 3600000)|round(2) -}}
-              {%- else -%}
-                None
-              {%- endif -%}
-            {%- endif -%}
-          {%- endif -%}
-      openevse_state:
-        friendly_name: "OpenEVSE State"
-        icon_template: >-
-          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
-            mdi:power-plug-off
-          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
-            mdi:car-electric
-          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
-            mdi:battery-charging
-          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
-            mdi:battery-alert
-          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
-            mdi:sleep
-          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
-            mdi:power-off
-          {%- else -%}
-            mdi:battery-unknown
-          {%- endif -%}
-        value_template: >-
-          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[01]$') -%}
-            Ready
-          {%- elif is_state('sensor.openevse_mqtt_state', '2') -%}
-            Connected
-          {%- elif is_state('sensor.openevse_mqtt_state', '3') -%}
-            Charging
-          {%- elif states('sensor.openevse_mqtt_state') | regex_match('^([456789]|10)$') -%}
-            Error
-          {%- elif is_state('sensor.openevse_mqtt_state', '254') -%}
-            Sleeping
-          {%- elif is_state('sensor.openevse_mqtt_state', '255') -%}
-            Disabled
-          {%- else -%}
-            Unknown-{{- value -}}
-          {%- endif -%}
-
-  # OpenEVSE MQTT Tracker
-  - platform: mqtt
-    name: "OpenEVSE Temp 1"
-    state_topic: "openevse/temp1"
-    unit_of_measurement: '°F'
-    device_class: temperature
-    value_template: >-
-      {%- macro C2F(temperature) -%}
-      {% set tmp = (((temperature *9) /50.0) + 32) %}
-      {{- "%0.2f" % tmp -}}
-      {%- endmacro -%}
-      {{- C2F(value|float)|float -}}
-
-  - platform: mqtt
-    name: "OpenEVSE Charging Current"
-    icon: mdi:current-ac
-    state_topic: "openevse/amp"
-    unit_of_measurement: "A"
-    value_template: >-
-      {{- (value|float / 1000.0) | round(1) -}}
-
-  - platform: mqtt
-    name: "OpenEVSE Pilot Current"
-    icon: mdi:current-ac
-    state_topic: "openevse/pilot"
-    unit_of_measurement: "A"
-    value_template: >-
-      {{- value|int -}}
-
-  - platform: mqtt
-    name: "OpenEVSE Total Energy"
-    icon: mdi:gauge-full
-    state_topic: "openevse/wh"
-    unit_of_measurement: "kWh"
-    value_template: >-
-      {{- value|float / 1000 | round(2) -}}
-
-  - platform: mqtt
-    name: "OpenEVSE MQTT State"
-    state_topic: "openevse/state"
 
 # Text to speech
 tts:
@@ -363,45 +248,10 @@ media_player:
       strm-box: Roku (STRM BOX)
       tv: TV
 
-rest_command:
-  openevse_enable:
-    url: 'http://openevse.local./r?json=1&rapi=$FE'
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    headers:
-      User-Agent: Home Assistant
-  openevse_disable:
-    url: 'http://openevse.local./r?json=1&rapi=$FD'
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    headers:
-      User-Agent: Home Assistant
-  openevse_sleep:
-    url: 'http://openevse.local./r?json=1&rapi=$FS'
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    headers:
-      User-Agent: Home Assistant
-
 # Switches
 switch:
   - platform: template
     switches:
-
-      openevse_enable:
-        friendly_name: "OpenEVSE Enable"
-        turn_off:
-          - service: rest_command.openevse_sleep
-        turn_on:
-          - service: rest_command.openevse_enable
-        icon_template: >-
-          {%- if states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -%}
-            mdi:power-plug
-          {%- else -%}
-            mdi:power-plug-off
-          {%- endif -%}
-        value_template: >-
-          {{- states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -}}
 
       all_audio:
         friendly_name: "All Audio"
