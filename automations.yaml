@@ -8,9 +8,9 @@
     value_template: >-
       {{ is_state('sensor.environment', 'PROD') }}
   action:
-    # Turn on all automations -- this overrides the defaults set individually, so if we
-    # want to have specific automations not running in Prod, this line will need to be
-    # replaced with individual turn_on calls.
+    # Turn on all automations -- this overrides the defaults set individually,
+    # so if we want to have specific automations not running in Prod, this line
+    # will need to be replaced with individual turn_on calls.
     - service: automation.turn_on
       entity_id: all
 
@@ -41,8 +41,10 @@
     - service: climate.ecobee_set_fan_min_on_time
       entity_id: climate.thermostat
       data_template:
+        # Only run the fan if our setpoint is above 66 otherwise it is too cold
+        # to mix air around
         fan_min_on_time: >-
-          {%- if states('sensor.thermostat_temperature')|float < 66.0 -%}
+          {%- if state_attr('climate.thermostat', 'temperature')|float < 66.0 -%}
             0
           {%- elif states('sensor.ecobee_spread')|float > 5 -%}
             60
@@ -103,8 +105,9 @@
     to: playing
   condition:
     condition: template
-    value_template: |-
-      {{ trigger.from_state.attributes.state is none or
+    value_template: >-
+      {{ none(trigger.from_state) or
+         none(trigger.from_state.attributes.state) or
          trigger.from_state.attributes.state != "playing" }}
   action:
   - service: media_player.turn_on
@@ -127,8 +130,9 @@
     to: playing
   condition:
     condition: template
-    value_template: |-
-      {{ trigger.from_state.attributes.state is none or
+    value_template: >-
+      {{ none(trigger.from_state) or
+         none(trigger.from_state.attributes.state) or
          trigger.from_state.attributes.state != "playing" }}
   action:
   - service: remote.turn_on
@@ -147,8 +151,9 @@
       to: "playing"
   condition:
     condition: template
-    value_template: |-
-      {{ trigger.from_state.attributes.state is none or
+    value_template: >-
+      {{ none(trigger.from_state) or
+         none(trigger.from_state.attributes.state) or
          trigger.from_state.attributes.state != "playing" }}
   action:
     - service: remote.turn_on
@@ -199,7 +204,10 @@
      service: persistent_notification.create
      data:
        notification_id: warning_fridge_temperature
-       message: "Fridge temperature {{states.sensor.fridge_temperature.state_with_unit}} at {{now().strftime('%c')}}!"
+       message: >-
+         Fridge temperature 
+         {{states.sensor.fridge_temperature.state_with_unit}} at
+         {{now().strftime('%c')}}!
        title: "Fridge Temp out of Range!"
 
 - alias: "Garage Warning"
@@ -213,12 +221,20 @@
       minutes: 15
   action:
     - condition: template
-      value_template: '{{ not is_state("cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label", "closed") }}'
+      value_template: >-
+        {{ not is_state(
+           "cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label",
+           "closed") }}
     - service: persistent_notification.create
       data_template:
         notification_id: garage_warning
-        title: "Garage Door is {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!"
-        message: "The garage door has been {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }} for at least 15 minutes, consider closing it."
+        title: >-
+          Garage Door is 
+          {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
+        message: >-
+          The garage door has been 
+          {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
+          for at least 15 minutes, consider closing it.
 
 - alias: "Turn on Porch Light when motion detected"
   id: outdoor_motion

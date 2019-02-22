@@ -204,15 +204,6 @@ lutron_caseta:
 weather:
   - platform: darksky
     api_key: !secret DARKSKY_API_KEY
-    update_interval:
-      minutes: 5
-    forecast:
-      - 0
-    monitored_conditions:
-      - summary
-      - icon
-      - temperature
-      - moon_phase
 
 # ecobee thermostat
 ecobee:

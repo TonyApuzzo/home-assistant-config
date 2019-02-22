@@ -199,23 +199,24 @@ automation old:
     condition:
       condition: template
       value_template: >-
-        {{ state_attr('sensor.openevse_rapi_gc', 'ret') | regex_match('^\$OK [0-9]+ [0-9]+') }}
+        {{ state_attr('sensor.openevse_rapi_gc', 'ret') | regex_match('^\$OK [0-9]+ +[0-9]+') }}
     action:
       - service: input_number.set_min
         data_template:
           entity_id: input_number.openevse_current
+          # Restrict the min to 6A - 10A
           value: >-
             {%- set ret = state_attr('sensor.openevse_rapi_gc', 'ret') -%}
-            {%- set rgx = '(?<=^\$OK )([0-9]+) ([0-9]+)' -%}
+            {%- set rgx = '(?<=^\$OK) +([0-9]+) +([0-9]+)' -%}
             {%- set v = ret | regex_findall_index(rgx) -%}
-            {{- v[0]|int -}}
+            {{- [10, [6, v[0]|int]|max] | min -}}
       - service: input_number.set_max
         data_template:
           entity_id: input_number.openevse_current
-          # Restrict the max to 40A
+          # Restrict the max to 40A even if L2 returns >40A
           value: >-
             {%- set ret = state_attr('sensor.openevse_rapi_gc', 'ret') -%}
-            {%- set rgx = '(?<=^\$OK )([0-9]+) ([0-9]+)' -%}
+            {%- set rgx = '(?<=^\$OK )([0-9]+) +([0-9]+)' -%}
             {%- set v = ret | regex_findall_index(rgx) -%}
             {{- [40, v[1]|int]|min -}}
 
