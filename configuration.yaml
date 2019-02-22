@@ -284,10 +284,10 @@ switch:
       thermostat_fan_mode:
         friendly_name: "Thermostat Fan Mode"
         value_template: >-
-          {{- state_attr('climate.thermostat', 'fan_min_on_time')!=None
+          {{- state_attr('climate.thermostat', 'fan_min_on_time') is not none
               and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -}}
         icon_template: >-
-          {%- if state_attr('climate.thermostat', 'fan_min_on_time')!=None
+          {%- if state_attr('climate.thermostat', 'fan_min_on_time') is not none
               and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -%}
             mdi:fan
           {%- else -%}

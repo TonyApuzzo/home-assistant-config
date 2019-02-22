@@ -106,8 +106,8 @@
   condition:
     condition: template
     value_template: >-
-      {{ none(trigger.from_state) or
-         none(trigger.from_state.attributes.state) or
+      {{ trigger.from_state is none or
+         trigger.from_state.attributes.state is none or
          trigger.from_state.attributes.state != "playing" }}
   action:
   - service: media_player.turn_on
@@ -131,8 +131,8 @@
   condition:
     condition: template
     value_template: >-
-      {{ none(trigger.from_state) or
-         none(trigger.from_state.attributes.state) or
+      {{ trigger.from_state is none or
+         trigger.from_state.attributes.state is none or
          trigger.from_state.attributes.state != "playing" }}
   action:
   - service: remote.turn_on
@@ -152,8 +152,8 @@
   condition:
     condition: template
     value_template: >-
-      {{ none(trigger.from_state) or
-         none(trigger.from_state.attributes.state) or
+      {{ trigger.from_state is none or
+         trigger.from_state.attributes.state is none or
          trigger.from_state.attributes.state != "playing" }}
   action:
     - service: remote.turn_on

@@ -56,7 +56,7 @@ sensor:
             unknown
           {%- else -%}
             {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
-            {%- if ret == None -%}
+            {%- if ret is none -%}
               unknown
             {%- else -%}
               {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
