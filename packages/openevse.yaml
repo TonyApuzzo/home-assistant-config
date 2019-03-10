@@ -18,7 +18,7 @@ sensor:
   - platform: rest
     name: "OpenEVSE RAPI $GU"
     resource: 'http://openevse.local./r?json=1&rapi=$GU'
-    force_update: yes
+    force_update: no
     authentication: basic
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
@@ -33,7 +33,7 @@ sensor:
   - platform: rest
     name: "OpenEVSE RAPI $GC"
     resource: 'http://openevse.local./r?json=1&rapi=$GC'
-    force_update: yes
+    force_update: no
     authentication: basic
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD

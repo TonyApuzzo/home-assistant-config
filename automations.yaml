@@ -63,11 +63,10 @@
   condition:
     condition: template
     value_template: >-
-      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
-        false
-      {%- else -%}
-        {{ trigger.to_state.attributes.current_activity == "Listen to CDs" }}
-      {%- endif -%}
+      {{- trigger is defined 
+          and trigger.to_state is not none
+          and trigger.to_state.attributes is not none 
+          and trigger.to_state.attributes.current_activity == "Listen to CDs" -}}
   action:
     service: switch.turn_on
     entity_id: switch.denon_cd
@@ -81,11 +80,10 @@
   condition:
     condition: template
     value_template: >-
-      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
-        false
-      {%- else -%}
-        {{ trigger.from_state.attributes.current_activity == "Listen to CDs" }}
-      {%- endif -%}
+      {{- trigger is defined 
+          and trigger.from_state is not none
+          and trigger.from_state.attributes is not none 
+          and trigger.from_state.attributes.current_activity == "Listen to CDs" -}}
   action:
     service: switch.turn_off
     entity_id: switch.denon_cd
@@ -103,12 +101,6 @@
   - platform: state
     entity_id: media_player.upstairs_audio
     to: playing
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.from_state is none or
-         trigger.from_state.attributes.state is none or
-         trigger.from_state.attributes.state != "playing" }}
   action:
   - service: media_player.turn_on
     data:
@@ -131,9 +123,7 @@
   condition:
     condition: template
     value_template: >-
-      {{ trigger.from_state is none or
-         trigger.from_state.attributes.state is none or
-         trigger.from_state.attributes.state != "playing" }}
+      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Network Music") -}}
   action:
   - service: remote.turn_on
     data:
@@ -147,14 +137,11 @@
   trigger:
     - platform: state
       entity_id: media_player.shield
-      # from: "off"
       to: "playing"
   condition:
     condition: template
     value_template: >-
-      {{ trigger.from_state is none or
-         trigger.from_state.attributes.state is none or
-         trigger.from_state.attributes.state != "playing" }}
+      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "SHIELD TV") -}}
   action:
     - service: remote.turn_on
       data:
@@ -170,12 +157,10 @@
   condition:
     condition: template
     value_template: >-
-      {%- if is_state('remote.family_room_harmony_hub', 'unknown') -%}
-        false
-      {%- else -%}
-        {{ trigger.from_state.attributes.current_activity == "SHIELD TV" and 
-           trigger.to_state.attributes.current_activity != "SHIELD TV" }}
-      {%- endif -%}
+      {{- trigger is defined 
+          and trigger.from_state is not none
+          and trigger.from_state.attributes is not none 
+          and trigger.from_state.attributes.current_activity == "SHIELD TV" -}}
   action:
     - service: media_player.media_stop
       data:
