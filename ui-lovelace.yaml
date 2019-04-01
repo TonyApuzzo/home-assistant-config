@@ -2,6 +2,19 @@ views:
   - title: Home
     cards:
 
+      - title: Front Porch
+        id: front_porch
+        show_header_toggle: false
+        type: entities
+        entities:
+          - lock.kwikset_front_door
+          - light.switch_front_porch_light
+          - light.hank_hkzwrgb01_rgb_bulb_level
+          - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
+            name: Temperature
+          - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
+            name: Motion
+
 # **START** Media Player Conditionals
       - type: conditional
         conditions:
@@ -217,18 +230,6 @@ views:
           - media_player.tonysroku3
           - switch.denon_cd
 
-      - title: Front Porch
-        id: front_porch
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.switch_front_porch_light
-          - light.hank_hkzwrgb01_rgb_bulb_level
-          - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
-            name: Temperature
-          - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
-            name: Motion
-
       - title: Kitchen
         id: kitchen
         show_header_toggle: false
@@ -279,6 +280,7 @@ views:
           - entity: media_player.master_bedroom
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
+
       - title: Garage
         id: garage
         type: entities

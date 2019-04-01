@@ -8,9 +8,7 @@
     value_template: >-
       {{ is_state('sensor.environment', 'PROD') }}
   action:
-    # Turn on all automations -- this overrides the defaults set individually,
-    # so if we want to have specific automations not running in Prod, this line
-    # will need to be replaced with individual turn_on calls.
+    # Turn on all automations
     - service: automation.turn_on
       entity_id: all
 
@@ -25,11 +23,11 @@
       {{ is_state('sensor.environment', 'DEV') }}
   action:
     # Don't start any automations automatically in Dev.
-    # - service: automation.turn_on
-    #   entity_id: all
+    - service: automation.turn_off
+      entity_id: all
 
 - alias: "Normalize Temperature"
-  initial_state: off
+  initial_state: on
   trigger:
     - entity_id: sensor.ecobee_spread
       platform: state
@@ -55,7 +53,7 @@
           {%- endif -%}
 
 - alias: "Listen to CDs started from Harmony Hub"
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
     platform: state
@@ -72,7 +70,7 @@
     entity_id: switch.denon_cd
 
 - alias: "Listen to CDs ended from Harmony Hub"
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
     platform: state
@@ -89,7 +87,7 @@
     entity_id: switch.denon_cd
 
 - alias: Casting to Yamaha RX-V475
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
   - platform: state
@@ -111,7 +109,7 @@
       source: HDMI1
 
 - alias: Casting to Onkyo TX-RZ820
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
   - platform: state
@@ -132,7 +130,7 @@
 
 # When casting to SHIELD, start the corresponding Harmony Activity
 - alias: "Casting to SHIELD"
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
     - platform: state
@@ -149,7 +147,7 @@
         activity: "SHIELD TV"
 
 - alias: "Casting to SHIELD ended from Harmony Hub"
-  initial_state: off
+  initial_state: on
   hide_entity: true
   trigger:
     - platform: state
@@ -171,7 +169,7 @@
 
 - alias: "Fridge Temperature Warning"
   id: fridge_alarm
-  initial_state: off
+  initial_state: on
   trigger:
     - platform: state
       entity_id: sensor.fridge_temperature
@@ -182,7 +180,7 @@
         false
       {%- else -%}
         {%- set t = states('sensor.fridge_temperature')|float -%}
-        {{- 33.0 > t or t > 40.0 -}}
+        {{- 33.0 > t or t > 41.0 -}}
       {%- endif -%}
    # entity_id: sensor.fridge_temperature
   action:
@@ -197,7 +195,7 @@
 
 - alias: "Garage Warning"
   id: garage_warning
-  initial_state: off
+  initial_state: on
   trigger:
     platform: state
     entity_id: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
@@ -221,9 +219,72 @@
           {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
           for at least 15 minutes, consider closing it.
 
+- id: sync_front_door_unlocked
+  trigger:
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '19'
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '22'
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '25'
+  condition:
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: locked
+  action:
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.unlock
+  initial_state: on
+
+- id: sync_front_door_locked
+  trigger:
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '18'
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '21'
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '24'
+  - entity_id:  sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '27'
+  condition:
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
+  action:
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.lock
+  initial_state: on
+
+- id: autolock_front_door
+  alias: Autolock Front Door
+  trigger:
+  - entity_id: lock.kwikset_front_door
+    for:
+      minutes: 5
+    platform: state
+    to: unlocked
+  condition:
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
+  action:
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.lock
+  initial_state: on
+
 - alias: "Turn on Porch Light when motion detected"
   id: outdoor_motion
-  initial_state: off
+  initial_state: on
   trigger:
     platform: numeric_state
     entity_id: sensor.vision_zp3102_pir_motion_sensor_alarm_level
@@ -253,7 +314,7 @@
 
 - alias: "Turn off Porch Light after motion timeout"
   id: motion_timeout
-  initial_state: off
+  initial_state: on
   trigger:
     platform: event
     event_type: timer.finished
