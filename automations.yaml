@@ -219,12 +219,31 @@
           {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
           for at least 15 minutes, consider closing it.
 
+##
+# Alarm Type Alarm Level      Notification Event
+# 021        001              Lock Secured using Keyed cylinder or inside thumb-turn
+# 022        001              Lock Un-Secured using Keyed cylinder or inside thumb-turn
+# 027        001              Lock Auto Secured – Successful (Fully extended)
+# 017        001              Lock Secured at Keypad – Bolt Jammed (Not fully extended)
+# 018        000 or User-ID#* Lock Secured at Keypad – Successful (Fully extended)
+# 026        001              Lock Auto Secured – Bolt Jammed (Not fully extended)
+# 019        User-ID#*        Lock Un-Secured by User (User-ID) at Keypad
+# 023        001              Lock Secured by Controller – Bolt Jammed (Not fully extended)
+# 024        001              Lock Secured by Controller – Successful (Fully extended)
+# 025        001              Lock Un-Secured by Controller – Successful (Fully retracted)
+# 112        User-ID#*        New User Code (User-ID#) added to the lock
+# 032        001              All User Codes deleted from lock
+# 161        001              Failed User Code attempt at Keypad
+# 162        User-ID#*        Attempted access by user (User-ID#) outside of scheduled
+# 167        001              Low battery level
+# 168        001              Critical battery level
+# 169        001              Battery level too low to operate lock 
 - id: sync_front_door_unlocked
   trigger:
-  - entity_id:  sensor.kwikset_front_door_alarm_type
+  - entity_id: sensor.kwikset_front_door_alarm_type
     platform: state
     to: '19'
-  - entity_id:  sensor.kwikset_front_door_alarm_type
+  - entity_id: sensor.kwikset_front_door_alarm_type
     platform: state
     to: '22'
   condition:
@@ -239,13 +258,13 @@
 
 - id: sync_front_door_locked
   trigger:
-  - entity_id:  sensor.kwikset_front_door_alarm_type
+  - entity_id: sensor.kwikset_front_door_alarm_type
     platform: state
     to: '18'
-  - entity_id:  sensor.kwikset_front_door_alarm_type
+  - entity_id: sensor.kwikset_front_door_alarm_type
     platform: state
     to: '21'
-  - entity_id:  sensor.kwikset_front_door_alarm_type
+  - entity_id: sensor.kwikset_front_door_alarm_type
     platform: state
     to: '27'
   condition:
