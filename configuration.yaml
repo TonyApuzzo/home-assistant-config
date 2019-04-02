@@ -14,6 +14,8 @@ homeassistant:
   packages: !include_dir_named packages
   # Customization file
   customize: !include customize.yaml
+  # Auth providers
+  auth_providers: !include secret.auth_providers.yaml
 
 logger:
   default: info
@@ -43,7 +45,7 @@ system_health:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # https://www.home-assistant.io/components/http/
-http: !include private.http.yaml
+http: !include secret.http.yaml
 
 # Checks for available updates
 # Note: This component will send some information about your system to

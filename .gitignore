@@ -12,6 +12,7 @@
 !*.j2
 !custom_components/
 !packages/
+!*example.yaml
 
 # Ignore folders.
 .storage
@@ -21,6 +22,5 @@
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 ip_bans.yaml
 secrets.yaml
+secret.*.yaml
 known_devices.yaml
-private*.yaml
-*private.yaml

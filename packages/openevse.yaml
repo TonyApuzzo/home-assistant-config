@@ -1,23 +1,37 @@
 ---
-# In order to use this, you must have the following configurations created in the base configuration.yaml
-# MQTT
+# In order to use this, you must have the following configurations created in 
+# the base configuration.yaml:
+#   MQTT
 #
-# Secrets:
-#   OPENEVSE_USER
-#   OPENEVSE_PASSWORD
-#   OPENEVSE_HOST
-
+# You must also be using the "openevse" topic in the 
+# OpenEVSE control panel (or edit secrets below.)
+#
+# Required Secrets:
+#   OPENEVSE_HOST: "myhost"
+#   OPENEVSE_USERNAME: "myuser"
+#   OPENEVSE_PASSWORD: "mypasswd"
+#   OPENEVSE_R_GU: 'http://myhost/r?json=1&rapi=$GU'
+#   OPENEVSE_R_GC: 'http://myhost/r?json=1&rapi=$GC'
+#   OPENEVSE_T_TEMP1: "openevse/temp1"
+#   OPENEVSE_T_AMP:   "openevse/amp"
+#   OPENEVSE_T_PILOT: "openevse/pilot"
+#   OPENEVSE_T_WH:    "openevse/wh"
+#   OPENEVSE_T_STATE: "openevse/state"
+#   OPENEVSE_T_IFS:   "openevse/rapi/in/$FS"
+#   OPENEVSE_T_IFE:   "openevse/rapi/in/$FE"
+#   OPENEVSE_T_ISC:   "openevse/rapi/in/$SC"
+#   OPENEVSE_T_ISL:   "openevse/rapi/in/$SL"
 
 # Sensors
 sensor:
   # Use OpenEVSE RAPI API to Retrieve the active charging energy
   # https://www.home-assistant.io/components/sensor.rest/
   # Example: 
-  #  curl --digest --user 'user:pass' 'http://openevse.local./r?json=1&rapi=$GU'
+  #  curl --digest --user 'user:pass' 'http://myhost/r?json=1&rapi=$GU'
   #  $OK 40629846 165327^27
   - platform: rest
     name: "OpenEVSE RAPI $GU"
-    resource: 'http://openevse.local./r?json=1&rapi=$GU'
+    resource: !secret OPENEVSE_R_GU
     force_update: no
     authentication: basic
     username: !secret OPENEVSE_USERNAME
@@ -32,7 +46,7 @@ sensor:
   # Get OpenEVSE min/max current from RAPI
   - platform: rest
     name: "OpenEVSE RAPI $GC"
-    resource: 'http://openevse.local./r?json=1&rapi=$GC'
+    resource: !secret OPENEVSE_R_GC
     force_update: no
     authentication: basic
     username: !secret OPENEVSE_USERNAME
@@ -107,7 +121,7 @@ sensor:
   # OpenEVSE MQTT Tracker
   - platform: mqtt
     name: "OpenEVSE Temp 1"
-    state_topic: "openevse/temp1"
+    state_topic: !secret OPENEVSE_T_TEMP1
     unit_of_measurement: '°F'
     device_class: temperature
     value_template: >-
@@ -120,7 +134,7 @@ sensor:
   - platform: mqtt
     name: "OpenEVSE Charging Current"
     icon: mdi:current-ac
-    state_topic: "openevse/amp"
+    state_topic: !secret OPENEVSE_T_AMP
     unit_of_measurement: "A"
     value_template: >-
       {{- (value|float / 1000.0) | round(1) -}}
@@ -128,7 +142,7 @@ sensor:
   - platform: mqtt
     name: "OpenEVSE Pilot Current"
     icon: mdi:current-ac
-    state_topic: "openevse/pilot"
+    state_topic: !secret OPENEVSE_T_PILOT
     unit_of_measurement: "A"
     value_template: >-
       {{- value|int -}}
@@ -136,14 +150,14 @@ sensor:
   - platform: mqtt
     name: "OpenEVSE Total Energy"
     icon: mdi:gauge-full
-    state_topic: "openevse/wh"
+    state_topic: !secret OPENEVSE_T_WH
     unit_of_measurement: "kWh"
     value_template: >-
       {{- value|float / 1000 | round(2) -}}
 
   - platform: mqtt
     name: "OpenEVSE MQTT State"
-    state_topic: "openevse/state"
+    state_topic: !secret OPENEVSE_T_STATE
 
 # Switches
 switch:
@@ -154,11 +168,11 @@ switch:
         turn_off:
           - service: mqtt.publish
             data:
-              topic: openevse/rapi/in/$FS
+              topic: !secret OPENEVSE_T_IFS
         turn_on:
           - service: mqtt.publish
             data:
-              topic: openevse/rapi/in/$FE
+              topic: !secret OPENEVSE_T_IFE
         icon_template: >-
           {%- if states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -%}
             mdi:power-plug
@@ -240,7 +254,7 @@ automation old:
     action:
       service: mqtt.publish
       data_template:
-        topic: "openevse/rapi/in/$SC"
+        topic: !secret OPENEVSE_T_ISC
         retain: true
         # Set temporary current value
         payload: >-
@@ -250,7 +264,7 @@ automation old:
     id: update_openevse_service_level
     trigger:
       platform: mqtt
-      topic: "openevse/rapi/in/$SL"
+      topic: !secret OPENEVSE_T_ISL
     action:
       service: input_select.select_option
       data_template:
@@ -270,7 +284,7 @@ automation old:
     action:
       service: mqtt.publish
       data_template:
-        topic: "openevse/rapi/in/$SL"
+        topic: !secret OPENEVSE_T_ISL
         retain: true
         payload: >-
           {% for option in state_attr("input_select.openevse_service_level", "options") -%}
