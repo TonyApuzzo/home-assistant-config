@@ -227,9 +227,6 @@
   - entity_id:  sensor.kwikset_front_door_alarm_type
     platform: state
     to: '22'
-  - entity_id:  sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '25'
   condition:
   - condition: state
     entity_id: lock.kwikset_front_door
@@ -248,9 +245,6 @@
   - entity_id:  sensor.kwikset_front_door_alarm_type
     platform: state
     to: '21'
-  - entity_id:  sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '24'
   - entity_id:  sensor.kwikset_front_door_alarm_type
     platform: state
     to: '27'
