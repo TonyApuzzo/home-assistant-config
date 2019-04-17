@@ -4,23 +4,25 @@
 #   MQTT
 #
 # You must also be using the "openevse" topic in the 
-# OpenEVSE control panel (or edit secrets below.)
+# OpenEVSE control panel (or edit secrets per below.)
 #
-# Required Secrets:
-#   OPENEVSE_HOST: "myhost"
-#   OPENEVSE_USERNAME: "myuser"
-#   OPENEVSE_PASSWORD: "mypasswd"
-#   OPENEVSE_R_GU: 'http://myhost/r?json=1&rapi=$GU'
-#   OPENEVSE_R_GC: 'http://myhost/r?json=1&rapi=$GC'
-#   OPENEVSE_T_TEMP1: "openevse/temp1"
-#   OPENEVSE_T_AMP:   "openevse/amp"
-#   OPENEVSE_T_PILOT: "openevse/pilot"
-#   OPENEVSE_T_WH:    "openevse/wh"
-#   OPENEVSE_T_STATE: "openevse/state"
-#   OPENEVSE_T_IFS:   "openevse/rapi/in/$FS"
-#   OPENEVSE_T_IFE:   "openevse/rapi/in/$FE"
-#   OPENEVSE_T_ISC:   "openevse/rapi/in/$SC"
-#   OPENEVSE_T_ISL:   "openevse/rapi/in/$SL"
+# Required Secret  -->  Example:
+#   OPENEVSE_HOST:      "myhost"
+#   OPENEVSE_USERNAME:  "myuser"
+#   OPENEVSE_PASSWORD:  "mypasswd"
+#   OPENEVSE_R_GU:      'http://myhost/r?json=1&rapi=$GU'
+#   OPENEVSE_R_GC:      'http://myhost/r?json=1&rapi=$GC'
+#   OPENEVSE_R_STATUS:  'http://myhost/status'
+#   OPENEVSE_T_TEMP1:   "openevse/temp1"
+#   OPENEVSE_T_AMP:     "openevse/amp"
+#   OPENEVSE_T_PILOT:   "openevse/pilot"
+#   OPENEVSE_T_WH:      "openevse/wh"
+#   OPENEVSE_T_STATE:   "openevse/state"
+#   OPENEVSE_T_IFS:     "openevse/rapi/in/$FS"
+#   OPENEVSE_T_IFE:     "openevse/rapi/in/$FE"
+#   OPENEVSE_T_ISC:     "openevse/rapi/in/$SC"
+#   OPENEVSE_T_ISL:     "openevse/rapi/in/$SL"
+#   OPENEVSE_T_DIVERT:  'openevse/divertmode/set'
 
 # Sensors
 sensor:
@@ -58,11 +60,49 @@ sensor:
     value_template: >-
       {{- state_attr("sensor.openevse_rapi_gc", "ret") -}}
 
+  - platform: rest
+    name: "OpenEVSE Status"
+    resource: !secret OPENEVSE_R_STATUS
+    force_update: yes
+    authentication: basic
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+        User-Agent: Home Assistant
+        Content-Type: application/json
+    json_attributes: [ "mode", "wifi_client_connected","srssi" , "ipaddress","emoncms_connected","packets_sent","packets_success","mqtt_connected" , "ohm_hour","free_heap","comm_sent","comm_success","amp","pilot","temp1","temp2","temp3","state","elapsed","wattsec","watthour","gfcicount","nogndcount","stuckcount","divertmode","solar","grid_ie","charge_rate","divert_update"]
+    value_template: >-
+      {{- state_attr("sensor.openevse_status", "state") -}}
+
+  # The RAPI REST Sensor is very unreliable, so filter it
+  - platform: filter
+    name: "OpenEVSE Session Energy"
+    entity_id: sensor.openevse_session_energy_raw
+    filters:
+      - filter: outlier
+        window_size: 3
+        radius: 1
+      - filter: lowpass
+        time_constant: 10
+        precision: 2
+
   # Custom Sensors
   - platform: template
     sensors:
-      openevse_session_energy:
-        friendly_name: "OpenEVSE Session Energy"
+      openevse_session_energy_raw:
+        friendly_name: "OpenEVSE Session Energy (raw)"
+        icon_template: mdi:gauge
+        unit_of_measurement: 'kWh'
+        value_template: >-
+          {%- if state_attr('sensor.openevse_status', 'wattsec') == 'unknown' -%}
+            unknown
+          {%- else -%}
+            {%- set wattsec = state_attr('sensor.openevse_status', 'wattsec') -%}
+            {{- (wattsec|float / 3600000)|round(2) -}}
+          {%- endif -%}
+
+      openevse_session_energy_rest:
+        friendly_name: "OpenEVSE Session Energy (rest)"
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
         value_template: >-
@@ -181,6 +221,23 @@ switch:
           {%- endif -%}
         value_template: >-
           {{- states('sensor.openevse_mqtt_state') | regex_match('^[0123]$') -}}
+      openevse_divertmode:
+        friendly_name: "OpenEVSE Eco Divert"
+        turn_off:
+          - service: mqtt.publish
+            data:
+              topic: !secret OPENEVSE_T_DIVERT
+              retain: true
+              payload: 1
+        turn_on:
+          - service: mqtt.publish
+            data:
+              topic: !secret OPENEVSE_T_DIVERT
+              retain: true
+              payload: 2
+        icon_template: mdi:solar-power
+        value_template: >-
+          {{- state_attr('sensor.openevse_status', 'divertmode') == 2 -}}
 
 input_number:
   openevse_current:
@@ -256,9 +313,10 @@ automation old:
       data_template:
         topic: !secret OPENEVSE_T_ISC
         retain: true
-        # Set temporary current value
+        # Set temporary current value if trailing "V" after power
+        # e.g.: `payload: 23 V`
         payload: >-
-          {{- states('input_number.openevse_current')|int }} V
+          {{- states('input_number.openevse_current')|int }}
 
   - alias: Update OpenEVSE Service Level
     id: update_openevse_service_level

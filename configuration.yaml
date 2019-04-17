@@ -39,9 +39,9 @@ config:
 system_health:
 
 # Monitor BLE Device Presence
-#device_tracker:
-#  - platform: bluetooth_tracker
-#  - platform: bluetooth_le_tracker
+device_tracker:
+  - platform: bluetooth_tracker
+#   - platform: bluetooth_le_tracker
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # https://www.home-assistant.io/components/http/

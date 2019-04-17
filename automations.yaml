@@ -90,40 +90,67 @@
   initial_state: on
   hide_entity: true
   trigger:
-  - platform: state
-    entity_id: media_player.office_chromecast
-    to: playing
-  - platform: state
-    entity_id: media_player.everywhere
-    to: playing
-  - platform: state
-    entity_id: media_player.upstairs_audio
-    to: playing
+    - platform: state
+      entity_id: media_player.office_chromecast
+      to: playing
+    - platform: state
+      entity_id: media_player.everywhere
+      to: playing
+    - platform: state
+      entity_id: media_player.upstairs_audio
+      to: playing
+  condition:
+    condition: template
+    value_template: >-
+      {{- trigger is defined 
+          and trigger.from_state is defined
+          and trigger.from_state.state != "playing"
+      -}}
   action:
-  - service: media_player.turn_on
-    data:
+    - service: media_player.select_source
+      data:
+        entity_id: media_player.rx_v475_a16974
+        source: HDMI1
+    - condition: state
       entity_id: media_player.rx_v475_a16974
-  - service: media_player.select_source
-    data:
+      state:  'off'
+    - service: media_player.turn_on
+      data:
+        entity_id: media_player.rx_v475_a16974
+
+- alias: Powering off Yamaha RX-V475
+  initial_state: on
+  hide_entity: true
+  trigger:
+    - platform: state
       entity_id: media_player.rx_v475_a16974
-      source: HDMI1
+      from: 'on'
+      to: 'off'
+  condition:
+    condition: template
+    value_template: >-
+      {{- not is_state("media_player.office_chromecast", "off") -}}
+  action:
+    service: media_player.turn_off
+    data:
+      entity_id: media_player.office_chromecast
 
 - alias: Casting to Onkyo TX-RZ820
   initial_state: on
   hide_entity: true
   trigger:
-  - platform: state
-    entity_id: media_player.onkyo_txrz820_4f772a
-    to: playing
-  - platform: state
-    entity_id: media_player.everywhere
-    to: playing
+    - platform: state
+      entity_id: media_player.onkyo_txrz820_4f772a
+      to: playing
+    - platform: state
+      entity_id: media_player.everywhere
+      to: playing
   condition:
     condition: template
     value_template: >-
       {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Network Music") -}}
   action:
-  - service: remote.turn_on
+    service: remote.turn_on
     data:
       entity_id: remote.family_room_harmony_hub
       activity: "Network Music"
@@ -141,10 +168,10 @@
     value_template: >-
       {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "SHIELD TV") -}}
   action:
-    - service: remote.turn_on
-      data:
-        entity_id: remote.family_room_harmony_hub
-        activity: "SHIELD TV"
+    service: remote.turn_on
+    data:
+      entity_id: remote.family_room_harmony_hub
+      activity: "SHIELD TV"
 
 - alias: "Casting to SHIELD ended from Harmony Hub"
   initial_state: on
@@ -171,8 +198,8 @@
   id: fridge_alarm
   initial_state: on
   trigger:
-    - platform: state
-      entity_id: sensor.fridge_temperature
+    platform: state
+    entity_id: sensor.fridge_temperature
   condition:
     condition: template
     value_template: >-
@@ -184,14 +211,14 @@
       {%- endif -%}
    # entity_id: sensor.fridge_temperature
   action:
-     service: persistent_notification.create
-     data:
-       notification_id: warning_fridge_temperature
-       message: >-
-         Fridge temperature 
-         {{states.sensor.fridge_temperature.state_with_unit}} at
-         {{now().strftime('%c')}}!
-       title: "Fridge Temp out of Range!"
+    service: persistent_notification.create
+    data:
+      notification_id: warning_fridge_temperature
+      message: >-
+        Fridge temperature 
+        {{states.sensor.fridge_temperature.state_with_unit}} at
+        {{now().strftime('%c')}}!
+      title: "Fridge Temp out of Range!"
 
 - alias: "Garage Warning"
   id: garage_warning
@@ -202,22 +229,23 @@
     to: 'open'
     for:
       minutes: 15
+  condition:
+    condition: template
+    value_template: >-
+      {{ not is_state(
+          "cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label",
+          "closed") }}
   action:
-    - condition: template
-      value_template: >-
-        {{ not is_state(
-           "cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label",
-           "closed") }}
-    - service: persistent_notification.create
-      data_template:
-        notification_id: garage_warning
-        title: >-
-          Garage Door is 
-          {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
-        message: >-
-          The garage door has been 
-          {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
-          for at least 15 minutes, consider closing it.
+    service: persistent_notification.create
+    data_template:
+      notification_id: garage_warning
+      title: >-
+        Garage Door is 
+        {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
+      message: >-
+        The garage door has been 
+        {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
+        for at least 15 minutes, consider closing it.
 
 ##
 # Alarm Type Alarm Level      Notification Event
@@ -240,39 +268,39 @@
 # 169        001              Battery level too low to operate lock 
 - id: sync_front_door_unlocked
   trigger:
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '19'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '22'
+    - entity_id: sensor.kwikset_front_door_alarm_type
+      platform: state
+      to: '19'
+    - entity_id: sensor.kwikset_front_door_alarm_type
+      platform: state
+      to: '22'
   condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: locked
-  action:
-  - data:
+    - condition: state
       entity_id: lock.kwikset_front_door
-    service: lock.unlock
+      state: locked
+  action:
+    - data:
+        entity_id: lock.kwikset_front_door
+      service: lock.unlock
   initial_state: on
 
 - id: sync_front_door_locked
   trigger:
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '18'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '21'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '27'
+    - entity_id: sensor.kwikset_front_door_alarm_type
+      platform: state
+      to: '18'
+    - entity_id: sensor.kwikset_front_door_alarm_type
+      platform: state
+      to: '21'
+    - entity_id: sensor.kwikset_front_door_alarm_type
+      platform: state
+      to: '27'
   condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: unlocked
+    - condition: state
+      entity_id: lock.kwikset_front_door
+      state: unlocked
   action:
-  - data:
+    data:
       entity_id: lock.kwikset_front_door
     service: lock.lock
   initial_state: on
@@ -280,19 +308,19 @@
 - id: autolock_front_door
   alias: Autolock Front Door
   trigger:
-  - entity_id: lock.kwikset_front_door
-    for:
-      minutes: 5
-    platform: state
-    to: unlocked
+    - entity_id: lock.kwikset_front_door
+      for:
+        minutes: 5
+      platform: state
+      to: unlocked
   condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: unlocked
-  action:
-  - data:
+    - condition: state
       entity_id: lock.kwikset_front_door
-    service: lock.lock
+      state: unlocked
+  action:
+    - data:
+        entity_id: lock.kwikset_front_door
+      service: lock.lock
   initial_state: on
 
 - alias: "Turn on Porch Light when motion detected"
