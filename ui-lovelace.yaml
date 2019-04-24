@@ -293,9 +293,6 @@ views:
           - entity: sensor.openevse_pilot_current
           - entity: sensor.openevse_charging_current
           - entity: sensor.openevse_session_energy
-        #   - entity: sensor.openevse_session_energy_raw
-        #   - entity: sensor.openevse_total_energy
-        #   - entity: sensor.openevse_temp_1
           - entity: input_select.openevse_service_level
           - entity: input_number.openevse_current
 

@@ -31,19 +31,19 @@ sensor:
   # Example: 
   #  curl --digest --user 'user:pass' 'http://myhost/r?json=1&rapi=$GU'
   #  $OK 40629846 165327^27
-  - platform: rest
-    name: "OpenEVSE RAPI $GU"
-    resource: !secret OPENEVSE_R_GU
-    force_update: no
-    authentication: basic
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    headers:
-        User-Agent: Home Assistant
-        Content-Type: application/json
-    json_attributes: [ 'cmd', 'ret' ]
-    value_template: >-
-      {{- state_attr("sensor.openevse_rapi_gu", "ret") -}}
+#   - platform: rest
+#     name: "OpenEVSE RAPI $GU"
+#     resource: !secret OPENEVSE_R_GU
+#     force_update: no
+#     authentication: basic
+#     username: !secret OPENEVSE_USERNAME
+#     password: !secret OPENEVSE_PASSWORD
+#     headers:
+#         User-Agent: Home Assistant
+#         Content-Type: application/json
+#     json_attributes: [ 'cmd', 'ret' ]
+#     value_template: >-
+#       {{- state_attr("sensor.openevse_rapi_gu", "ret") -}}
   
   # Get OpenEVSE min/max current from RAPI
   - platform: rest
@@ -80,48 +80,44 @@ sensor:
     entity_id: sensor.openevse_session_energy_raw
     filters:
       - filter: outlier
-        window_size: 3
-        radius: 1
-      - filter: lowpass
-        time_constant: 10
-        precision: 2
+        window_size: 6
+        radius: 0.5
 
   # Custom Sensors
   - platform: template
     sensors:
       openevse_session_energy_raw:
-        friendly_name: "OpenEVSE Session Energy (raw)"
+        friendly_name: "OpenEVSE Session Energy (status)"
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
+        entity_id: sensor.openevse_status
         value_template: >-
-          {%- if state_attr('sensor.openevse_status', 'wattsec') == 'unknown' -%}
+          {%- if state_attr('sensor.openevse_status', 'wattsec') == 'unknown'
+              or state_attr('sensor.openevse_status', 'wattsec') is none -%}
             unknown
           {%- else -%}
             {%- set wattsec = state_attr('sensor.openevse_status', 'wattsec') -%}
             {{- (wattsec|float / 3600000)|round(2) -}}
           {%- endif -%}
 
-      openevse_session_energy_rest:
-        friendly_name: "OpenEVSE Session Energy (rest)"
-        icon_template: mdi:gauge
-        unit_of_measurement: 'kWh'
-        value_template: >-
-          {%- if states('sensor.openevse_rapi_gu') == 'unknown' -%}
-            unknown
-          {%- else -%}
-            {%- set ret = state_attr('sensor.openevse_rapi_gu', 'ret') -%}
-            {%- if ret is none -%}
-              unknown
-            {%- else -%}
-              {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
-              {%- if ret|regex_search(rgx) -%}
-                {%- set v = ret | regex_findall_index(rgx) -%}
-                {{- (v|float / 3600000)|round(2) -}}
-              {%- else -%}
-                unknown
-              {%- endif -%}
-            {%- endif -%}
-          {%- endif -%}
+    #   openevse_session_energy_rest:
+    #     friendly_name: "OpenEVSE Session Energy (rapi)"
+    #     icon_template: mdi:gauge
+    #     unit_of_measurement: 'kWh'
+    #     entity_id: sensor.openevse_rapi_gu
+    #     value_template: >-
+    #       {%- if state_attr('sensor.openevse_rapi_gu', 'ret') == 'unknown'
+    #           or state_attr('sensor.openevse_rapi_gu', 'ret') is none -%}
+    #         unknown
+    #       {%- else -%}
+    #         {%- set rgx = '(?<=^\$OK )[0-9]+' -%}
+    #         {%- if ret|regex_search(rgx) -%}
+    #           {%- set v = ret | regex_findall_index(rgx) -%}
+    #           {{- (v|float / 3600000)|round(2) -}}
+    #         {%- else -%}
+    #           unknown
+    #         {%- endif -%}
+    #       {%- endif -%}
 
       openevse_state:
         friendly_name: "OpenEVSE State"
@@ -296,6 +292,10 @@ automation old:
     trigger:
       platform: state
       entity_id: sensor.openevse_pilot_current
+    condition:
+      condition: template
+      value_template: >-
+        {{- states('sensor.openevse_pilot_current') | regex_match('^[0-9]+$') -}}
     action:
       service: input_number.set_value
       data_template:
