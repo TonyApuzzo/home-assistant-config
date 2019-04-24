@@ -35,6 +35,18 @@ lovelace:
 # Enables configuration UI
 config:
 
+api:
+
+alexa:
+  smart_home:
+
+# Configurator
+panel_iframe:
+  configurator:
+    title: Configurator
+    icon: mdi:wrench
+    url: https://three1four.duckdns.org:8123/api/hassio_ingress/qx1q3MAVoTsbdO1AlZ-p9C9WjQwkpEYQaRdeNTk0SQA/
+
 # Monitor system health
 system_health:
 
