@@ -9,7 +9,6 @@ views:
         entities:
           - lock.kwikset_front_door
           - light.switch_front_porch_light
-          - light.hank_hkzwrgb01_rgb_bulb_level
           - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
             name: Temperature
           - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
@@ -54,6 +53,17 @@ views:
         card:
           type: media-control
           entity: media_player.everywhere
+      - type: conditional
+        conditions:
+          - entity: media_player.tv_room_acc
+            state_not: "off"
+          - entity: media_player.tv_room_acc
+            state_not: "unknown"
+          - entity: media_player.tv_room_acc
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.tv_room_acc
       - type: conditional
         conditions:
           - entity: media_player.upstairs_audio
@@ -255,6 +265,7 @@ views:
         show_header_toggle: false
         type: entities
         entities:
+          - light.hank_hkzwrgb01_rgb_bulb_level
           - switch.hank_hkzwso03_smart_plug_switch
           - media_player.office_chromecast
           - media_player.tonys_office_roku
