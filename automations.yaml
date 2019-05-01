@@ -142,9 +142,9 @@
     - platform: state
       entity_id: media_player.onkyo_txrz820_4f772a
       to: playing
-    - platform: state
-      entity_id: media_player.everywhere
-      to: playing
+    # - platform: state
+    #   entity_id: media_player.everywhere
+    #   to: playing
   condition:
     condition: template
     value_template: >-
@@ -193,6 +193,47 @@
     - service: media_player.turn_off
       data:
         entity_id: media_player.shield
+
+# When casting to TV Room ACC, start the corresponding Harmony Activity
+- alias: "Casting to TV Room ACC"
+  initial_state: on
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: media_player.tv_room_acc
+      to: "playing"
+    - platform: state
+      entity_id: media_player.everywhere
+      to: playing
+  condition:
+    condition: template
+    value_template: >-
+      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Chromecast Audio") -}}
+  action:
+    service: remote.turn_on
+    data:
+      entity_id: remote.family_room_harmony_hub
+      activity: "Chromecast Audio"
+- alias: "Casting to TV Room ACC ended from Harmony Hub"
+  initial_state: on
+  hide_entity: true
+  trigger:
+    - platform: state
+      entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: >-
+      {{- trigger is defined 
+          and trigger.from_state is not none
+          and trigger.from_state.attributes is not none 
+          and trigger.from_state.attributes.current_activity == "Chromecast Audio" -}}
+  action:
+    - service: media_player.media_stop
+      data:
+        entity_id: media_player.tv_room_acc
+    - service: media_player.turn_off
+      data:
+        entity_id: media_player.tv_room_acc
 
 - alias: "Fridge Temperature Warning"
   id: fridge_alarm
