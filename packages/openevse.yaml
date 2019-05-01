@@ -287,27 +287,30 @@ automation old:
             {%- set v = ret | regex_findall_index(rgx) -%}
             {{- [40, v[1]|int]|min -}}
 
-  - alias: Update OpenEVSE Charge Current
-    id: update_openevse_charge_current
+  - alias: Update OpenEVSE Pilot Current
+    id: update_openevse_pilot_current
     trigger:
       platform: state
       entity_id: sensor.openevse_pilot_current
     condition:
       condition: template
       value_template: >-
-        {{- states('sensor.openevse_pilot_current') | regex_match('^[0-9]+$') -}}
+        {{- states('sensor.openevse_pilot_current') | regex_match('^[0-9]+\.?[0-9]*$') -}}
     action:
       service: input_number.set_value
       data_template:
         entity_id: input_number.openevse_current
-        value: >-
-          {{- states('sensor.openevse_pilot_current')|int -}}
+        value: "{{- states('sensor.openevse_pilot_current')|int -}}"
 
-  - alias: Set OpenEVSE Charge Current
-    id: set_openevse_charge_current
+  - alias: Set OpenEVSE Pilot Current
+    id: set_openevse_pilot_current
     trigger:
       platform: state
       entity_id: input_number.openevse_current
+    condition:
+      condition: template
+      value_template: >-
+        {{- states('input_number.openevse_current') | regex_match('^[0-9]+\.?[0-9]*$') -}}
     action:
       service: mqtt.publish
       data_template:
@@ -315,8 +318,7 @@ automation old:
         retain: true
         # Set temporary current value if trailing "V" after power
         # e.g.: `payload: 23 V`
-        payload: >-
-          {{- states('input_number.openevse_current')|int }}
+        payload: "{{- states('input_number.openevse_current')|int -}}"
 
   - alias: Update OpenEVSE Service Level
     id: update_openevse_service_level
@@ -328,11 +330,11 @@ automation old:
       data_template:
         entity_id: input_select.openevse_service_level
         option: >-
-          {% for option in state_attr("input_select.openevse_service_level", "values") -%}
-            {% if trigger.payload == option -%}
-              {{ state_attr("input_select.openevse_service_level", 'options')[loop.index - 1] }}
-            {%- endif %}
-          {%- endfor %}
+          {%- for option in state_attr("input_select.openevse_service_level", "values") -%}
+            {%- if trigger.payload == option -%}
+              {{- state_attr("input_select.openevse_service_level", 'options')[loop.index - 1] -}}
+            {%- endif -%}
+          {%- endfor -%}
           
   - alias: Set OpenEVSE Service Level
     id: set_openevse_service_level
@@ -345,8 +347,8 @@ automation old:
         topic: !secret OPENEVSE_T_ISL
         retain: true
         payload: >-
-          {% for option in state_attr("input_select.openevse_service_level", "options") -%}
-            {% if is_state("input_select.openevse_service_level", option) -%}
-              {{ state_attr("input_select.openevse_service_level", 'values')[loop.index - 1] }}
-            {%- endif %}
-          {%- endfor %}
+          {%- for option in state_attr("input_select.openevse_service_level", "options") -%}
+            {%- if is_state("input_select.openevse_service_level", option) -%}
+              {{- state_attr("input_select.openevse_service_level", 'values')[loop.index - 1] -}}
+            {%- endif -%}
+          {%- endfor -%}
