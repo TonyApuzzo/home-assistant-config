@@ -137,15 +137,15 @@ sensor:
         icon_template: >-
           {%- if state_attr('sensor.openevse_status', 'state') | regex_match('^[01]$') -%}
             mdi:power-plug-off
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '2') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^2$') -%}
             mdi:car-electric
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '3') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^3$') -%}
             mdi:battery-charging
           {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^([456789]|10)$') -%}
             mdi:battery-alert
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '254') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^254$') -%}
             mdi:sleep
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '255') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^255$') -%}
             mdi:power-off
           {%- else -%}
             mdi:battery-unknown
@@ -153,15 +153,15 @@ sensor:
         value_template: >-
           {%- if state_attr('sensor.openevse_status', 'state') | regex_match('^[01]$') -%}
             Not Connected
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '2') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^2$') -%}
             Connected
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '3') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^3$') -%}
             Charging
           {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^([456789]|10)$') -%}
             Error ({{- state_attr('sensor.openevse_status', 'state') -}})
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '254') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^254$') -%}
             Sleeping
-          {%- elif is_state_attr('sensor.openevse_status', 'state', '255') -%}
+          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^255$') -%}
             Disabled
           {%- else -%}
             Unknown ({{- state_attr('sensor.openevse_status', 'state') -}})
@@ -241,13 +241,13 @@ switch:
               retain: true
               payload: 2
         icon_template: >-
-          {%- if is_state_attr('sensor.openevse_status', 'divertmode', '2') -%}
+          {%- if state_attr('sensor.openevse_status', 'divertmode') | regex_match('^2$') -%}
             mdi:solar-power
           {%- else -%}
             mdi:power-off
           {%- endif -%}
         value_template: >-
-          {{- is_state_attr('sensor.openevse_status', 'divertmode', '2') -}}
+          {{- state_attr('sensor.openevse_status', 'divertmode') | regex_match('^2$') -}}
       
       openevse_save_current:
         friendly_name: "OpenEVSE Save Current"
