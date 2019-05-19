@@ -37,6 +37,7 @@ ATTR_MODE = 'mode'
 SERVICE_SET_VALUE = 'set_value'
 SERVICE_SET_MIN = 'set_min'
 SERVICE_SET_MAX = 'set_max'
+SERVICE_SET_RANGE = 'set_range'
 SERVICE_INCREMENT = 'increment'
 SERVICE_DECREMENT = 'decrement'
 
@@ -47,6 +48,12 @@ SERVICE_DEFAULT_SCHEMA = vol.Schema({
 SERVICE_SET_VALUE_SCHEMA = vol.Schema({
     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
     vol.Required(ATTR_VALUE): vol.Coerce(float),
+})
+
+SERVICE_SET_RANGE_SCHEMA = vol.Schema({
+    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+    vol.Optional(ATTR_MIN): vol.Coerce(float),
+    vol.Optional(ATTR_MAX): vol.Coerce(float),
 })
 
 def _cv_input_number(cfg):
@@ -117,6 +124,11 @@ async def async_setup(hass, config):
     component.async_register_entity_service(
         SERVICE_SET_MAX, SERVICE_SET_VALUE_SCHEMA,
         'async_set_max'
+    )
+
+    component.async_register_entity_service(
+        SERVICE_SET_RANGE, SERVICE_SET_RANGE_SCHEMA,
+        'async_set_range'
     )
 
     component.async_register_entity_service(
@@ -211,29 +223,47 @@ class InputNumber(RestoreEntity):
         self._current_value = num_value
         await self.async_update_ha_state()
 
-    async def async_set_min(self, value):
+    async def async_set_min(self, value: float):
         """Set new min value."""
         minimum = float(value)
-        if minimum >= self._maximum:
+        if minimum > self._maximum:
             _LOGGER.warning("Invalid minimum: %s (must be lower than maximum %s)",
                             minimum, self._maximum)
             return
-        # Adjust value to minimim if it is less than the new minimum
-        if minimum > self._current_value:
-            self._current_value = minimum
         self._minimum = minimum
+        # Adjust value to minimum if it is less than the new minimum
+        if self._current_value < minimum:
+            self._current_value = minimum
         await self.async_update_ha_state()
 
-    async def async_set_max(self, value):
+    async def async_set_max(self, value: float):
         """Set new max value."""
         maximum = float(value)
-        if self._minimum >= maximum:
+        if maximum < self._minimum:
             _LOGGER.warning("Invalid maximum: %s (must be higher than minimum %s)",
                             maximum, self._minimum)
             return
-        if maximum < self._current_value:
-            self._current_value = maximum
         self._maximum = maximum
+        if self._current_value > maximum:
+            self._current_value = maximum
+        await self.async_update_ha_state()
+
+    async def async_set_range(self, min: float=None, max: float=None):
+        """Set new range."""
+        minimum = float(min) if min is not None else self._minimum
+        maximum = float(max) if max is not None else self._maximum
+        if minimum < maximum:
+            self._minimum = minimum
+            self._maximum = maximum
+        else:
+            self._minimum = maximum
+            self._maximum = minimum
+            _LOGGER.warning("Set Range: swapping min/max (new range %s - %s)",
+                            self._minimum, self._maximum)
+        if self._current_value > self._maximum:
+            self._current_value = self._maximum
+        elif self._current_value < self._minimum:
+            self._current_value = self._minimum
         await self.async_update_ha_state()
 
     async def async_increment(self):
