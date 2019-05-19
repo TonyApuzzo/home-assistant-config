@@ -44,7 +44,7 @@ sensor:
         Content-Type: application/json
     json_attributes: [ 'cmd', 'ret' ]
     value_template: >-
-      {{- state_attr("sensor.openevse_rapi_gc", "ret") -}}
+      {{- value_json.ret -}}
 
   # Get OpenEVSE Current Settings
   - platform: rest
@@ -59,7 +59,7 @@ sensor:
         Content-Type: application/json
     json_attributes: [ 'cmd', 'ret' ]
     value_template: >-
-      {{- state_attr("sensor.openevse_rapi_ge", "ret") -}}
+      {{- value_json.ret -}}
 
   - platform: rest
     name: "OpenEVSE Status"
@@ -102,7 +102,7 @@ sensor:
       - "charge_rate"
       - "divert_update"
     value_template: >-
-      {{- state_attr("sensor.openevse_status", "state") -}}
+      {{- value_json.state -}}
 
   # The RAPI REST Sensor is very unreliable, so filter it
   - platform: filter
@@ -113,37 +113,39 @@ sensor:
         window_size: 6
         radius: 0.5
 
-  # Custom Sensors
+  # Template Sensors
   - platform: template
     sensors:
       openevse_session_energy_raw:
-        friendly_name: "OpenEVSE Session Energy (status)"
+        friendly_name: "OpenEVSE Session Energy (unfiltered)"
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
-        entity_id: sensor.openevse_status
+        entity_id:
+          - sensor.openevse_status
         value_template: >-
-          {%- if state_attr('sensor.openevse_status', 'wattsec') == 'unknown'
-              or state_attr('sensor.openevse_status', 'wattsec') is none -%}
-            unknown
-          {%- else -%}
+          {%- if state_attr('sensor.openevse_status', 'wattsec') | regex_match('[1-9][0-9]*') -%}
             {%- set wattsec = state_attr('sensor.openevse_status', 'wattsec') -%}
-            {{- (wattsec|float / 3600000)|round(2) -}}
+            {{- (wattsec|float / 3600000.0)|round(2) -}}
+          {%- else -%}
+            {{- 0.0 -}}
           {%- endif -%}
 
       openevse_state:
         friendly_name: "OpenEVSE State"
+        entity_id:
+          - sensor.openevse_status
         icon_template: >-
           {%- if state_attr('sensor.openevse_status', 'state') | regex_match('^[01]$') -%}
             mdi:power-plug-off
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^2$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '2') -%}
             mdi:car-electric
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^3$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '3') -%}
             mdi:battery-charging
           {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^([456789]|10)$') -%}
             mdi:battery-alert
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^254$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '254') -%}
             mdi:sleep
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^255$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '255') -%}
             mdi:power-off
           {%- else -%}
             mdi:battery-unknown
@@ -151,21 +153,20 @@ sensor:
         value_template: >-
           {%- if state_attr('sensor.openevse_status', 'state') | regex_match('^[01]$') -%}
             Not Connected
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^2$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '2') -%}
             Connected
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^3$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '3') -%}
             Charging
           {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^([456789]|10)$') -%}
             Error ({{- state_attr('sensor.openevse_status', 'state') -}})
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^254$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '254') -%}
             Sleeping
-          {%- elif state_attr('sensor.openevse_status', 'state') | regex_match('^255$') -%}
+          {%- elif is_state_attr('sensor.openevse_status', 'state', '255') -%}
             Disabled
           {%- else -%}
             Unknown ({{- state_attr('sensor.openevse_status', 'state') -}})
           {%- endif -%}
 
-  # OpenEVSE MQTT Tracker
   - platform: mqtt
     name: "OpenEVSE Temp 1"
     state_topic: !secret OPENEVSE_T_TEMP1
@@ -173,8 +174,8 @@ sensor:
     device_class: temperature
     value_template: >-
       {%- macro C2F(temperature) -%}
-      {% set tmp = (((temperature *9) /50.0) + 32) %}
-      {{- "%0.2f" % tmp -}}
+        {% set tmp = (((temperature *9) /50.0) + 32) %}
+        {{- "%0.2f" % tmp -}}
       {%- endmacro -%}
       {{- C2F(value|float)|float -}}
 
@@ -224,6 +225,7 @@ switch:
           {%- endif -%}
         value_template: >-
           {{- state_attr('sensor.openevse_status', 'state') | regex_match('^[0123]$') -}}
+
       openevse_divertmode:
         friendly_name: "OpenEVSE Eco Divert"
         turn_off:
@@ -238,9 +240,38 @@ switch:
               topic: !secret OPENEVSE_T_DIVERT
               retain: true
               payload: 2
-        icon_template: mdi:solar-power
+        icon_template: >-
+          {%- if is_state_attr('sensor.openevse_status', 'divertmode', '2') -%}
+            mdi:solar-power
+          {%- else -%}
+            mdi:power-off
+          {%- endif -%}
         value_template: >-
-          {{- state_attr('sensor.openevse_status', 'divertmode') == 2 -}}
+          {{- is_state_attr('sensor.openevse_status', 'divertmode', '2') -}}
+      
+      openevse_save_current:
+        friendly_name: "OpenEVSE Save Current"
+        turn_off:
+          - service: input_boolean.turn_off
+            data:
+              entity_id: input_boolean.openevse_save_current
+        turn_on:
+          - service: input_boolean.turn_on
+            data:
+              entity_id: input_boolean.openevse_save_current
+        icon_template: >-
+          {%- if is_state('input_boolean.openevse_save_current', 'on') -%}
+            mdi:content-save
+          {%- else -%}
+            mdi:power-off
+          {%- endif -%}
+        value_template: >-
+          {{- is_state('input_boolean.openevse_save_current', 'on') -}}
+
+input_boolean:
+  openevse_save_current:
+    initial: off
+    icon: mdi:content-save
 
 input_number:
   openevse_current:
@@ -299,14 +330,14 @@ automation old:
     condition:
       condition: template
       value_template: >-
-        {{- state_attr('sensor.openevse_rapi_ge', 'ret') | regex_match('^\$OK [0-9]+ +[0-9]+') -}}
+        {{- state_attr('sensor.openevse_rapi_ge', 'ret') | regex_match('^\$OK [1-9][0-9]? +') -}}
     action:
       service: input_number.set_value
       data_template:
         entity_id: input_number.openevse_current
         value: >-
           {%- set ret = state_attr('sensor.openevse_rapi_ge', 'ret') -%}
-          {%- set rgx = '(?<=^\$OK) +([0-9]+) +([0-9]+)' -%}
+          {%- set rgx = '(?<=^\$OK) ([0-9]+)' -%}
           {%- set v = ret | regex_findall_index(rgx) -%}
           {{- v[0] -}}
 
@@ -326,7 +357,9 @@ automation old:
         retain: true
         # Set temporary current value if trailing "V" after power
         # e.g.: `payload: 23 V`
-        payload: "{{- states('input_number.openevse_current')|int -}}"
+        # Default to volatile even if value is unknown
+        payload: >-
+          {{- states('input_number.openevse_current')|int -}}{{- ' V' if not is_state('input_boolean.openevse_save_current', 'on') -}}
 
   - alias: Update OpenEVSE Service Level
     id: update_openevse_service_level
