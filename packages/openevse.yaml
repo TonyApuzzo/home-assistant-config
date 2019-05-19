@@ -337,7 +337,7 @@ automation old:
         entity_id: input_number.openevse_current
         value: >-
           {%- set ret = state_attr('sensor.openevse_rapi_ge', 'ret') -%}
-          {%- set rgx = '(?<=^\$OK) ([0-9]+)' -%}
+          {%- set rgx = '(?<=^\$OK) ([0-9]+) ([0-9]+)' -%}
           {%- set v = ret | regex_findall_index(rgx) -%}
           {{- v[0] -}}
 
