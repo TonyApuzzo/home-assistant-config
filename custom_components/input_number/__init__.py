@@ -210,6 +210,8 @@ class InputNumber(RestoreEntity):
         # Check against None because value can be 0
         if value is not None and self._minimum <= value <= self._maximum:
             self._current_value = value
+        elif value is not None and value > self._maximum:
+            self._current_value = self._maximum
         else:
             self._current_value = self._minimum
 

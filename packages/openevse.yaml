@@ -123,12 +123,13 @@ sensor:
         entity_id:
           - sensor.openevse_status
         value_template: >-
-          {%- if state_attr('sensor.openevse_status', 'wattsec') | regex_match('[1-9][0-9]*') -%}
-            {%- set wattsec = state_attr('sensor.openevse_status', 'wattsec') -%}
-            {{- (wattsec|float / 3600000.0)|round(2) -}}
-          {%- else -%}
-            {{- 0.0 -}}
-          {%- endif -%}
+          {% set wattsec = state_attr('sensor.openevse_status', 'wattsec')
+                           |float(-1) %}
+          {% if wattsec >= 0 %}
+            {{ (wattsec / 3600000)|round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
 
       openevse_state:
         friendly_name: "OpenEVSE State"
@@ -279,6 +280,7 @@ input_number:
     unit_of_measurement: "A"
     min: 10
     max: 40
+    initial: 40
     step: 1
 
 input_select:
@@ -341,15 +343,16 @@ automation old:
           {%- set v = ret | regex_findall_index(rgx) -%}
           {{- v[0] -}}
 
-  - alias: Set OpenEVSE Pilot Current
-    id: set_openevse_pilot_current
+  - alias: Set OpenEVSE Max Current
+    id: set_openevse_max_current
+    initial_state: false
     trigger:
       platform: state
       entity_id: input_number.openevse_current
     condition:
       condition: template
       value_template: >-
-        {{- states('input_number.openevse_current') | regex_match('^[0-9]+\.?[0-9]*$') -}}
+        {{- states('input_number.openevse_current') | int(-1) > -1 -}}
     action:
       service: mqtt.publish
       data_template:

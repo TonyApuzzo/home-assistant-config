@@ -14,6 +14,13 @@ views:
           - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
             name: Motion
 
+      - title: Garage
+        id: garage
+        type: entities
+        show_header_toggle: false
+        entities:
+          - entity: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
+
 # **START** Media Player Conditionals
       - type: conditional
         conditions:
@@ -77,15 +84,15 @@ views:
           entity: media_player.upstairs_audio
       - type: conditional
         conditions:
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_speaker
             state_not: "off"
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_speaker
             state_not: "unknown"
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_speaker
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.master_bedroom
+          entity: media_player.master_bedroom_speaker
       - type: conditional
         conditions:
           - entity: media_player.shield
@@ -235,8 +242,8 @@ views:
           - remote.family_room_harmony_hub
           - media_player.downstairs_tx_rz820
           - entity: media_player.shield
-          - entity: media_player.onkyo_txrz820_4f772a
-            name: Chromecast Audio Built-in
+        #   - entity: media_player.onkyo_txrz820_4f772a
+        #     name: Chromecast Audio Built-in
           - media_player.tonysroku3
           - switch.denon_cd
 
@@ -272,6 +279,7 @@ views:
           - media_player.rx_v475_a16974
           - sensor.office_temperature
           - binary_sensor.office_occupancy
+          - switch.register_booster
 
       - title: Top of Stairs
         id: top_of_stairs
@@ -288,25 +296,9 @@ views:
         entities:
           - entity: light.master_bedroom_cove_lights
           - entity: switch.hank_hkzwso03_smart_plug_switch_2
-          - entity: media_player.master_bedroom
+          - entity: media_player.master_bedroom_speaker
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
-
-      - title: Garage
-        id: garage
-        type: entities
-        show_header_toggle: false
-        entities:
-          - entity: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
-          - entity: switch.openevse_enable
-          - entity: switch.openevse_divertmode
-          - entity: sensor.openevse_state
-          - entity: sensor.openevse_pilot_current
-          - entity: sensor.openevse_charging_current
-          - entity: sensor.openevse_session_energy
-          - entity: input_select.openevse_service_level
-          - entity: input_number.openevse_current
-          - entity: switch.openevse_save_current
 
       - title: Thermostat
         id: thermostat
@@ -327,6 +319,22 @@ views:
             name: Weather by Dark Sky
           - entity: weather.thermostat
             name: Weather by Ecobee
+
+      - title: OpenEVSE
+        id: openevse
+        type: entities
+        show_header_toggle: false
+        entities:
+          - entity: switch.openevse_enable
+          - entity: switch.openevse_divertmode
+          - entity: sensor.openevse_state
+          - entity: sensor.openevse_pilot_current
+          - entity: sensor.openevse_charging_current
+          - entity: sensor.openevse_session_energy
+          - entity: input_select.openevse_service_level
+          - entity: input_number.openevse_current
+          - entity: switch.openevse_save_current
+          - entity: automation.set_openevse_max_current
 
       - title: System
         id: system

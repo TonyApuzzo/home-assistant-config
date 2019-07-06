@@ -1,15 +1,15 @@
 homeassistant:
   # Name of the location where Home Assistant is running
-  name: Home
+  # name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: !secret home_latitude
-  longitude: !secret home_longitude
+  # latitude: !secret home_latitude
+  # longitude: !secret home_longitude
   # Impacts weather/sunrise data (altitude above sea level in meters)
-  elevation: !secret home_elevation
+  # elevation: !secret home_elevation
   # metric for Metric, imperial for Imperial
-  unit_system: !secret home_unit_system
+  # unit_system: !secret home_unit_system
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  time_zone: !secret home_time_zone
+  # time_zone: !secret home_time_zone
   # Load packages
   packages: !include_dir_named packages
   # Customization file
@@ -22,9 +22,6 @@ logger:
 #  logs:
 #    homeassistant.components.lutron_caseta: debug
 #    homeassistant.components.media_player.onkyo: debug
-
-# Show links to resources in log and frontend
-#introduction:
 
 # Enables the frontend
 frontend:
@@ -43,10 +40,28 @@ alexa:
 # Monitor system health
 system_health:
 
-# Monitor BLE Device Presence
+# Monitor Device Presence
 device_tracker:
-  - platform: bluetooth_tracker
-#   - platform: bluetooth_le_tracker
+  - platform: ddwrt
+    host: !secret ddwrt_host
+    username: !secret ddwrt_admin_username
+    password: !secret ddwrt_admin_password
+    interval_seconds: 15
+    consider_home: 180
+    new_device_defaults:
+      track_new_devices: true
+  - platform: ddwrt
+    host: !secret ddwrt2_host
+    username: !secret ddwrt2_admin_username
+    password: !secret ddwrt2_admin_password
+    interval_seconds: 15
+    consider_home: 180
+    new_device_defaults:
+      track_new_devices: true
+
+# Can't use Bluetooth since I don't have bluetooth adapter on this hardware
+#  - platform: bluetooth_tracker
+#  - platform: bluetooth_le_tracker
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # https://www.home-assistant.io/components/http/
@@ -65,18 +80,67 @@ timer:
   outdoor_motion:
     duration: '00:00:15'
 
+# Discover some devices automatically
+discovery:
+  ignore:
+    - homekit
+
+zeroconf:
+
+ssdp:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
 # Recorder is a disaster, so record as little as possible
 recorder:
-  purge_keep_days: 4
+  purge_keep_days: 10
   db_url: !secret recorder_db_url
   exclude:
+    domains:
+      - automation
+      - weblink
+      - updater
+      - group
+      - input_number
+      - input_select
+      - input_text
+      - input_boolean
+      - media_player
+      - remote
+      - scene
+      - script
+      - sun
+      - timer
+      - weather
+      - zwave
     entities:
-      - binary_sensor.vision_zp3102_pir_motion_sensor_sensor
+      - binary_sensor.vision_zg8101_garage_door_detector_sensor
+      - sensor.chromecast_radio_speakers
+      - sensor.chromecast_radio_station
+      - sensor.environment
+      - sensor.hank_hkzw_so03_smart_plug_previous_reading
+      - sensor.hank_hkzwso03_smart_plug_current
+      - sensor.hank_hkzwso03_smart_plug_current_2
+      - sensor.hank_hkzwso03_smart_plug_energy
+      - sensor.hank_hkzwso03_smart_plug_energy_2
       - sensor.hank_hkzwso03_smart_plug_previous_reading
       - sensor.hank_hkzwso03_smart_plug_previous_reading_2
       - sensor.hank_hkzwso03_smart_plug_previous_reading_3
+      - sensor.kwikset_front_door_access_control
+      - sensor.kwikset_front_door_alarm_level
+      - sensor.kwikset_front_door_alarm_type
+      - sensor.kwikset_front_door_power_management
+      - sensor.kwikset_front_door_sourcenodeid
+      - sensor.linear_gd00z4_garage_door_opener_remote_controller_access_control
+      - sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_level
+      - sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_type
+      - sensor.linear_gd00z4_garage_door_opener_remote_controller_burglar
+      - sensor.linear_gd00z4_garage_door_opener_remote_controller_sourcenodeid
       - sensor.neo_coolcam_power_plug_12a_alarm_level
       - sensor.neo_coolcam_power_plug_12a_alarm_type
+      - sensor.neo_coolcam_power_plug_12a_current
+      - sensor.neo_coolcam_power_plug_12a_energy
       - sensor.neo_coolcam_power_plug_12a_exporting
       - sensor.neo_coolcam_power_plug_12a_interval
       - sensor.neo_coolcam_power_plug_12a_interval_2
@@ -96,25 +160,20 @@ recorder:
       - sensor.netgear_r6700boing_packets_sent
       - sensor.netgear_r6700boing_packetssec_received
       - sensor.netgear_r6700boing_packetssec_sent
-      - sensor.openevse_rapi_gu
       - sensor.openevse_rapi_gc
+      - sensor.openevse_rapi_ge
+      - sensor.openevse_status
+      - sensor.vision_zg8101_garage_door_detector_alarm_level
+      - sensor.vision_zg8101_garage_door_detector_alarm_type
+      - sensor.vision_zg8101_garage_door_detector_burglar
+      - sensor.vision_zg8101_garage_door_detector_sourcenodeid
+      - sensor.vision_zp3102_pir_motion_sensor_alarm_level
       - sensor.vision_zp3102_pir_motion_sensor_alarm_type
       - sensor.vision_zp3102_pir_motion_sensor_appliance
       - sensor.vision_zp3102_pir_motion_sensor_burglar
       - sensor.vision_zp3102_pir_motion_sensor_homehealth
       - sensor.vision_zp3102_pir_motion_sensor_power_management
       - sensor.vision_zp3102_pir_motion_sensor_sourcenodeid
-#  include:
-#    domains:
-#      - cover
-#      - sensor
-#      - binary_sensor
-
-# Discover some devices automatically
-discovery:
-
-# Allows you to issue voice commands from the frontend in enabled browsers
-conversation:
 
 # Enables support for tracking state changes over time
 history:
@@ -315,7 +374,6 @@ switch:
   - platform: vesync
     username: !secret VESYNC_USERNAME
     password: !secret VESYNC_PASSWORD
-
 
 # Lights
 light:

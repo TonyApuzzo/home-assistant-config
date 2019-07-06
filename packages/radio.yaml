@@ -52,7 +52,7 @@ input_select:
       - media_player.office_chromecast
       - media_player.onkyo_txrz820_4f772a
       - media_player.shield
-      - media_player.master_bedroom
+      - media_player.master_bedroom_speaker
     initial: Everywhere
 
 input_text:

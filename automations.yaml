@@ -39,18 +39,40 @@
     - service: climate.ecobee_set_fan_min_on_time
       entity_id: climate.thermostat
       data_template:
-        # Only run the fan if our setpoint is above 66 otherwise it is too cold
-        # to mix air around
+        # Only mix air around if it is warm-ish
         fan_min_on_time: >-
-          {%- if state_attr('climate.thermostat', 'temperature')|float < 66.0 -%}
-            0
-          {%- elif states('sensor.ecobee_spread')|float > 5 -%}
+          {%- if state_attr('climate.thermostat', 'current_temperature')|float >= 67.0
+                 and states('sensor.ecobee_spread')|float > 3.0 -%}
             60
-          {%- elif states('sensor.ecobee_spread')|float > 3 -%}
-            30
           {%- else -%}
             0
           {%- endif -%}
+
+- alias: "Run Register Booster"
+  initial_state: on
+  trigger:
+    - entity_id: climate.thermostat
+      platform: state
+  condition:
+    - condition: template
+      value_template: >-
+        {{- is_state_attr('climate.thermostat', 'fan', 'on') -}}
+  action:
+    - service: switch.turn_on
+      entity_id: switch.register_booster
+
+- alias: "Stop Register Booster"
+  initial_state: on
+  trigger:
+    - entity_id: climate.thermostat
+      platform: state
+  condition:
+    - condition: template
+      value_template: >-
+        {{- not is_state_attr('climate.thermostat', 'fan', 'on') -}}
+  action:
+    - service: switch.turn_off
+      entity_id: switch.register_booster
 
 - alias: "Listen to CDs started from Harmony Hub"
   initial_state: on
