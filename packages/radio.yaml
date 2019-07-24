@@ -43,14 +43,16 @@ input_select:
       - Everywhere
       - Upstairs
       - Office
-      - Family Room
+      - Family Room Audio Chromecast
+      - Family Room Onkyo
       - Shield
       - Master Bedroom
     values:
       - media_player.everywhere
       - media_player.upstairs_audio
       - media_player.office_chromecast
-      - media_player.onkyo_txrz820_4f772a
+      - media_player.tv_room_acc
+      - media_player.onkyo_tx_rz820_4f772a
       - media_player.shield
       - media_player.master_bedroom_speaker
     initial: Everywhere
@@ -100,7 +102,7 @@ script:
     sequence:
       - service: media_player.volume_set
         data_template:
-          entity_id: sensor.chromecast_radio_speakers
+          entity_id: "{{ states('sensor.chromecast_radio_speakers') }}"
           volume_level: "{{ states('input_number.volume_radio') | float }}"
       - service: media_player.play_media
         data_template:

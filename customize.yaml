@@ -1,48 +1,43 @@
 media_player.master_bedroom_speaker:
-  icon: mdi:google-chrome
+  icon: mdi:speaker-wireless
   hidden: yes
 media_player.everywhere:
-  icon: mdi:speaker-wireless
+  icon: mdi:speaker-multiple
   hidden: yes
 media_player.office_chromecast:
-  icon: mdi:youtube-tv
+  icon: mdi:cast
   hidden: yes
-media_player.onkyo_txrz820_4f772a:
-  icon: mdi:google-chrome
-  hidden: yes
-media_player.upstairs_audio:
+media_player.onkyo_tx_rz820_4f772a:
   icon: mdi:speaker-wireless
   hidden: yes
-media_player.shield:
-  icon: mdi:youtube-tv
+media_player.tv_room_acc:
+  icon: mdi:speaker-wireless
   hidden: yes
-
+media_player.upstairs_audio:
+  icon: mdi:speaker-multiple
+  hidden: yes
+media_player.shield:
+  icon: mdi:cast
+  hidden: yes
+media_player.rx_v475_a16974:
+  icon: mdi:surround-sound
+  hidden: yes
 media_player.downstairs_tx_rz820:
   icon: mdi:surround-sound
   hidden: yes
-media_player.downstairs_tx_rz820_zone_2: 
+media_player.downstairs_tx_rz820_zone_2:
   icon: mdi:surround-sound
   hidden: yes
-media_player.downstairs_tx_rz820_zone_3: 
+media_player.downstairs_tx_rz820_zone_3:
   icon: mdi:surround-sound
   hidden: yes
-media_player.upstairs_tx8050: 
-  icon: mdi:radio
-  hidden: yes
-media_player.upstairs_tx8050_zone_2: 
-  icon: mdi:radio
-  hidden: yes
-media_player.rx_v475_a16974: 
-  icon: mdi:surround-sound
-  hidden: yes
-
-media_player.tonysroku3: 
+media_player.tonysroku3:
   icon: mdi:alpha-r-box
   hidden: yes
-media_player.tonys_office_roku: 
+media_player.tonys_office_roku:
   icon: mdi:alpha-r-box
   hidden: yes
-media_player.samsung_pdp60_pn60f8500: 
+media_player.samsung_pdp60_pn60f8500:
   icon: mdi:television
   hidden: yes
 
@@ -57,13 +52,13 @@ sensor.fridge_temperature:
 
 group.template:
   hidden: yes
-group.all_automations: 
+group.all_automations:
   hidden: yes
-group.all_lights: 
+group.all_lights:
   hidden: yes
-group.all_covers: 
+group.all_covers:
   hidden: yes
-group.all_remotes: 
+group.all_remotes:
   hidden: yes
 group.all_switches:
   hidden: yes

@@ -324,25 +324,6 @@ automation old:
             {%- set v = ret | regex_findall_index(rgx) -%}
             {{- [40, v[1]|int]|min -}}
 
-  - alias: Update OpenEVSE Current Setting
-    id: update_openevse_current_setting
-    trigger:
-      platform: state
-      entity_id: sensor.openevse_rapi_ge
-    condition:
-      condition: template
-      value_template: >-
-        {{- state_attr('sensor.openevse_rapi_ge', 'ret') | regex_match('^\$OK [1-9][0-9]? +') -}}
-    action:
-      service: input_number.set_value
-      data_template:
-        entity_id: input_number.openevse_current
-        value: >-
-          {%- set ret = state_attr('sensor.openevse_rapi_ge', 'ret') -%}
-          {%- set rgx = '(?<=^\$OK) ([0-9]+) ([0-9]+)' -%}
-          {%- set v = ret | regex_findall_index(rgx) -%}
-          {{- v[0] -}}
-
   - alias: Set OpenEVSE Max Current
     id: set_openevse_max_current
     initial_state: false

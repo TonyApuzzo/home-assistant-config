@@ -29,6 +29,12 @@ frontend:
 lovelace:
   mode: yaml
 
+panel_custom:
+  - name: zwavegraph2
+    sidebar_title: Z-Wave Graph
+    sidebar_icon: mdi:access-point-network
+    url_path: zwave
+
 # Enables configuration UI
 config:
 
@@ -244,22 +250,22 @@ emulated_roku:
       listen_port: 8060
 
 # Emulated Hue (for Alexa integration)
-emulated_hue:
-  expose_by_default: false
-  host_ip: 192.168.0.101
-  listen_port: 80
-  advertise_ip: 192.168.0.101
-  advertise_port: 80
-  entities:
-    switch.occupancy:
-      name: "Occupancy"
-      hidden: false
-    switch.hank_hkzwso03_smart_plug_switch:
-      name: "Hank One"
-      hidden: false
-    switch.hank_hkzwso03_smart_plug_switch_2:
-      name: "Bedroom Speakers"
-      hidden: false
+# emulated_hue:
+#   expose_by_default: false
+#   host_ip: 192.168.0.101
+#   listen_port: 80
+#   advertise_ip: 192.168.0.101
+#   advertise_port: 80
+#   entities:
+#     switch.occupancy:
+#       name: "Occupancy"
+#       hidden: false
+#     switch.hank_hkzwso03_smart_plug_switch:
+#       name: "Hank One"
+#       hidden: false
+#     switch.hank_hkzwso03_smart_plug_switch_2:
+#       name: "Bedroom Speakers"
+#       hidden: false
 
 # Lutron Caseta
 lutron_caseta:
