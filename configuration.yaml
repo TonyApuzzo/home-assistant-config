@@ -105,6 +105,7 @@ recorder:
   exclude:
     domains:
       - automation
+      - device_tracker
       - weblink
       - updater
       - group
@@ -173,7 +174,6 @@ recorder:
       - sensor.vision_zg8101_garage_door_detector_alarm_type
       - sensor.vision_zg8101_garage_door_detector_burglar
       - sensor.vision_zg8101_garage_door_detector_sourcenodeid
-      - sensor.vision_zp3102_pir_motion_sensor_alarm_level
       - sensor.vision_zp3102_pir_motion_sensor_alarm_type
       - sensor.vision_zp3102_pir_motion_sensor_appliance
       - sensor.vision_zp3102_pir_motion_sensor_burglar
