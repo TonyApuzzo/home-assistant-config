@@ -19,9 +19,11 @@ homeassistant:
 
 logger:
   default: info
-#  logs:
+  logs:
+    homeassistant.components.harmony: debug
 #    homeassistant.components.lutron_caseta: debug
 #    homeassistant.components.media_player.onkyo: debug
+
 
 # Enables the frontend
 frontend:

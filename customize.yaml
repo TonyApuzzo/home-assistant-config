@@ -1,4 +1,4 @@
-media_player.master_bedroom_speaker:
+media_player.master_bedroom_acc:
   icon: mdi:speaker-wireless
   hidden: yes
 media_player.everywhere:

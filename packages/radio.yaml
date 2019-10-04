@@ -54,7 +54,7 @@ input_select:
       - media_player.tv_room_acc
       - media_player.onkyo_tx_rz820_4f772a
       - media_player.shield
-      - media_player.master_bedroom_speaker
+      - media_player.master_bedroom_acc
     initial: Everywhere
 
 input_text:

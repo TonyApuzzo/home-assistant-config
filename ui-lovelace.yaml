@@ -84,15 +84,15 @@ views:
           entity: media_player.onkyo_tx_rz820_4f772a
       - type: conditional
         conditions:
-          - entity: media_player.master_bedroom_speaker
+          - entity: media_player.master_bedroom_acc
             state_not: "off"
-          - entity: media_player.master_bedroom_speaker
+          - entity: media_player.master_bedroom_acc
             state_not: "unknown"
-          - entity: media_player.master_bedroom_speaker
+          - entity: media_player.master_bedroom_acc
             state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.master_bedroom_speaker
+          entity: media_player.master_bedroom_acc
       - type: conditional
         conditions:
           - entity: media_player.shield
@@ -277,7 +277,7 @@ views:
         entities:
           - entity: light.master_bedroom_cove_lights
           - entity: switch.hank_hkzwso03_smart_plug_switch_2
-          - entity: media_player.master_bedroom_speaker
+          - entity: media_player.master_bedroom_acc
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
 
