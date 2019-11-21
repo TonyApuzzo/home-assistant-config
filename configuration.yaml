@@ -115,8 +115,6 @@ recorder:
       - input_select
       - input_text
       - input_boolean
-      - media_player
-      - remote
       - scene
       - script
       - sun
@@ -227,8 +225,8 @@ sensor:
         device_class: temperature
         value_template: >-
           {% set t = [
-            states('sensor.lil_bee_temperature'),
-            states('sensor.office_temperature'),
+            states('sensor.lil_bee_temperature_2'),
+            states('sensor.office_temperature_2'),
             states('sensor.thermostat_temperature')
             ] | map('regex_replace', '(^[-+]?[0-9]*\.?[0-9]+$)|.*', '\\1') 
               | reject('eq', '') 
@@ -283,13 +281,12 @@ weather:
 # ecobee thermostat
 ecobee:
   api_key: !secret ECOBEE_API_KEY
-  hold_temp: "False"
 
 # Harmony Remote
 remote:
   - platform: harmony
     name: "Family Room" 
-    activity: "TiVo Bolt"
+    activity: "Watch TiVo Bolt"
 
 # Media Players
 media_player:
@@ -297,19 +294,19 @@ media_player:
     scan_interval: 20
 
   - platform: onkyo
-    host: tx-rz820.local.
+    host: tx-rz820.local
     name: Downstairs TX-RZ820
     sources:
-      am: AM
+      am: Tuner (AM)
       aux: AUX
       bd-dvd: Bluray (BD/DVD)
       bluetooth: Bluetooth
       cbl-sat: TiVo (CBL/SAT)
       cd: CD
-      fm: FM
+      fm: Tuner (FM)
       game: Shield (GAME)
       net: NET
-      pc: PC
+      pc: Chromecast Audio (PC)
       phono: PHONO
       strm-box: Roku (STRM BOX)
       tv: TV

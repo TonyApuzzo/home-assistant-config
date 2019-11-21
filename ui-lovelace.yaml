@@ -33,24 +33,6 @@ views:
           entity: media_player.downstairs_tx_rz820
       - type: conditional
         conditions:
-          - entity: media_player.downstairs_tx_rz820_zone_2
-            state_not: "off"
-          - entity: media_player.downstairs_tx_rz820_zone_2
-            state_not: "unknown"
-        card:
-          type: media-control
-          entity: media_player.downstairs_tx_rz820_zone_2
-      - type: conditional
-        conditions:
-          - entity: media_player.downstairs_tx_rz820_zone_3
-            state_not: "off"
-          - entity: media_player.downstairs_tx_rz820_zone_3
-            state_not: "unknown"
-        card:
-          type: media-control
-          entity: media_player.downstairs_tx_rz820_zone_3
-      - type: conditional
-        conditions:
           - entity: media_player.everywhere
             state_not: "off"
           - entity: media_player.everywhere
