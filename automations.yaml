@@ -61,7 +61,7 @@
           and trigger.to_state.attributes.current_activity == "Listen to CDs" -}}
   action:
     service: switch.turn_on
-    entity_id: switch.denon_cd
+    entity_id: switch.denon_cd_plug_switch
 
 - alias: "Listen to CDs ended from Harmony Hub"
   initial_state: on
@@ -78,7 +78,7 @@
           and trigger.from_state.attributes.current_activity == "Listen to CDs" -}}
   action:
     service: switch.turn_off
-    entity_id: switch.denon_cd
+    entity_id: switch.denon_cd_plug_switch
 
 - alias: Casting to Yamaha RX-V475
   initial_state: on
@@ -259,7 +259,7 @@
   initial_state: on
   trigger:
     platform: state
-    entity_id: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
+    entity_id: cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
     to: 'open'
     for:
       minutes: 15
@@ -267,7 +267,7 @@
     condition: template
     value_template: >-
       {{ not is_state(
-          "cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label",
+          "cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label",
           "closed") }}
   action:
     service: persistent_notification.create
@@ -275,10 +275,10 @@
       notification_id: garage_warning
       title: >-
         Garage Door is 
-        {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
+        {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
       message: >-
         The garage door has been 
-        {{ states('cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label') }}
+        {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label') }}
         for at least 15 minutes, consider closing it.
 
 ##
@@ -362,7 +362,7 @@
   initial_state: on
   trigger:
     platform: numeric_state
-    entity_id: sensor.vision_zp3102_pir_motion_sensor_alarm_level
+    entity_id: sensor.vision_security_zp3102_pir_motion_sensor_alarm_level
     above: 0
   condition:
     condition: and

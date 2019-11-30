@@ -44,7 +44,7 @@ media_player.samsung_pdp60_pn60f8500:
 group.media_player_cast:
   hidden: yes
 
-switch.denon_cd:
+switch.denon_cd_plug_switch:
   icon: mdi:disc-player
   
 sensor.fridge_temperature:
@@ -62,31 +62,4 @@ group.all_remotes:
   hidden: yes
 group.all_switches:
   hidden: yes
-sensor.linear_gd00z4_garage_door_opener_remote_controller_access_control:
-  hidden: yes
-sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_level:
-  hidden: yes
-sensor.linear_gd00z4_garage_door_opener_remote_controller_alarm_type:
-  hidden: yes
-sensor.linear_gd00z4_garage_door_opener_remote_controller_burglar:
-  hidden: yes
-sensor.linear_gd00z4_garage_door_opener_remote_controller_sourcenodeid:
-  hidden: yes
-binary_sensor.linear_gd00z4_garage_door_opener_remote_controller_sensor:
-  hidden: yes
-sensor.hank_hkzwso03_smart_plug_previous_reading:
-  hidden: yes
-sensor.hank_hkzwso03_smart_plug_previous_reading_2:
-  hidden: yes
-sensor.hank_hkzwso03_smart_plug_previous_reading_3:
-  hidden: yes
-sensor.vision_zg8101_garage_door_detector_alarm_level:
-  hidden: yes
-sensor.vision_zg8101_garage_door_detector_alarm_type:
-  hidden: yes
-sensor.vision_zg8101_garage_door_detector_burglar:
-  hidden: yes
-sensor.vision_zg8101_garage_door_detector_sourcenodeid:
-  hidden: yes
-binary_sensor.vision_zg8101_garage_door_detector_sensor:
-  hidden: yes
+

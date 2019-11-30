@@ -9,9 +9,9 @@ views:
         entities:
           - lock.kwikset_front_door
           - light.switch_front_porch_light
-          - entity: sensor.vision_zp3102_pir_motion_sensor_temperature
+          - entity: sensor.vision_security_zp3102_pir_motion_sensor_temperature
             name: Temperature
-          - entity: sensor.vision_zp3102_pir_motion_sensor_alarm_level
+          - entity: sensor.vision_security_zp3102_pir_motion_sensor_alarm_level
             name: Motion
 
       - title: Garage
@@ -19,7 +19,7 @@ views:
         type: entities
         show_header_toggle: false
         entities:
-          - entity: cover.linear_gd00z4_garage_door_opener_remote_controller_barrier_state_label
+          - entity: cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
 
 # **START** Media Player Conditionals
       - type: conditional
@@ -205,7 +205,7 @@ views:
         #   - entity: media_player.onkyo_txrz820_4f772a
         #     name: Chromecast Audio Built-in
           - media_player.tonysroku3
-          - switch.denon_cd
+          - switch.denon_cd_plug_switch
 
       - title: Kitchen
         id: kitchen
@@ -233,9 +233,7 @@ views:
         type: entities
         entities:
           - light.hank_hkzwrgb01_rgb_bulb_level
-          - switch.hank_hkzwso03_smart_plug_switch
           - entity: switch.shenzhen_neo_electronics_co_ltd_power_plug_12a_switch_2
-            name: Tower Fan
           - media_player.office_chromecast
           - media_player.tonys_office_roku
           - media_player.rx_v475_a16974
@@ -258,7 +256,7 @@ views:
         show_header_toggle: false
         entities:
           - entity: light.master_bedroom_cove_lights
-          - entity: switch.hank_hkzwso03_smart_plug_switch_2
+          - entity: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
           - entity: media_player.master_bedroom_acc
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
