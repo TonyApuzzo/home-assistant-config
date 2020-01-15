@@ -121,65 +121,7 @@ recorder:
       - timer
       - weather
       - zwave
-    entities:
-      - binary_sensor.vision_zg8101_garage_door_detector_sensor
-      - sensor.chromecast_radio_speakers
-      - sensor.chromecast_radio_station
-      - sensor.environment
-      - sensor.hank_hkzw_so03_smart_plug_previous_reading
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_current
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_current_2
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_energy
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_energy_2
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_previous_reading
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_previous_reading_2
-      - sensor.hank_electronics_ltd_hkzw_so03_smart_plug_previous_reading_3
-      - sensor.kwikset_front_door_access_control
-      - sensor.kwikset_front_door_alarm_level
-      - sensor.kwikset_front_door_alarm_type
-      - sensor.kwikset_front_door_power_management
-      - sensor.kwikset_front_door_sourcenodeid
-      - sensor.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_access_control
-      - sensor.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_alarm_level
-      - sensor.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_alarm_type
-      - sensor.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_burglar
-      - sensor.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_sourcenodeid
-      - sensor.neo_coolcam_power_plug_12a_alarm_level
-      - sensor.neo_coolcam_power_plug_12a_alarm_type
-      - sensor.neo_coolcam_power_plug_12a_current
-      - sensor.neo_coolcam_power_plug_12a_energy
-      - sensor.neo_coolcam_power_plug_12a_exporting
-      - sensor.neo_coolcam_power_plug_12a_interval
-      - sensor.neo_coolcam_power_plug_12a_interval_2
-      - sensor.neo_coolcam_power_plug_12a_interval_3
-      - sensor.neo_coolcam_power_plug_12a_interval_4
-      - sensor.neo_coolcam_power_plug_12a_power_management
-      - sensor.neo_coolcam_power_plug_12a_previous_reading
-      - sensor.neo_coolcam_power_plug_12a_previous_reading_2
-      - sensor.neo_coolcam_power_plug_12a_previous_reading_3
-      - sensor.neo_coolcam_power_plug_12a_previous_reading_4
-      - sensor.neo_coolcam_power_plug_12a_sourcenodeid
-      - sensor.netgear_r6700boing_bytes_received
-      - sensor.netgear_r6700boing_bytes_sent
-      - sensor.netgear_r6700boing_kbytesec_received
-      - sensor.netgear_r6700boing_kbytesec_sent
-      - sensor.netgear_r6700boing_packets_received
-      - sensor.netgear_r6700boing_packets_sent
-      - sensor.netgear_r6700boing_packetssec_received
-      - sensor.netgear_r6700boing_packetssec_sent
-      - sensor.openevse_rapi_gc
-      - sensor.openevse_rapi_ge
-      - sensor.openevse_status
-      - sensor.vision_zg8101_garage_door_detector_alarm_level
-      - sensor.vision_zg8101_garage_door_detector_alarm_type
-      - sensor.vision_zg8101_garage_door_detector_burglar
-      - sensor.vision_zg8101_garage_door_detector_sourcenodeid
-      - sensor.vision_security_zp3102_pir_motion_sensor_alarm_type
-      - sensor.vision_security_zp3102_pir_motion_sensor_appliance
-      - sensor.vision_security_zp3102_pir_motion_sensor_burglar
-      - sensor.vision_security_zp3102_pir_motion_sensor_homehealth
-      - sensor.vision_security_zp3102_pir_motion_sensor_power_management
-      - sensor.vision_security_zp3102_pir_motion_sensor_sourcenodeid
+    entities: {}
 
 # Enables support for tracking state changes over time
 history:
@@ -243,11 +185,11 @@ tts:
 # Cloud
 cloud:
 
-# Emulated Roku
-emulated_roku:
-  servers:
-    - name: Home Assistant
-      listen_port: 8060
+# # Emulated Roku
+# emulated_roku:
+#   servers:
+#     - name: Home Assistant
+#       listen_port: 8060
 
 # Emulated Hue (for Alexa integration)
 # emulated_hue:
@@ -260,10 +202,7 @@ emulated_roku:
 #     switch.occupancy:
 #       name: "Occupancy"
 #       hidden: false
-#     switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch:
-#       name: "Hank One"
-#       hidden: false
-#     switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch_2:
+#     switch.audioengine_a2_plug_switch:
 #       name: "Bedroom Speakers"
 #       hidden: false
 
@@ -290,8 +229,8 @@ remote:
 
 # Media Players
 media_player:
-  - platform: roku
-    scan_interval: 20
+#   - platform: roku
+#     scan_interval: 20
 
   - platform: onkyo
     host: tx-rz820.local
@@ -382,6 +321,11 @@ switch:
 
 # Lights
 light:
+  - platform: group
+    name: Office Lights
+    entities:
+      - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+      - light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
   - platform: template
     lights:
       switch_front_foyer_chandelier:

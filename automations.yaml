@@ -1,365 +1,309 @@
-- alias: "Normalize Temperature"
-  initial_state: on
+- alias: Normalize Temperature
+  initial_state: true
   trigger:
-    - entity_id: sensor.ecobee_spread
-      platform: state
+  - entity_id: sensor.ecobee_spread
+    platform: state
   condition:
-    - condition: numeric_state
-      entity_id: sensor.ecobee_spread
-      above: 2.0
+  - condition: numeric_state
+    entity_id: sensor.ecobee_spread
+    above: 2.0
   action:
-    - service: climate.ecobee_set_fan_min_on_time
-      entity_id: climate.thermostat
-      data_template:
-        # Only mix air around if it is warm-ish
-        fan_min_on_time: >-
-          {%- if state_attr('climate.thermostat_2', 'current_temperature')|float >= 67.0
-                 and states('sensor.ecobee_spread')|float > 3.0 -%}
-            60
-          {%- else -%}
-            0
-          {%- endif -%}
-
-- alias: "Run Register Booster"
-  initial_state: on
+  - service: climate.ecobee_set_fan_min_on_time
+    entity_id: climate.thermostat
+    data_template:
+      fan_min_on_time: "{%- if state_attr('climate.thermostat_2', 'current_temperature')|float\
+        \ >= 67.0\n       and states('sensor.ecobee_spread')|float > 3.0 -%}\n  60\n\
+        {%- else -%}\n  0\n{%- endif -%}"
+  id: 6813cc0609514fcfbe11feb4a7d0b3c4
+- alias: Run Register Booster
+  initial_state: true
   trigger:
-    - entity_id: climate.thermostat_2
-      platform: state
+  - entity_id: climate.thermostat_2
+    platform: state
   condition:
-    - condition: template
-      value_template: >-
-        {{- is_state('climate.thermostat_2', 'cool') and is_state_attr('climate.thermostat_2', 'fan', 'on') -}}
+  - condition: template
+    value_template: '{{- is_state(''climate.thermostat_2'', ''cool'') and is_state_attr(''climate.thermostat_2'',
+      ''fan'', ''on'') -}}'
   action:
-    - service: switch.turn_on
-      entity_id: switch.register_booster
-
-- alias: "Stop Register Booster"
-  initial_state: on
+  - service: switch.turn_on
+    entity_id: switch.register_booster
+  id: e441ec815e224d70805b78b158ff7d0b
+- alias: Stop Register Booster
+  initial_state: true
   trigger:
-    - entity_id: climate.thermostat_2
-      platform: state
+  - entity_id: climate.thermostat_2
+    platform: state
   condition:
-    - condition: template
-      value_template: >-
-        {{- not is_state_attr('climate.thermostat_2', 'fan', 'on') -}}
+  - condition: template
+    value_template: '{{- not is_state_attr(''climate.thermostat_2'', ''fan'', ''on'')
+      -}}'
   action:
-    - service: switch.turn_off
-      entity_id: switch.register_booster
-
-- alias: "Listen to CDs started from Harmony Hub"
-  initial_state: on
+  - service: switch.turn_off
+    entity_id: switch.register_booster
+  id: f2cd1f21b4f74ef9a37589e0d9b2c56f
+- alias: Listen to CDs started from Harmony Hub
+  initial_state: true
   hide_entity: true
   trigger:
     platform: state
     entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{- trigger is defined 
-          and trigger.to_state is not none
-          and trigger.to_state.attributes is not none 
-          and trigger.to_state.attributes.current_activity == "Listen to CDs" -}}
+    value_template: "{{- trigger is defined \n    and trigger.to_state is not none\n\
+      \    and trigger.to_state.attributes is not none \n    and trigger.to_state.attributes.current_activity\
+      \ == \"Listen to CDs\" -}}"
   action:
     service: switch.turn_on
     entity_id: switch.denon_cd_plug_switch
-
-- alias: "Listen to CDs ended from Harmony Hub"
-  initial_state: on
+  id: 0135cb5921284e4787091873eb245f06
+- alias: Listen to CDs ended from Harmony Hub
+  initial_state: true
   hide_entity: true
   trigger:
     platform: state
     entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{- trigger is defined 
-          and trigger.from_state is not none
-          and trigger.from_state.attributes is not none 
-          and trigger.from_state.attributes.current_activity == "Listen to CDs" -}}
+    value_template: "{{- trigger is defined \n    and trigger.from_state is not none\n\
+      \    and trigger.from_state.attributes is not none \n    and trigger.from_state.attributes.current_activity\
+      \ == \"Listen to CDs\" -}}"
   action:
     service: switch.turn_off
     entity_id: switch.denon_cd_plug_switch
-
+  id: 689ac6077a2f43578a4078871d416a75
 - alias: Casting to Yamaha RX-V475
-  initial_state: on
+  initial_state: true
   hide_entity: true
   trigger:
-    - platform: state
-      entity_id: media_player.office_chromecast
-      to: playing
-    - platform: state
-      entity_id: media_player.everywhere
-      to: playing
-    - platform: state
-      entity_id: media_player.upstairs_audio
-      to: playing
+  - platform: state
+    entity_id: media_player.office_chromecast
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere
+    to: playing
+  - platform: state
+    entity_id: media_player.upstairs_audio
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{- trigger is defined 
-          and trigger.from_state is defined
-          and trigger.from_state.state != "playing"
-      -}}
+    value_template: "{{- trigger is defined \n    and trigger.from_state is defined\n\
+      \    and trigger.from_state.state != \"playing\"\n-}}"
   action:
-    - service: media_player.select_source
-      data:
-        entity_id: media_player.rx_v475_a16974
-        source: HDMI1
-    - condition: state
+  - service: media_player.select_source
+    data:
       entity_id: media_player.rx_v475_a16974
-      state:  'off'
-    - service: media_player.turn_on
-      data:
-        entity_id: media_player.rx_v475_a16974
-
+      source: HDMI1
+  - condition: state
+    entity_id: media_player.rx_v475_a16974
+    state: 'off'
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.rx_v475_a16974
+  id: fb582d1acf324c77bcdd43f08fc2e4dd
 - alias: Powering off Yamaha RX-V475
-  initial_state: on
+  initial_state: true
   hide_entity: true
   trigger:
-    - platform: state
-      entity_id: media_player.rx_v475_a16974
-      from: 'on'
-      to: 'off'
+  - platform: state
+    entity_id: media_player.rx_v475_a16974
+    from: 'on'
+    to: 'off'
   condition:
     condition: template
-    value_template: >-
-      {{- not is_state("media_player.office_chromecast", "off") -}}
+    value_template: '{{- not is_state("media_player.office_chromecast", "off") -}}'
   action:
     service: media_player.turn_off
     data:
       entity_id: media_player.office_chromecast
-
+  id: 6a964c94c92f49b699d258c2a018e1e3
 - alias: Casting to Onkyo TX-RZ820
-  initial_state: on
+  initial_state: true
   hide_entity: true
   trigger:
-    - platform: state
-      entity_id: media_player.onkyo_txrz820_4f772a
-      to: playing
-    # - platform: state
-    #   entity_id: media_player.everywhere
-    #   to: playing
+  - platform: state
+    entity_id: media_player.onkyo_txrz820_4f772a
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Network Music") -}}
+    value_template: '{{- not is_state_attr("remote.family_room_harmony_hub", "current_activity",
+      "Network Music") -}}'
   action:
     service: remote.turn_on
     data:
       entity_id: remote.family_room_harmony_hub
-      activity: "Network Music"
-
-# When casting to SHIELD, start the corresponding Harmony Activity
-- alias: "Casting to SHIELD"
-  initial_state: on
+      activity: Network Music
+  id: df5f52f3006d4b1ca9d64ecbded66987
+- alias: Casting to SHIELD
+  initial_state: true
   hide_entity: true
   trigger:
-    - platform: state
+  - platform: state
+    entity_id: media_player.shield
+    to: playing
+  condition:
+    condition: template
+    value_template: '{{- not is_state_attr("remote.family_room_harmony_hub", "current_activity",
+      "SHIELD TV") -}}'
+  action:
+    service: remote.turn_on
+    data:
+      entity_id: remote.family_room_harmony_hub
+      activity: SHIELD TV
+  id: f9812165edca4dfeb19ca130fbaa00dc
+- alias: Casting to SHIELD ended from Harmony Hub
+  initial_state: true
+  hide_entity: true
+  trigger:
+  - platform: state
+    entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: "{{- trigger is defined \n    and trigger.from_state is not none\n\
+      \    and trigger.from_state.attributes is not none \n    and trigger.from_state.attributes.current_activity\
+      \ == \"SHIELD TV\" -}}"
+  action:
+  - service: media_player.media_stop
+    data:
       entity_id: media_player.shield
-      to: "playing"
+  - service: media_player.turn_off
+    data:
+      entity_id: media_player.shield
+  id: a141efb59e9f429c9671c0033dcfe027
+- alias: Casting to TV Room ACC
+  initial_state: true
+  hide_entity: true
+  trigger:
+  - platform: state
+    entity_id: media_player.tv_room_acc
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "SHIELD TV") -}}
+    value_template: '{{- not is_state_attr("remote.family_room_harmony_hub", "current_activity",
+      "Chromecast Audio") -}}'
   action:
     service: remote.turn_on
     data:
       entity_id: remote.family_room_harmony_hub
-      activity: "SHIELD TV"
-
-- alias: "Casting to SHIELD ended from Harmony Hub"
-  initial_state: on
+      activity: Chromecast Audio
+  id: 123e9a5ea0d24d8982760adf1a5bf685
+- alias: Casting to TV Room ACC ended from Harmony Hub
+  initial_state: true
   hide_entity: true
   trigger:
-    - platform: state
-      entity_id: remote.family_room_harmony_hub
+  - platform: state
+    entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{- trigger is defined 
-          and trigger.from_state is not none
-          and trigger.from_state.attributes is not none 
-          and trigger.from_state.attributes.current_activity == "SHIELD TV" -}}
+    value_template: "{{- trigger is defined \n    and trigger.from_state is not none\n\
+      \    and trigger.from_state.attributes is not none \n    and trigger.from_state.attributes.current_activity\
+      \ == \"Chromecast Audio\" -}}"
   action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.shield
-    - service: media_player.turn_off
-      data:
-        entity_id: media_player.shield
-
-# When casting to TV Room ACC, start the corresponding Harmony Activity
-- alias: "Casting to TV Room ACC"
-  initial_state: on
-  hide_entity: true
-  trigger:
-    - platform: state
+  - service: media_player.media_stop
+    data:
       entity_id: media_player.tv_room_acc
-      to: "playing"
-    - platform: state
-      entity_id: media_player.everywhere
-      to: playing
-  condition:
-    condition: template
-    value_template: >-
-      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Chromecast Audio") -}}
-  action:
-    service: remote.turn_on
+  - service: media_player.turn_off
     data:
-      entity_id: remote.family_room_harmony_hub
-      activity: "Chromecast Audio"
-- alias: "Casting to TV Room ACC ended from Harmony Hub"
-  initial_state: on
-  hide_entity: true
-  trigger:
-    - platform: state
-      entity_id: remote.family_room_harmony_hub
-  condition:
-    condition: template
-    value_template: >-
-      {{- trigger is defined 
-          and trigger.from_state is not none
-          and trigger.from_state.attributes is not none 
-          and trigger.from_state.attributes.current_activity == "Chromecast Audio" -}}
-  action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.tv_room_acc
-    - service: media_player.turn_off
-      data:
-        entity_id: media_player.tv_room_acc
-
-- alias: "Fridge Temperature Warning"
+      entity_id: media_player.tv_room_acc
+  id: 580aacc8e53241ae94ff165b2a9e6469
+- alias: Fridge Temperature Warning
   id: fridge_alarm
-  initial_state: on
+  initial_state: true
   trigger:
     platform: state
     entity_id: sensor.fridge_temperature_2
   condition:
     condition: template
-    value_template: >-
-      {%- if is_state('sensor.fridge_temperature_2', 'unknown') -%}
-        false
-      {%- else -%}
-        {%- set t = states('sensor.fridge_temperature_2')|float -%}
-        {{- 33.0 > t or t > 42.0 -}}
-      {%- endif -%}
+    value_template: "{%- if is_state('sensor.fridge_temperature_2', 'unknown') -%}\n\
+      \  false\n{%- else -%}\n  {%- set t = states('sensor.fridge_temperature_2')|float\
+      \ -%}\n  {{- 33.0 > t or t > 42.0 -}}\n{%- endif -%}"
   action:
     service: persistent_notification.create
     data:
       notification_id: warning_fridge_temperature
-      message: >-
-        Fridge temperature 
-        {{states.sensor.fridge_temperature_2.state_with_unit}} at
-        {{now().strftime('%c')}}!
-      title: "Fridge Temp out of Range!"
-
-- alias: "Garage Warning"
+      message: Fridge temperature  {{states.sensor.fridge_temperature_2.state_with_unit}}
+        at {{now().strftime('%c')}}!
+      title: Fridge Temp out of Range!
+- alias: Garage Warning
   id: garage_warning
-  initial_state: on
+  initial_state: true
   trigger:
     platform: state
     entity_id: cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
-    to: 'open'
+    to: open
     for:
       minutes: 15
   condition:
     condition: template
-    value_template: >-
-      {{ not is_state(
-          "cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label",
-          "closed") }}
+    value_template: "{{ not is_state(\n    \"cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label\"\
+      ,\n    \"closed\") }}"
   action:
     service: persistent_notification.create
     data_template:
       notification_id: garage_warning
-      title: >-
-        Garage Door is 
-        {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title }}!
-      message: >-
-        The garage door has been 
-        {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label') }}
-        for at least 15 minutes, consider closing it.
-
-##
-# Alarm Type Alarm Level      Notification Event
-# 021        001              Lock Secured using Keyed cylinder or inside thumb-turn
-# 022        001              Lock Un-Secured using Keyed cylinder or inside thumb-turn
-# 027        001              Lock Auto Secured – Successful (Fully extended)
-# 017        001              Lock Secured at Keypad – Bolt Jammed (Not fully extended)
-# 018        000 or User-ID#* Lock Secured at Keypad – Successful (Fully extended)
-# 026        001              Lock Auto Secured – Bolt Jammed (Not fully extended)
-# 019        User-ID#*        Lock Un-Secured by User (User-ID) at Keypad
-# 023        001              Lock Secured by Controller – Bolt Jammed (Not fully extended)
-# 024        001              Lock Secured by Controller – Successful (Fully extended)
-# 025        001              Lock Un-Secured by Controller – Successful (Fully retracted)
-# 112        User-ID#*        New User Code (User-ID#) added to the lock
-# 032        001              All User Codes deleted from lock
-# 161        001              Failed User Code attempt at Keypad
-# 162        User-ID#*        Attempted access by user (User-ID#) outside of scheduled
-# 167        001              Low battery level
-# 168        001              Critical battery level
-# 169        001              Battery level too low to operate lock 
+      title: Garage Door is  {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title
+        }}!
+      message: The garage door has been  {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
+        }} for at least 15 minutes, consider closing it.
 - id: sync_front_door_unlocked
   trigger:
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: '19'
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: '22'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '19'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '22'
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: locked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: locked
   action:
-    - data:
-        entity_id: lock.kwikset_front_door
-      service: lock.unlock
-  initial_state: on
-
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.unlock
+  initial_state: true
 - id: sync_front_door_locked
   trigger:
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: '18'
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: '21'
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: '27'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '18'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '21'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '27'
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: unlocked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
   action:
     data:
       entity_id: lock.kwikset_front_door
     service: lock.lock
-  initial_state: on
-
+  initial_state: true
 - id: autolock_front_door
   alias: Autolock Front Door
   trigger:
-    - entity_id: lock.kwikset_front_door
-      for:
-        minutes: 5
-      platform: state
-      to: unlocked
+  - entity_id: lock.kwikset_front_door
+    for:
+      minutes: 5
+    platform: state
+    to: unlocked
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: unlocked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
   action:
-    - data:
-        entity_id: lock.kwikset_front_door
-      service: lock.lock
-  initial_state: on
-
-- alias: "Turn on Porch Light when motion detected"
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.lock
+  initial_state: true
+- alias: Turn on Porch Light when motion detected
   id: outdoor_motion
-  initial_state: on
+  initial_state: true
   trigger:
     platform: numeric_state
     entity_id: sensor.vision_security_zp3102_pir_motion_sensor_alarm_level
@@ -367,37 +311,34 @@
   condition:
     condition: and
     conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: or
+      conditions:
       - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: light.switch_front_porch_light
-            state: 'off'
-          - condition: state
-            entity_id: timer.outdoor_motion
-            state: active
-  action:
-    - service: light.turn_on
-      data:
         entity_id: light.switch_front_porch_light
-    - service: timer.start
-      data:
+        state: 'off'
+      - condition: state
         entity_id: timer.outdoor_motion
-        duration: '00:05:00'
-
-- alias: "Turn off Porch Light after motion timeout"
+        state: active
+  action:
+  - service: light.turn_on
+    data:
+      entity_id: light.switch_front_porch_light
+  - service: timer.start
+    data:
+      entity_id: timer.outdoor_motion
+      duration: 00:05:00
+- alias: Turn off Porch Light after motion timeout
   id: motion_timeout
-  initial_state: on
+  initial_state: true
   trigger:
     platform: event
     event_type: timer.finished
     event_data:
       entity_id: timer.outdoor_motion
   action:
-    - service: light.turn_off
-      data:
-        entity_id: light.switch_front_porch_light
-
-# vim: ts=2 sw=2 expandtab ai
+  - service: light.turn_off
+    data:
+      entity_id: light.switch_front_porch_light

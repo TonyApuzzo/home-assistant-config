@@ -1,3 +1,13 @@
+# This group is exposed in the HassIQ Widget on my garmin watch
+hassiq:
+  entities:
+    - switch.occupancy
+    - lock.kwikset_front_door
+    - cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
+    - switch.all_audio
+    - switch.front_porch_light
+    - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+    - light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
 
 media_player_cast:
   entities:

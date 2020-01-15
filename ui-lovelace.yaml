@@ -232,14 +232,14 @@ views:
         show_header_toggle: false
         type: entities
         entities:
-          - light.hank_hkzwrgb01_rgb_bulb_level
-          - entity: switch.shenzhen_neo_electronics_co_ltd_power_plug_12a_switch_2
+          - light.office_lights
+          - entity: switch.cable_modem_plug_switch
           - media_player.office_chromecast
           - media_player.tonys_office_roku
           - media_player.rx_v475_a16974
           - sensor.office_temperature
           - binary_sensor.office_occupancy
-          - switch.register_booster
+          - switch.register_booster_plug_switch
           - automation.run_register_booster
 
       - title: Top of Stairs
@@ -256,7 +256,7 @@ views:
         show_header_toggle: false
         entities:
           - entity: light.master_bedroom_cove_lights
-          - entity: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
+          - entity: switch.audioengine_a2_plug_switch
           - entity: media_player.master_bedroom_acc
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
