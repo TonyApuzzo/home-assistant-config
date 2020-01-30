@@ -49,17 +49,3 @@ switch.denon_cd_plug_switch:
   
 sensor.fridge_temperature:
   icon: mdi:fridge-outline
-
-group.template:
-  hidden: yes
-group.all_automations:
-  hidden: yes
-group.all_lights:
-  hidden: yes
-group.all_covers:
-  hidden: yes
-group.all_remotes:
-  hidden: yes
-group.all_switches:
-  hidden: yes
-
