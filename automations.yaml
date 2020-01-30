@@ -8,7 +8,7 @@
     entity_id: sensor.ecobee_spread
     above: 2.0
   action:
-  - service: climate.ecobee_set_fan_min_on_time
+  - service: ecobee.set_fan_min_on_time
     entity_id: climate.thermostat
     data_template:
       fan_min_on_time: "{%- if state_attr('climate.thermostat_2', 'current_temperature')|float\

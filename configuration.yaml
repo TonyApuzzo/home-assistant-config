@@ -20,9 +20,9 @@ homeassistant:
 logger:
   default: warn
   logs:
-    homeassistant.components.harmony: debug
+    homeassistant.components.mqtt: debug
+    homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: debug
-
 
 # Enables the frontend
 frontend:
@@ -310,19 +310,15 @@ switch:
             mdi:fan-off
           {%- endif -%}
         turn_on:
-          - service: climate.ecobee_set_fan_min_on_time
+          - service: ecobee.set_fan_min_on_time
             data:
               entity_id: climate.thermostat
               fan_min_on_time: 60
         turn_off:
-          - service: climate.ecobee_set_fan_min_on_time
+          - service: ecobee.set_fan_min_on_time
             data:
               entity_id: climate.thermostat
               fan_min_on_time: 0
-  # Switch
-  - platform: vesync
-    username: !secret VESYNC_USERNAME
-    password: !secret VESYNC_PASSWORD
 
 # Lights
 light:
