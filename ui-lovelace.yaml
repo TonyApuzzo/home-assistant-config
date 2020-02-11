@@ -223,8 +223,8 @@ views:
         entities:
           - light.living_room_table
           - light.switch_living_room_floor_lamp
-          - sensor.thermostat_temperature
-          - sensor.thermostat_humidity
+          - sensor.thermostat_current_temperature
+          - sensor.thermostat_current_humidity
           - binary_sensor.thermostat_occupancy
 
       - title: Office
@@ -278,8 +278,6 @@ views:
           - sun.sun
           - entity: weather.dark_sky
             name: Weather by Dark Sky
-          - entity: weather.thermostat
-            name: Weather by Ecobee
 
       - title: OpenEVSE
         id: openevse

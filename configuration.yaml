@@ -20,7 +20,7 @@ homeassistant:
 logger:
   default: warn
   logs:
-    homeassistant.components.mqtt: debug
+    homeassistant.components.mqtt: info
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: debug
 
@@ -158,7 +158,19 @@ sensor:
       environment:
         friendly_name: 'Environment'
         value_template: !secret ENVIRONMENT
-        
+
+      thermostat_current_humidity:
+        value_template: '{{ (state_attr("climate.thermostat", "current_humidity") | int ) }}' 
+        friendly_name: 'Current Humidity'
+        unit_of_measurement: '%'
+        icon_template: mdi:water-percent
+
+      thermostat_current_temperature:
+        value_template: '{{ (state_attr("climate.thermostat", "current_temperature") | int ) }}' 
+        friendly_name: 'Current Temperature'
+        unit_of_measurement: '°F'
+        device_class: temperature
+
       # Difference between max and minimum temperature in the house
       ecobee_spread:
         friendly_name: 'Temperature Spread'
@@ -166,9 +178,9 @@ sensor:
         device_class: temperature
         value_template: >-
           {% set t = [
-            states('sensor.lil_bee_temperature_2'),
-            states('sensor.office_temperature_2'),
-            states('sensor.thermostat_temperature')
+            states('sensor.lil_bee_temperature'),
+            states('sensor.office_temperature'),
+            states('sensor.thermostat_current_temperature'),
             ] | map('regex_replace', '(^[-+]?[0-9]*\.?[0-9]+$)|.*', '\\1') 
               | reject('eq', '') 
               | map('float')
@@ -182,7 +194,7 @@ tts:
     service_name: google_say
 
 # Cloud
-cloud:
+#cloud:
 
 # # Emulated Roku
 # emulated_roku:
@@ -300,11 +312,11 @@ switch:
       thermostat_fan_mode:
         friendly_name: "Thermostat Fan Mode"
         value_template: >-
-          {{- state_attr('climate.thermostat', 'fan_min_on_time') is not none
-              and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -}}
+          {{- state_attr('climate.ecobee_thermostat', 'fan_min_on_time') is not none
+              and state_attr('climate.ecobee_thermostat', 'fan_min_on_time')|int > 5 -}}
         icon_template: >-
-          {%- if state_attr('climate.thermostat', 'fan_min_on_time') is not none
-              and state_attr('climate.thermostat', 'fan_min_on_time')|int > 5 -%}
+          {%- if state_attr('climate.ecobee_thermostat', 'fan_min_on_time') is not none
+              and state_attr('climate.ecobee_thermostat', 'fan_min_on_time')|int > 5 -%}
             mdi:fan
           {%- else -%}
             mdi:fan-off
@@ -312,12 +324,12 @@ switch:
         turn_on:
           - service: ecobee.set_fan_min_on_time
             data:
-              entity_id: climate.thermostat
+              entity_id: climate.ecobee_thermostat
               fan_min_on_time: 60
         turn_off:
           - service: ecobee.set_fan_min_on_time
             data:
-              entity_id: climate.thermostat
+              entity_id: climate.ecobee_thermostat
               fan_min_on_time: 0
 
 # Lights
