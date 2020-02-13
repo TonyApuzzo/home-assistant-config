@@ -219,7 +219,7 @@ tts:
 
 # Lutron Caseta
 lutron_caseta:
-  host: !secret lutron_caseta_host
+  host: !secret LUTRON_CASETA_HOST
   keyfile: /ssl/caseta.key
   certfile: /ssl/caseta.crt
   ca_certs: /ssl/caseta-bridge.crt
@@ -244,7 +244,7 @@ media_player:
 #     scan_interval: 20
 
   - platform: onkyo
-    host: tx-rz820.local
+    host: tx-rz820.lan
     name: Downstairs TX-RZ820
     sources:
       am: Tuner (AM)
