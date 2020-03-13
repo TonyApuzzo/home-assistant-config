@@ -131,6 +131,36 @@ sensor:
             unknown
           {% endif %}
 
+      openevse_charging_current:
+        friendly_name: "OpenEVSE Charging Current"
+        icon_template: mdi:current-ac
+        unit_of_measurement: 'A'
+        entity_id:
+          - sensor.openevse_status
+        value_template: >-
+          {% set charge_rate = state_attr('sensor.openevse_status',
+                               'charge_rate') | float(-1) %}
+          {% if charge_rate >= 0 %}
+            {{ charge_rate }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      openevse_pilot_current:
+        friendly_name: "OpenEVSE Pilot Current"
+        icon_template: mdi:current-ac
+        unit_of_measurement: 'A'
+        entity_id:
+          - sensor.openevse_status
+        value_template: >-
+          {% set pilot = state_attr('sensor.openevse_status',
+                               'pilot') | float(-1) %}
+          {% if pilot >= 0 %}
+            {{ pilot }}
+          {% else %}
+            unknown
+          {% endif %}
+
       openevse_state:
         friendly_name: "OpenEVSE State"
         entity_id:
@@ -167,6 +197,7 @@ sensor:
           {%- else -%}
             Unknown ({{- state_attr('sensor.openevse_status', 'state') -}})
           {%- endif -%}
+    
 
   - platform: mqtt
     name: "OpenEVSE Temp 1"
@@ -181,7 +212,7 @@ sensor:
       {{- C2F(value|float)|float -}}
 
   - platform: mqtt
-    name: "OpenEVSE Charging Current"
+    name: "OpenEVSE Charging Current (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_AMP
     unit_of_measurement: "A"
@@ -189,7 +220,7 @@ sensor:
       {{- (value|float / 1000.0) | round(1) -}}
 
   - platform: mqtt
-    name: "OpenEVSE Pilot Current"
+    name: "OpenEVSE Pilot Current (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_PILOT
     unit_of_measurement: "A"

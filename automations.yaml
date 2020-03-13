@@ -1,50 +1,51 @@
 - alias: Normalize Temperature
   initial_state: true
   trigger:
-    - entity_id: sensor.ecobee_spread
-      platform: state
+  - entity_id: sensor.ecobee_spread
+    platform: state
   condition:
-    - condition: numeric_state
-      entity_id: sensor.ecobee_spread
-      above: 2.0
+  - condition: numeric_state
+    entity_id: sensor.ecobee_spread
+    above: 2.0
   action:
-    - service: ecobee.set_fan_min_on_time
-      data_template:
-        entity_id: climate.ecobee_thermostat
-        fan_min_on_time: >-
-          {%- if state_attr('climate.thermostat', 'current_temperature')|float >= 67.0 
-              and states('sensor.ecobee_spread')|float > 3.0 -%}
-            60
-          {%- else -%}
-            0
-          {%- endif -%}
+  - service: ecobee.set_fan_min_on_time
+    data_template:
+      entity_id: climate.ecobee_thermostat
+      fan_min_on_time: "{%- if state_attr('climate.thermostat', 'current_temperature')|float\
+        \ >= 67.0 \n    and states('sensor.ecobee_spread')|float > 3.0 -%}\n  60\n\
+        {%- else -%}\n  0\n{%- endif -%}"
   id: 6813cc0609514fcfbe11feb4a7d0b3c4
-- alias: Run Register Booster
-  initial_state: true
+- id: e441ec815e224d70805b78b158ff7d0b
+  alias: Run Register Booster
   trigger:
-    - entity_id: climate.thermostat
-      platform: state
+  - entity_id: climate.thermostat
+    platform: state
   condition:
-    - condition: template
-      value_template: >-
-        {{- is_state("climate.thermostat" "cool") and is_state_attr("climate.thermostat", "fan", "on") -}}
+  - condition: template
+    value_template: '{{- is_state("climate.thermostat" "cool") and is_state_attr("climate.thermostat",
+      "fan", "on") -}}'
   action:
-    - service: switch.turn_on
-      entity_id: switch.register_booster
-  id: e441ec815e224d70805b78b158ff7d0b
-- alias: Stop Register Booster
+  - entity_id: switch.register_booster_plug_switch
+    service: switch.turn_on
   initial_state: true
+- id: f2cd1f21b4f74ef9a37589e0d9b2c56f
+  alias: Stop Register Booster
   trigger:
-    - entity_id: climate.thermostat
-      platform: state
+  - entity_id: climate.thermostat
+    platform: state
   condition:
-    - condition: template
-      value_template: >-
-        {{- not is_state_attr('climate.thermostat', 'fan', 'on') -}}
+  - condition: template
+    value_template: '{{- not is_state_attr(''climate.thermostat'', ''fan'', ''on'')
+      -}}'
+  - condition: device
+    device_id: ad80753855d64fbfb84fa35223d54bb5
+    domain: switch
+    entity_id: switch.register_booster_plug_switch
+    type: is_on
   action:
-    - service: switch.turn_off
-      entity_id: switch.register_booster
-  id: f2cd1f21b4f74ef9a37589e0d9b2c56f
+  - entity_id: switch.register_booster_plug_switch
+    service: switch.turn_off
+  initial_state: true
 - alias: Listen to CDs started from Harmony Hub
   initial_state: true
   trigger:
@@ -52,12 +53,9 @@
     entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{-
-        trigger is defined and trigger.to_state is not none
-        and trigger.to_state.attributes is not none
-        and trigger.to_state.attributes.current_activity == "Listen to CDs"
-      -}}
+    value_template: "{{-\n  trigger is defined and trigger.to_state is not none\n\
+      \  and trigger.to_state.attributes is not none\n  and trigger.to_state.attributes.current_activity\
+      \ == \"Listen to CDs\"\n-}}"
   action:
     service: switch.turn_on
     entity_id: switch.denon_cd_plug_switch
@@ -69,60 +67,65 @@
     entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{- 
-        trigger is defined 
-        and trigger.from_state is not none
-        and trigger.from_state.attributes is not none 
-        and trigger.from_state.attributes.current_activity == "Listen to CDs" 
-      -}}
+    value_template: "{{- \n  trigger is defined \n  and trigger.from_state is not\
+      \ none\n  and trigger.from_state.attributes is not none \n  and trigger.from_state.attributes.current_activity\
+      \ == \"Listen to CDs\" \n-}}"
   action:
     service: switch.turn_off
     entity_id: switch.denon_cd_plug_switch
   id: 689ac6077a2f43578a4078871d416a75
+- alias: Listen to Chromecast Audio ended from Harmony Hub
+  id: cca_ended_harmony
+  initial_state: true
+  trigger:
+    platform: state
+    entity_id: remote.family_room_harmony_hub
+  condition:
+    condition: template
+    value_template: "{{- \n  trigger is defined \n  and trigger.from_state is not\
+      \ none\n  and trigger.from_state.attributes is not none \n  and trigger.from_state.attributes.current_activity\
+      \ == \"Chromecast Audio\" \n-}}"
+  action:
+    service: media_player.media_pause
+    entity_id: media_player.everywhere
 - alias: Casting to Yamaha RX-V475
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: media_player.office_chromecast
-      to: playing
-    - platform: state
-      entity_id: media_player.everywhere
-      to: playing
-    - platform: state
-      entity_id: media_player.upstairs_audio
-      to: playing
+  - platform: state
+    entity_id: media_player.office_chromecast
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere
+    to: playing
+  - platform: state
+    entity_id: media_player.upstairs_audio
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{-
-        trigger is defined
-        and trigger.from_state is defined
-        and trigger.from_state.state != 'playing'
-      -}}
+    value_template: "{{-\n  trigger is defined\n  and trigger.from_state is defined\n\
+      \  and trigger.from_state.state != 'playing'\n-}}"
   action:
-    - service: media_player.select_source
-      data:
-        entity_id: media_player.rx_v475_a16974
-        source: HDMI1
-    - condition: state
+  - service: media_player.select_source
+    data:
       entity_id: media_player.rx_v475_a16974
-      state: "off"
-    - service: media_player.turn_on
-      data:
-        entity_id: media_player.rx_v475_a16974
+      source: HDMI1
+  - condition: state
+    entity_id: media_player.rx_v475_a16974
+    state: 'off'
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.rx_v475_a16974
   id: fb582d1acf324c77bcdd43f08fc2e4dd
 - alias: Powering off Yamaha RX-V475
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: media_player.rx_v475_a16974
-      from: "on"
-      to: "off"
+  - platform: state
+    entity_id: media_player.rx_v475_a16974
+    from: 'on'
+    to: 'off'
   condition:
     condition: template
-    value_template: >-
-      {{- not is_state("media_player.office_chromecast", "off") -}}
+    value_template: '{{- not is_state("media_player.office_chromecast", "off") -}}'
   action:
     service: media_player.turn_off
     data:
@@ -131,15 +134,13 @@
 - alias: Casting to Onkyo TX-RZ820
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: media_player.onkyo_txrz820_4f772a
-      to: playing
+  - platform: state
+    entity_id: media_player.onkyo_txrz820_4f772a
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{-
-        not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Network Music")
-      -}}
+    value_template: "{{-\n  not is_state_attr(\"remote.family_room_harmony_hub\",\
+      \ \"current_activity\", \"Network Music\")\n-}}"
   action:
     service: remote.turn_on
     data:
@@ -149,16 +150,13 @@
 - alias: Casting to SHIELD
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: media_player.shield
-      to: playing
+  - platform: state
+    entity_id: media_player.shield
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{-
-        not is_state_attr("remote.family_room_harmony_hub", "current_activity",
-        "SHIELD TV")
-      -}}
+    value_template: "{{-\n  not is_state_attr(\"remote.family_room_harmony_hub\",\
+      \ \"current_activity\",\n  \"SHIELD TV\")\n-}}"
   action:
     service: remote.turn_on
     data:
@@ -168,42 +166,34 @@
 - alias: Casting to SHIELD ended from Harmony Hub
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: remote.family_room_harmony_hub
+  - platform: state
+    entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{-
-        trigger is defined
-        and trigger.from_state is not none
-        and trigger.from_state.attributes is not none
-        and trigger.from_state.attributes.current_activity == "SHIELD TV"
-      -}}
+    value_template: "{{-\n  trigger is defined\n  and trigger.from_state is not none\n\
+      \  and trigger.from_state.attributes is not none\n  and trigger.from_state.attributes.current_activity\
+      \ == \"SHIELD TV\"\n-}}"
   action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.shield
-    - service: media_player.turn_off
-      data:
-        entity_id: media_player.shield
+  - service: media_player.media_stop
+    data:
+      entity_id: media_player.shield
+  - service: media_player.turn_off
+    data:
+      entity_id: media_player.shield
   id: a141efb59e9f429c9671c0033dcfe027
 - alias: Casting to Family Room speaker
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: media_player.family_room_speaker
-      to: playing
-    - platform: state
-      entity_id: media_player.everywhere
-      to: playing
+  - platform: state
+    entity_id: media_player.family_room_speaker
+    to: playing
+  - platform: state
+    entity_id: media_player.everywhere
+    to: playing
   condition:
     condition: template
-    value_template: >-
-      {{-
-        not is_state_attr(
-          "remote.family_room_harmony_hub", "current_activity",
-          "Chromecast Audio")
-      -}}
+    value_template: "{{-\n  not is_state_attr(\n    \"remote.family_room_harmony_hub\"\
+      , \"current_activity\",\n    \"Chromecast Audio\")\n-}}"
   action:
     service: remote.turn_on
     data:
@@ -213,24 +203,20 @@
 - alias: Casting to Family Room speaker ended from Harmony Hub
   initial_state: true
   trigger:
-    - platform: state
-      entity_id: remote.family_room_harmony_hub
+  - platform: state
+    entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: >-
-      {{-
-        trigger is defined and
-        trigger.from_state is not none and
-        trigger.from_state.attributes is not none and
-        trigger.from_state.attributes.current_activity == "Chromecast Audio"
-      -}}"
+    value_template: "{{-\n  trigger is defined and\n  trigger.from_state is not none\
+      \ and\n  trigger.from_state.attributes is not none and\n  trigger.from_state.attributes.current_activity\
+      \ == \"Chromecast Audio\"\n-}}\""
   action:
-    - service: media_player.media_stop
-      data:
-        entity_id: media_player.family_room_speaker
-    - service: media_player.turn_off
-      data:
-        entity_id: media_player.family_room_speaker
+  - service: media_player.media_stop
+    data:
+      entity_id: media_player.family_room_speaker
+  - service: media_player.turn_off
+    data:
+      entity_id: media_player.family_room_speaker
   id: 580aacc8e53241ae94ff165b2a9e6469
 - alias: Fridge Temperature Warning
   id: fridge_alarm
@@ -240,19 +226,14 @@
     entity_id: sensor.fridge_temperature
   condition:
     condition: template
-    value_template: >-
-      {%- if is_state('sensor.fridge_temperature', 'unknown') -%}
-        false
-      {%- else -%}
-        {%- set t = states('sensor.fridge_temperature')|float -%}
-        {{- 33.0 > t or t > 42.0 -}}
-      {%- endif -%}"
+    value_template: "{%- if is_state('sensor.fridge_temperature', 'unknown') -%}\n\
+      \  false\n{%- else -%}\n  {%- set t = states('sensor.fridge_temperature')|float\
+      \ -%}\n  {{- 33.0 > t or t > 42.0 -}}\n{%- endif -%}\""
   action:
     service: persistent_notification.create
     data:
       notification_id: warning_fridge_temperature
-      message:
-        Fridge temperature  {{states.sensor.fridge_temperature.state_with_unit}}
+      message: Fridge temperature  {{states.sensor.fridge_temperature.state_with_unit}}
         at {{now().strftime('%c')}}!
       title: Fridge Temp out of Range!
 - alias: Garage Warning
@@ -266,54 +247,48 @@
       minutes: 15
   condition:
     condition: template
-    value_template: >-
-      {{-
-        not is_state(
-          "cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label",
-          "closed")
-      -}}
+    value_template: "{{-\n  not is_state(\n    \"cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label\"\
+      ,\n    \"closed\")\n-}}"
   action:
     service: persistent_notification.create
     data_template:
       notification_id: garage_warning
-      title: >-
-        Garage Door is {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title
+      title: Garage Door is {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title
         }}!
-      message: >-
-        The garage door has been {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
+      message: The garage door has been {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
         }} for at least 15 minutes, consider closing it.
 - id: sync_front_door_unlocked
   trigger:
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: "19"
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: "22"
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '19'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '22'
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: locked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: locked
   action:
-    - data:
-        entity_id: lock.kwikset_front_door
-      service: lock.unlock
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.unlock
   initial_state: true
 - id: sync_front_door_locked
   trigger:
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: "18"
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: "21"
-    - entity_id: sensor.kwikset_front_door_alarm_type
-      platform: state
-      to: "27"
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '18'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '21'
+  - entity_id: sensor.kwikset_front_door_alarm_type
+    platform: state
+    to: '27'
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: unlocked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
   action:
     data:
       entity_id: lock.kwikset_front_door
@@ -322,19 +297,19 @@
 - id: autolock_front_door
   alias: Autolock Front Door
   trigger:
-    - entity_id: lock.kwikset_front_door
-      for:
-        minutes: 5
-      platform: state
-      to: unlocked
+  - entity_id: lock.kwikset_front_door
+    for:
+      minutes: 5
+    platform: state
+    to: unlocked
   condition:
-    - condition: state
-      entity_id: lock.kwikset_front_door
-      state: unlocked
+  - condition: state
+    entity_id: lock.kwikset_front_door
+    state: unlocked
   action:
-    - data:
-        entity_id: lock.kwikset_front_door
-      service: lock.lock
+  - data:
+      entity_id: lock.kwikset_front_door
+    service: lock.lock
   initial_state: true
 - alias: Turn on Porch Light when motion detected
   id: outdoor_motion
@@ -346,25 +321,25 @@
   condition:
     condition: and
     conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: or
+      conditions:
       - condition: state
-        entity_id: sun.sun
-        state: below_horizon
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: light.switch_front_porch_light
-            state: "off"
-          - condition: state
-            entity_id: timer.outdoor_motion
-            state: active
-  action:
-    - service: light.turn_on
-      data:
         entity_id: light.switch_front_porch_light
-    - service: timer.start
-      data:
+        state: 'off'
+      - condition: state
         entity_id: timer.outdoor_motion
-        duration: 00:05:00
+        state: active
+  action:
+  - service: light.turn_on
+    data:
+      entity_id: light.switch_front_porch_light
+  - service: timer.start
+    data:
+      entity_id: timer.outdoor_motion
+      duration: 00:05:00
 - alias: Turn off Porch Light after motion timeout
   id: motion_timeout
   initial_state: true
@@ -374,6 +349,6 @@
     event_data:
       entity_id: timer.outdoor_motion
   action:
-    - service: light.turn_off
-      data:
-        entity_id: light.switch_front_porch_light
+  - service: light.turn_off
+    data:
+      entity_id: light.switch_front_porch_light

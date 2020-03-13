@@ -1,4 +1,5 @@
 views:
+      
   - title: Home
     cards:
 
@@ -20,6 +21,141 @@ views:
         show_header_toggle: false
         entities:
           - entity: cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
+
+
+      - type: entities
+        title: Whole House
+        id: whole_house
+        entities:        
+          - entity: switch.occupancy
+          - entity: switch.all_audio
+          - entity: scene.exterior_on
+          - entity: scene.interior_on
+          - entity: scene.lights_out
+          - entity: sensor.ecobee_spread
+          - entity: automation.normalize_temperature
+          - entity: switch.thermostat_fan_mode
+          - entity: media_player.everywhere
+
+      - title: Dining Room
+        id: dining_room
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.dining_room_chandelier
+
+      - title: Entryway
+        id: entryway
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.switch_front_foyer_chandelier
+
+      - title: Family Room
+        id: family_room
+        show_header_toggle: false
+        type: entities
+        entities:
+          - scene.tv_lights
+          - light.family_room_floor_lamp
+          - light.family_room_landing
+          - remote.family_room_harmony_hub
+          - media_player.downstairs_tx_rz820
+          - entity: media_player.shield
+        #   - entity: media_player.onkyo_txrz820_4f772a
+        #     name: Chromecast Audio Built-in
+          - media_player.tonysroku3
+          - switch.denon_cd_plug_switch
+
+      - title: Kitchen
+        id: kitchen
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.switch_kitchen_lights
+          - entity: sensor.fridge_temperature
+            icon: mdi:fridge-outline
+
+      - title: Living Room
+        id: living_room
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.living_room_table
+          - light.switch_living_room_floor_lamp
+          - sensor.thermostat_current_temperature
+          - sensor.thermostat_current_humidity
+          - binary_sensor.thermostat_occupancy
+
+      - title: Office
+        id: office
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.office_lights
+          - entity: switch.cable_modem_plug_switch
+          - media_player.office_chromecast
+          - media_player.roku_stick
+          - media_player.rx_v475_a16974
+          - sensor.office_temperature
+          - binary_sensor.office_occupancy
+          - switch.register_booster_plug_switch
+          - automation.run_register_booster
+
+      - title: Top of Stairs
+        id: top_of_stairs
+        show_header_toggle: false
+        type: entities
+        entities:
+          - light.upstairs_hallway_landing
+          - media_player.upstairs
+
+      - type: entities
+        title: Master Bedroom
+        id: master_bedroom
+        show_header_toggle: false
+        entities:
+          - entity: light.master_bedroom_cove_lights
+          - entity: switch.audioengine_a2_plug_switch
+          - entity: media_player.master_bedroom_acc
+          - entity: sensor.lil_bee_temperature
+          - entity: binary_sensor.lil_bee_occupancy
+
+      - title: Thermostat
+        id: thermostat
+        type: thermostat
+        entity: climate.thermostat
+
+      - title: OpenEVSE
+        id: openevse
+        type: entities
+        show_header_toggle: false
+        entities:
+          - entity: switch.openevse_enable
+          - entity: switch.openevse_divertmode
+          - entity: sensor.openevse_state
+          - entity: sensor.openevse_pilot_current
+          - entity: sensor.openevse_charging_current
+          - entity: sensor.openevse_session_energy
+          - entity: input_select.openevse_service_level
+          - entity: input_number.openevse_current
+          - entity: automation.set_openevse_max_current
+          - entity: switch.openevse_save_current
+
+  - title: Media
+    cards:
+      - type: entities
+        title: Chromecast Radio
+        show_header_toggle: False
+        id: radio
+        icon: mdi:radio
+        entities:
+          - input_select.chromecast_radio_station
+          - input_text.custom_station
+          - input_select.chromecast_radio_speakers
+          - input_number.volume_radio
+          - script.play_chromecast_radio
+          - script.stop_chromecast_radio
 
 # **START** Media Player Conditionals
       - type: conditional
@@ -150,122 +286,8 @@ views:
           entity: media_player.tonysroku3
 # **END** Media Player Conditionals
 
-      - type: entities
-        title: Chromecast Radio
-        show_header_toggle: False
-        id: radio
-        icon: mdi:radio
-        entities:
-          - input_select.chromecast_radio_station
-          - input_text.custom_station
-          - input_select.chromecast_radio_speakers
-          - input_number.volume_radio
-          - script.play_chromecast_radio
-          - script.stop_chromecast_radio
-
-      - type: entities
-        title: Whole House
-        id: whole_house
-        entities:        
-          - entity: switch.occupancy
-          - entity: switch.all_audio
-          - entity: scene.exterior_on
-          - entity: scene.interior_on
-          - entity: scene.lights_out
-          - entity: sensor.ecobee_spread
-          - entity: automation.normalize_temperature
-          - entity: switch.thermostat_fan_mode
-          - entity: media_player.everywhere
-
-      - title: Dining Room
-        id: dining_room
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.dining_room_chandelier
-
-      - title: Entryway
-        id: entryway
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.switch_front_foyer_chandelier
-
-      - title: Family Room
-        id: family_room
-        show_header_toggle: false
-        type: entities
-        entities:
-          - scene.tv_lights
-          - light.family_room_floor_lamp
-          - light.family_room_landing
-          - remote.family_room_harmony_hub
-          - media_player.downstairs_tx_rz820
-          - entity: media_player.shield
-        #   - entity: media_player.onkyo_txrz820_4f772a
-        #     name: Chromecast Audio Built-in
-          - media_player.tonysroku3
-          - switch.denon_cd_plug_switch
-
-      - title: Kitchen
-        id: kitchen
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.switch_kitchen_lights
-          - entity: sensor.fridge_temperature
-            icon: mdi:fridge-outline
-
-      - title: Living Room
-        id: living_room
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.living_room_table
-          - light.switch_living_room_floor_lamp
-          - sensor.thermostat_current_temperature
-          - sensor.thermostat_current_humidity
-          - binary_sensor.thermostat_occupancy
-
-      - title: Office
-        id: office
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.office_lights
-          - entity: switch.cable_modem_plug_switch
-          - media_player.office_chromecast
-          - media_player.roku_stick
-          - media_player.rx_v475_a16974
-          - sensor.office_temperature
-          - binary_sensor.office_occupancy
-          - switch.register_booster_plug_switch
-          - automation.run_register_booster
-
-      - title: Top of Stairs
-        id: top_of_stairs
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.upstairs_hallway_landing
-          - media_player.upstairs
-
-      - type: entities
-        title: Master Bedroom
-        id: master_bedroom
-        show_header_toggle: false
-        entities:
-          - entity: light.master_bedroom_cove_lights
-          - entity: switch.audioengine_a2_plug_switch
-          - entity: media_player.master_bedroom_acc
-          - entity: sensor.lil_bee_temperature
-          - entity: binary_sensor.lil_bee_occupancy
-
-      - title: Thermostat
-        id: thermostat
-        type: thermostat
-        entity: climate.thermostat
-
+  - title: Outside
+    cards:
       - title: Weather
         id: weather
         type: weather-forecast
@@ -279,22 +301,51 @@ views:
           - entity: weather.dark_sky
             name: Weather by Dark Sky
 
-      - title: OpenEVSE
-        id: openevse
-        type: entities
-        show_header_toggle: false
+      - type: sensor
+        entity: sensor.worldwide_coronavirus_current
+        name: Corona Virus
+        graph: line
+        detail: 2
+        
+      - show_icon: true
+        show_name: true
+        show_state: true
+        title: COVID-19 Worldwide
+        type: glance
         entities:
-          - entity: switch.openevse_enable
-          - entity: switch.openevse_divertmode
-          - entity: sensor.openevse_state
-          - entity: sensor.openevse_pilot_current
-          - entity: sensor.openevse_charging_current
-          - entity: sensor.openevse_session_energy
-          - entity: input_select.openevse_service_level
-          - entity: input_number.openevse_current
-          - entity: automation.set_openevse_max_current
-          - entity: switch.openevse_save_current
+          - entity: sensor.worldwide_coronavirus_confirmed
+            icon: 'mdi:emoticon-neutral-outline'
+            name: Confirmed
+          - entity: sensor.worldwide_coronavirus_current
+            icon: 'mdi:emoticon-frown-outline'
+            name: Current
+          - entity: sensor.worldwide_coronavirus_recovered
+            icon: 'mdi:emoticon-happy-outline'
+            name: Recovered
+          - entity: sensor.worldwide_coronavirus_deaths
+            icon: 'mdi:emoticon-dead-outline'
+            name: Deaths
+      - show_icon: true
+        show_name: true
+        show_state: true
+        title: COVID-19 USA
+        type: glance
+        entities:
+          - entity: sensor.us_coronavirus_confirmed
+            icon: 'mdi:emoticon-neutral-outline'
+            name: Confirmed
+          - entity: sensor.us_coronavirus_current
+            icon: 'mdi:emoticon-frown-outline'
+            name: Current
+          - entity: sensor.us_coronavirus_recovered
+            icon: 'mdi:emoticon-happy-outline'
+            name: Recovered
+          - entity: sensor.us_coronavirus_deaths
+            icon: 'mdi:emoticon-dead-outline'
+            name: Deaths
 
+  - title: System
+    cards:
       - title: System
         id: system
         type: entities
@@ -305,3 +356,4 @@ views:
           - entity: sensor.memory_use_percent
           - entity: sensor.processor_use
           - entity: sensor.swap_use_percent
+
