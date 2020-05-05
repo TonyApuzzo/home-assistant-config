@@ -40,21 +40,27 @@ input_select:
     name: 'Select Speakers'
     icon: mdi:speaker-wireless
     options:
+      - Downstairs
       - Everywhere
-      - Upstairs
-      - Office
-      - Family Room Audio Chromecast
-      - Family Room Onkyo
-      - Shield
+      - Family Room
+      - Kitchen
       - Master Bedroom
+      - Not the Bedroom
+      - Office
+      - Onkyo
+      - Shield
+      - Upstairs
     values:
+      - media_player.downstairs
       - media_player.everywhere
-      - media_player.upstairs_audio
+      - media_player.family_room_speaker
+      - media_player.kitchen_speaker
+      - media_player.master_bedroom_acc
+      - media_player.not_the_bedroom
       - media_player.office_chromecast
-      - media_player.tv_room_acc
       - media_player.onkyo_tx_rz820_4f772a
       - media_player.shield
-      - media_player.master_bedroom_acc
+      - media_player.upstairs
     initial: Everywhere
 
 input_text:

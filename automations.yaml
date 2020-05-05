@@ -352,3 +352,31 @@
   - service: light.turn_off
     data:
       entity_id: light.switch_front_porch_light
+- id: '1587939510108'
+  alias: Kitchen Light Switch Off
+  description: ''
+  trigger:
+  - device_id: f847fff933d94853b26a3e83021a2520
+    domain: switch
+    entity_id: switch.caseta_r_wireless_in_wall_neutral_switch_3
+    platform: device
+    type: turned_off
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    service: light.turn_off
+- id: '1587939596325'
+  alias: Kitchen Light Switch On
+  description: ''
+  trigger:
+  - device_id: f847fff933d94853b26a3e83021a2520
+    domain: switch
+    entity_id: switch.caseta_r_wireless_in_wall_neutral_switch_3
+    platform: device
+    type: turned_on
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    service: light.turn_on

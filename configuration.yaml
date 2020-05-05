@@ -15,7 +15,14 @@ logger:
 frontend:
 
 lovelace:
-  mode: yaml
+  mode: storage
+  dashboards:
+    ho-me:
+      mode: yaml
+      title: Dashboard
+      icon: mdi:script
+      show_in_sidebar: true
+      filename: ui-lovelace.yaml
 
 panel_custom:
   - name: zwavegraph2
@@ -213,12 +220,6 @@ weather:
 # ecobee thermostat
 ecobee:
   api_key: !secret ECOBEE_API_KEY
-
-# Harmony Remote
-remote:
-  - platform: harmony
-    name: "Family Room" 
-    activity: "Watch TiVo Bolt"
 
 # Media Players
 media_player:

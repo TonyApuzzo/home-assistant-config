@@ -1,6 +1,7 @@
+title: Home
 views:
-      
-  - title: Home
+  - path: home
+    title: Home
     cards:
 
       - title: Front Porch
@@ -73,6 +74,7 @@ views:
         type: entities
         entities:
           - light.switch_kitchen_lights
+          - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
           - entity: sensor.fridge_temperature
             icon: mdi:fridge-outline
 
