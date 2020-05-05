@@ -94,7 +94,7 @@ conversation:
 
 # Recorder is a disaster, so record as little as possible
 recorder:
-  purge_keep_days: 10
+  purge_keep_days: 2
   db_url: !secret recorder_db_url
   exclude:
     domains:
@@ -213,19 +213,12 @@ lutron_caseta:
   certfile: /ssl/caseta.crt
   ca_certs: /ssl/caseta-bridge.crt
 
-weather:
-  - platform: darksky
-    api_key: !secret DARKSKY_API_KEY
-
 # ecobee thermostat
 ecobee:
   api_key: !secret ECOBEE_API_KEY
 
 # Media Players
 media_player:
-#   - platform: roku
-#     scan_interval: 20
-
   - platform: onkyo
     host: tx-rz820.lan.
     name: Downstairs TX-RZ820
