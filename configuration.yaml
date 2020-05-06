@@ -9,7 +9,7 @@ logger:
   logs:
     homeassistant.components.mqtt: debug
     homeassistant.components.harmony: warn
-    homeassistant.components.lutron_caseta: debug
+    homeassistant.components.lutron_caseta: warn
 
 # Enables the frontend
 frontend:
@@ -213,10 +213,6 @@ lutron_caseta:
   certfile: /ssl/caseta.crt
   ca_certs: /ssl/caseta-bridge.crt
 
-# ecobee thermostat
-ecobee:
-  api_key: !secret ECOBEE_API_KEY
-
 # Media Players
 media_player:
   - platform: onkyo
@@ -288,11 +284,11 @@ switch:
       thermostat_fan_mode:
         friendly_name: "Thermostat Fan Mode"
         value_template: >-
-          {{- state_attr('climate.ecobee_thermostat', 'fan_min_on_time') is not none
-              and state_attr('climate.ecobee_thermostat', 'fan_min_on_time')|int > 5 -}}
+          {{- state_attr('climate.thermostat_2', 'fan_min_on_time') is not none
+              and state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5 -}}
         icon_template: >-
-          {%- if state_attr('climate.ecobee_thermostat', 'fan_min_on_time') is not none
-              and state_attr('climate.ecobee_thermostat', 'fan_min_on_time')|int > 5 -%}
+          {%- if state_attr('climate.thermostat_2', 'fan_min_on_time') is not none
+              and state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5 -%}
             mdi:fan
           {%- else -%}
             mdi:fan-off
@@ -300,12 +296,12 @@ switch:
         turn_on:
           - service: ecobee.set_fan_min_on_time
             data:
-              entity_id: climate.ecobee_thermostat
+              entity_id: climate.thermostat_2
               fan_min_on_time: 60
         turn_off:
           - service: ecobee.set_fan_min_on_time
             data:
-              entity_id: climate.ecobee_thermostat
+              entity_id: climate.thermostat_2
               fan_min_on_time: 0
 
 # Lights

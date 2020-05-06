@@ -10,8 +10,8 @@
   action:
   - service: ecobee.set_fan_min_on_time
     data_template:
-      entity_id: climate.ecobee_thermostat
-      fan_min_on_time: "{%- if state_attr('climate.thermostat', 'current_temperature')|float\
+      entity_id: climate.thermostat_2
+      fan_min_on_time: "{%- if state_attr('climate.thermostat_2', 'current_temperature')|float\
         \ >= 67.0 \n    and states('sensor.ecobee_spread')|float > 3.0 -%}\n  60\n\
         {%- else -%}\n  0\n{%- endif -%}"
   id: 6813cc0609514fcfbe11feb4a7d0b3c4
@@ -22,8 +22,7 @@
     platform: state
   condition:
   - condition: template
-    value_template: '{{- is_state("climate.thermostat" "cool") and is_state_attr("climate.thermostat",
-      "fan", "on") -}}'
+    value_template: '{{- is_state_attr("climate.thermostat", "hvac_action", "cooling") -}}'
   action:
   - entity_id: switch.register_booster_plug_switch
     service: switch.turn_on
@@ -316,7 +315,7 @@
   initial_state: true
   trigger:
     platform: numeric_state
-    entity_id: sensor.vision_security_zp3102_pir_motion_sensor_alarm_level
+    entity_id: sensor.front_porch_motion_sensor_alarm_level
     above: 0
   condition:
     condition: and
