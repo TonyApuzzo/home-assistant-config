@@ -8,34 +8,44 @@
     entity_id: sensor.ecobee_spread
     above: 2.0
   action:
-  - service: ecobee.set_fan_min_on_time
+  - service: climate.set_fan_mode
     data_template:
-      entity_id: climate.thermostat_2
-      fan_min_on_time: "{%- if state_attr('climate.thermostat_2', 'current_temperature')|float\
-        \ >= 67.0 \n    and states('sensor.ecobee_spread')|float > 3.0 -%}\n  60\n\
-        {%- else -%}\n  0\n{%- endif -%}"
-  id: 6813cc0609514fcfbe11feb4a7d0b3c4
-- id: e441ec815e224d70805b78b158ff7d0b
-  alias: Run Register Booster
+      entity_id: climate.thermostat
+      fan_mode: >-
+        {%- if state_attr('climate.thermostat', 'current_temperature')|float >= 67.0
+            and states('sensor.ecobee_spread')|float > 3.0 -%}
+          on
+        {%- else -%}
+          off
+        {%- endif -%}
+  id: normalize_temperature
+- id: auto_start_register_booster
+  alias: Auto Start Register Booster
   trigger:
   - entity_id: climate.thermostat
     platform: state
   condition:
   - condition: template
-    value_template: '{{- is_state_attr("climate.thermostat", "hvac_action", "cooling") -}}'
+    value_template: >-
+      {{- is_state_attr("climate.thermostat", "hvac_action", "cooling") -}}
+  - condition: device
+    device_id: ad80753855d64fbfb84fa35223d54bb5
+    domain: switch
+    entity_id: switch.register_booster_plug_switch
+    type: is_off
   action:
   - entity_id: switch.register_booster_plug_switch
     service: switch.turn_on
   initial_state: true
-- id: f2cd1f21b4f74ef9a37589e0d9b2c56f
-  alias: Stop Register Booster
+- id: auto_stop_register_booster
+  alias: Auto Stop Register Booster
   trigger:
   - entity_id: climate.thermostat
     platform: state
   condition:
   - condition: template
-    value_template: '{{- not is_state_attr(''climate.thermostat'', ''fan'', ''on'')
-      -}}'
+    value_template: >-
+      {{- not is_state_attr("climate.thermostat", "hvac_action", "cooling") | int -}}
   - condition: device
     device_id: ad80753855d64fbfb84fa35223d54bb5
     domain: switch

@@ -10,6 +10,7 @@ logger:
     homeassistant.components.mqtt: debug
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
+    homeassistant.components.zwave: info
 
 # Enables the frontend
 frontend:
