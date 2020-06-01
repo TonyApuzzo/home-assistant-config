@@ -101,7 +101,7 @@ views:
           - sensor.office_temperature
           - binary_sensor.office_occupancy
           - switch.register_booster_plug_switch
-          - automation.run_register_booster
+          - automation.auto_start_register_booster
 
       - title: Top of Stairs
         id: top_of_stairs
