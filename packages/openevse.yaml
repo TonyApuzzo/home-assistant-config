@@ -34,7 +34,7 @@ sensor:
   # Get OpenEVSE min/max current from RAPI
   - platform: rest
     name: "OpenEVSE RAPI $GC"
-    resource: !secret OPENEVSE_R_GC
+    resource: !secret OPENEVSE_REST_GET_CURRENT_CAPACITY_RANGE
     force_update: no
     authentication: basic
     username: !secret OPENEVSE_USERNAME

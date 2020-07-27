@@ -1,3 +1,4 @@
+
 - alias: Normalize Temperature
   initial_state: true
   trigger:
@@ -12,8 +13,8 @@
     data_template:
       entity_id: climate.thermostat
       fan_mode: >-
-        {%- if state_attr('climate.thermostat', 'current_temperature')|float >= 67.0
-            and states('sensor.ecobee_spread')|float > 3.0 -%}
+        {%- if (state_attr('climate.thermostat', 'current_temperature')|float >= 67.0)
+            and (states('sensor.ecobee_spread')|float > 3.0) -%}
           on
         {%- else -%}
           off
@@ -27,7 +28,9 @@
   condition:
   - condition: template
     value_template: >-
-      {{- is_state_attr("climate.thermostat", "hvac_action", "cooling") -}}
+      {{- is_state_attr("climate.thermostat", "hvac_action", "cooling") or 
+          (states('sensor.office_temperature')|float >= 77.0)
+      -}}
   - condition: device
     device_id: ad80753855d64fbfb84fa35223d54bb5
     domain: switch
@@ -45,7 +48,8 @@
   condition:
   - condition: template
     value_template: >-
-      {{- not is_state_attr("climate.thermostat", "hvac_action", "cooling") | int -}}
+      {{- (not is_state_attr("climate.thermostat", "hvac_action", "cooling") | int) and (
+      states('sensor.office_temperature')|float < 77.0 ) -}}
   - condition: device
     device_id: ad80753855d64fbfb84fa35223d54bb5
     domain: switch
@@ -361,31 +365,27 @@
   - service: light.turn_off
     data:
       entity_id: light.switch_front_porch_light
-- id: '1587939510108'
-  alias: Kitchen Light Switch Off
-  description: ''
+- id: propagate_kitchen_light
   trigger:
-  - device_id: f847fff933d94853b26a3e83021a2520
-    domain: switch
-    entity_id: switch.caseta_r_wireless_in_wall_neutral_switch_3
-    platform: device
-    type: turned_off
-  condition: []
+    - platform: event
+      event_type: automation_reloaded
+    - platform: state
+      entity_id: light.switch_kitchen_lights
+      from: 'off'
+      to: 'on'
+    - platform: state
+      entity_id: light.switch_kitchen_lights
+      from: 'on'
+      to: 'off'
+  condition:
+    condition: or
+    conditions:
+      - condition: state
+        entity_id: light.switch_kitchen_lights
+        state: 'on'
+      - condition: state
+        entity_id: light.switch_kitchen_lights
+        state: 'off'
   action:
-  - data: {}
-    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-    service: light.turn_off
-- id: '1587939596325'
-  alias: Kitchen Light Switch On
-  description: ''
-  trigger:
-  - device_id: f847fff933d94853b26a3e83021a2520
-    domain: switch
-    entity_id: switch.caseta_r_wireless_in_wall_neutral_switch_3
-    platform: device
-    type: turned_on
-  condition: []
-  action:
-  - data: {}
-    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-    service: light.turn_on
+    - service_template: 'light.turn_{{- states("light.switch_kitchen_lights") -}}'
+      entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off

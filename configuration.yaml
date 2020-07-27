@@ -7,7 +7,7 @@ homeassistant:
 logger:
   default: warn
   logs:
-    homeassistant.components.mqtt: debug
+    homeassistant.components.mqtt: info
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
     homeassistant.components.zwave: info
@@ -36,8 +36,15 @@ config:
 
 api:
 
+# Cloud
+cloud:
+
 alexa:
   smart_home:
+    filter:
+      include_entities:
+        - light.office_lights
+        - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
 
 # Monitor system health
 system_health:
@@ -93,24 +100,23 @@ ssdp:
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
 
-# Recorder is a disaster, so record as little as possible
 recorder:
-  purge_keep_days: 2
+  purge_keep_days: 8
   db_url: !secret recorder_db_url
-  exclude:
-    domains:
-      - automation
-      - device_tracker
-      - weblink
-      - updater
-      - group
-      - scene
-      - script
-      - sun
-      - timer
-      - weather
-      - zwave
-    entities: {}
+  # exclude:
+  #   domains:
+  #     - automation
+  #     - device_tracker
+  #     - weblink
+  #     - updater
+  #     - group
+  #     - scene
+  #     - script
+  #     - sun
+  #     - timer
+  #     - weather
+  #     - zwave
+  #   entities: {}
 
 # Enables support for tracking state changes over time
 history:
@@ -182,30 +188,6 @@ sensor:
 tts:
   - platform: google_translate
     service_name: google_say
-
-# Cloud
-#cloud:
-
-# # Emulated Roku
-# emulated_roku:
-#   servers:
-#     - name: Home Assistant
-#       listen_port: 8060
-
-# Emulated Hue (for Alexa integration)
-# emulated_hue:
-#   expose_by_default: false
-#   host_ip: 192.168.0.101
-#   listen_port: 80
-#   advertise_ip: 192.168.0.101
-#   advertise_port: 80
-#   entities:
-#     switch.occupancy:
-#       name: "Occupancy"
-#       hidden: false
-#     switch.audioengine_a2_plug_switch:
-#       name: "Bedroom Speakers"
-#       hidden: false
 
 # Lutron Caseta
 lutron_caseta:
@@ -316,8 +298,8 @@ light:
     lights:
       switch_front_foyer_chandelier:
         friendly_name: Front Foyer_Chandelier
-        level_template: '{{ 255 if is_state("switch.front_foyer_chandelier", "on") else 0 }}'
-        value_template: '{{ is_state("switch.front_foyer_chandelier", "on") }}'
+        level_template: '{{- 255 if is_state("switch.front_foyer_chandelier", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.front_foyer_chandelier", "on") -}}'
         turn_on:
           service: switch.turn_on
           entity_id: switch.front_foyer_chandelier
@@ -325,15 +307,15 @@ light:
           service: switch.turn_off
           entity_id: switch.front_foyer_chandelier
         set_level:
-          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
           entity_id: switch.front_foyer_chandelier
 
   - platform: template
     lights:
       switch_front_porch_light:
         friendly_name: Front Porch_Light
-        level_template: '{{ 255 if is_state("switch.front_porch_light", "on") else 0 }}'
-        value_template: '{{ is_state("switch.front_porch_light", "on") }}'
+        level_template: '{{- 255 if is_state("switch.front_porch_light", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.front_porch_light", "on") -}}'
         turn_on:
           service: switch.turn_on
           entity_id: switch.front_porch_light
@@ -341,15 +323,15 @@ light:
           service: switch.turn_off
           entity_id: switch.front_porch_light
         set_level:
-          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
           entity_id: switch.front_porch_light
 
   - platform: template
     lights:
       switch_living_room_floor_lamp:
         friendly_name: Living Room_Floor Lamp
-        level_template: '{{ 255 if is_state("switch.vesync", "on") else 0 }}'
-        value_template: '{{ is_state("switch.vesync", "on") }}'
+        level_template: '{{- 255 if is_state("switch.vesync", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.vesync", "on") -}}'
         turn_on:
           service: switch.turn_on
           entity_id: switch.vesync
@@ -357,15 +339,15 @@ light:
           service: switch.turn_off
           entity_id: switch.vesync
         set_level:
-          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          service_template: switch.turn_'{{- "off" if brightness == 0 else "on" -}}'
           entity_id: switch.vesync
 
   - platform: template
     lights:
       switch_kitchen_lights:
         friendly_name: Kitchen_Lights
-        level_template: '{{ 255 if is_state("switch.kitchen_lights", "on") else 0 }}'
-        value_template: '{{ is_state("switch.kitchen_lights", "on") }}'
+        level_template: '{{- 255 if is_state("switch.kitchen_lights", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.kitchen_lights", "on") -}}'
         turn_on:
           service: switch.turn_on
           entity_id: switch.kitchen_lights
@@ -373,7 +355,7 @@ light:
           service: switch.turn_off
           entity_id: switch.kitchen_lights
         set_level:
-          service_template: switch.turn_'{{ "off" if brightness == 0 else "on" }}'
+          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
           entity_id: switch.kitchen_lights
 
 group: !include groups.yaml

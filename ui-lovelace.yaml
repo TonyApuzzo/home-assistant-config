@@ -33,7 +33,7 @@ views:
           - entity: scene.interior_on
           - entity: scene.lights_out
           - entity: sensor.ecobee_spread
-          - entity: automation.normalize_temperature
+          - entity: automation.normalize_temperature_2
           - entity: switch.thermostat_fan_mode
           - entity: media_player.everywhere
 
