@@ -1,0 +1,8 @@
+- name: Lock Front Door
+  entities:
+    lock.kwikset_front_door: 
+      state: "locked"
+- name: Unlock Front Door
+  entities:
+    lock.kwikset_front_door:
+      state: "unlocked"

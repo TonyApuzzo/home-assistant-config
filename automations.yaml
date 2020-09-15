@@ -20,6 +20,8 @@
           off
         {%- endif -%}
   id: normalize_temperature
+
+
 - id: auto_start_register_booster
   alias: Auto Start Register Booster
   trigger:
@@ -59,6 +61,8 @@
   - entity_id: switch.register_booster_plug_switch
     service: switch.turn_off
   initial_state: true
+
+
 - alias: Listen to CDs started from Harmony Hub
   initial_state: true
   trigger:
@@ -73,6 +77,7 @@
     service: switch.turn_on
     entity_id: switch.denon_cd_plug_switch
   id: 0135cb5921284e4787091873eb245f06
+
 - alias: Listen to CDs ended from Harmony Hub
   initial_state: true
   trigger:
@@ -87,31 +92,22 @@
     service: switch.turn_off
     entity_id: switch.denon_cd_plug_switch
   id: 689ac6077a2f43578a4078871d416a75
-- alias: Listen to Chromecast Audio ended from Harmony Hub
-  id: cca_ended_harmony
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: remote.family_room_harmony_hub
-  condition:
-    condition: template
-    value_template: "{{- \n  trigger is defined \n  and trigger.from_state is not\
-      \ none\n  and trigger.from_state.attributes is not none \n  and trigger.from_state.attributes.current_activity\
-      \ == \"Chromecast Audio\" \n-}}"
-  action:
-    service: media_player.media_pause
-    entity_id: media_player.everywhere
+
+
 - alias: Casting to Yamaha RX-V475
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.office_chromecast
+    entity_id: media_player.family_room_speaker
     to: playing
   - platform: state
     entity_id: media_player.everywhere
     to: playing
   - platform: state
     entity_id: media_player.upstairs_audio
+    to: playing
+  - platform: state
+    entity_id: media_player.not_the_bedroom
     to: playing
   condition:
     condition: template
@@ -121,7 +117,7 @@
   - service: media_player.select_source
     data:
       entity_id: media_player.rx_v475_a16974
-      source: HDMI1
+      source: AV4
   - condition: state
     entity_id: media_player.rx_v475_a16974
     state: 'off'
@@ -129,6 +125,7 @@
     data:
       entity_id: media_player.rx_v475_a16974
   id: fb582d1acf324c77bcdd43f08fc2e4dd
+
 - alias: Powering off Yamaha RX-V475
   initial_state: true
   trigger:
@@ -138,12 +135,14 @@
     to: 'off'
   condition:
     condition: template
-    value_template: '{{- not is_state("media_player.office_chromecast", "off") -}}'
+    value_template: '{{- not is_state("media_player.chromecast", "off") -}}'
   action:
-    service: media_player.turn_off
+    service: media_player.media_pause
     data:
-      entity_id: media_player.office_chromecast
+      entity_id: media_player.family_room_speaker
   id: 6a964c94c92f49b699d258c2a018e1e3
+
+
 - alias: Casting to Onkyo TX-RZ820
   initial_state: true
   trigger:
@@ -160,6 +159,8 @@
       entity_id: remote.family_room_harmony_hub
       activity: Network Music
   id: df5f52f3006d4b1ca9d64ecbded66987
+
+
 - alias: Casting to SHIELD
   initial_state: true
   trigger:
@@ -194,43 +195,45 @@
     data:
       entity_id: media_player.shield
   id: a141efb59e9f429c9671c0033dcfe027
-- alias: Casting to Family Room speaker
+
+
+- alias: Casting to Family Room
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.family_room_speaker
-    to: playing
-  - platform: state
-    entity_id: media_player.everywhere
+    entity_id: media_player.chromecast
     to: playing
   condition:
     condition: template
-    value_template: "{{-\n  not is_state_attr(\n    \"remote.family_room_harmony_hub\"\
-      , \"current_activity\",\n    \"Chromecast Audio\")\n-}}"
+    value_template: |-
+      {{- not is_state_attr("remote.family_room_harmony_hub", "current_activity", "Chromecast") -}}
   action:
     service: remote.turn_on
     data:
       entity_id: remote.family_room_harmony_hub
-      activity: Chromecast Audio
+      activity: Chromecast
   id: 123e9a5ea0d24d8982760adf1a5bf685
-- alias: Casting to Family Room speaker ended from Harmony Hub
+
+- alias: Casting to Family Room ended from Harmony Hub
   initial_state: true
   trigger:
   - platform: state
     entity_id: remote.family_room_harmony_hub
   condition:
     condition: template
-    value_template: "{{-\n  trigger is defined and\n  trigger.from_state is not none\
-      \ and\n  trigger.from_state.attributes is not none and\n  trigger.from_state.attributes.current_activity\
-      \ == \"Chromecast Audio\"\n-}}\""
+    value_template: |-
+      {{-
+      trigger is defined and
+      trigger.to_state.attributes.current_activity != "Chromecast" and 
+      trigger.from_state.attributes.current_activity == "Chromecast" 
+      -}}
   action:
-  - service: media_player.media_stop
+  - service: media_player.media_pause
     data:
-      entity_id: media_player.family_room_speaker
-  - service: media_player.turn_off
-    data:
-      entity_id: media_player.family_room_speaker
+      entity_id: media_player.chromecast
   id: 580aacc8e53241ae94ff165b2a9e6469
+
+
 - alias: Fridge Temperature Warning
   id: fridge_alarm
   initial_state: true
@@ -249,6 +252,8 @@
       message: Fridge temperature  {{states.sensor.fridge_temperature.state_with_unit}}
         at {{now().strftime('%c')}}!
       title: Fridge Temp out of Range!
+
+
 - alias: Garage Warning
   id: garage_warning
   initial_state: true
@@ -270,6 +275,8 @@
         }}!
       message: The garage door has been {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
         }} for at least 15 minutes, consider closing it.
+
+
 - id: sync_front_door_unlocked
   trigger:
   - entity_id: sensor.kwikset_front_door_alarm_type
@@ -307,12 +314,14 @@
       entity_id: lock.kwikset_front_door
     service: lock.lock
   initial_state: true
+
+
 - id: autolock_front_door
   alias: Autolock Front Door
   trigger:
   - entity_id: lock.kwikset_front_door
     for:
-      minutes: 5
+      minutes: 30
     platform: state
     to: unlocked
   condition:
@@ -324,6 +333,8 @@
       entity_id: lock.kwikset_front_door
     service: lock.lock
   initial_state: true
+
+
 - alias: Turn on Porch Light when motion detected
   id: outdoor_motion
   initial_state: true
@@ -353,6 +364,8 @@
     data:
       entity_id: timer.outdoor_motion
       duration: 00:05:00
+
+
 - alias: Turn off Porch Light after motion timeout
   id: motion_timeout
   initial_state: true
@@ -365,6 +378,8 @@
   - service: light.turn_off
     data:
       entity_id: light.switch_front_porch_light
+
+
 - id: propagate_kitchen_light
   trigger:
     - platform: event
