@@ -4,7 +4,7 @@ media_player.master_bedroom_acc:
 media_player.everywhere:
   icon: mdi:speaker-multiple
   hidden: yes
-media_player.chromecast:
+media_player.chromecastultra9023:
   icon: mdi:cast
   hidden: yes
 media_player.onkyo_tx_rz820_4f772a:

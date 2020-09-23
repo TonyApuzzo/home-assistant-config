@@ -16,7 +16,7 @@ media_player_cast:
     - media_player.kitchen_speaker
     - media_player.master_bedroom_acc
     - media_player.not_the_bedroom
-    - media_player.chromecast
+    - media_player.chromecastultra9023
     - media_player.shield
     - media_player.upstairs
     - media_player.onkyo_txrz820_4f772a
