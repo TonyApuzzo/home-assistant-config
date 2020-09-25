@@ -160,6 +160,16 @@ views:
           - script.play_chromecast_radio
           - script.stop_chromecast_radio
 
+      - type: entities
+        title: Control
+        show_header_toggle: False
+        id: harmony
+        icon: mdi:remote
+        entities:
+          - remote.family_room_harmony_hub
+          - remote.tonysroku3
+          - remote.tonys_office_roku
+
 # **START** Media Player Conditionals
       - type: conditional
         conditions:

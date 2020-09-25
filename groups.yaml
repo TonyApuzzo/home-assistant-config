@@ -21,6 +21,12 @@ media_player_cast:
     - media_player.upstairs
     - media_player.onkyo_txrz820_4f772a
 
+occupancy_sensors:
+  entities:
+    - binary_sensor.lil_bee_occupancy
+    - binary_sensor.thermostat_occupancy
+    - binary_sensor.office_occupancy
+
 media_player_avr:
   entities:
     - media_player.downstairs_tx_rz820

@@ -81,7 +81,6 @@ sensor:
   - platform: template
     sensors:
       chromecast_radio_station:
-        entity_id: input_select.chromecast_radio_station
         friendly_name: Chromecast Radio Station
         value_template: >
           {% for option in state_attr("input_select.chromecast_radio_station", "options") -%}
@@ -93,7 +92,6 @@ sensor:
   - platform: template
     sensors:
       chromecast_radio_speakers:
-        entity_id: input_select.chromecast_radio_speakers
         friendly_name: Chromecast Radio Speakers
         value_template: >
           {% for option in state_attr("input_select.chromecast_radio_speakers", "options")  -%}

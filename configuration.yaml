@@ -53,6 +53,8 @@ system_health:
 device_tracker:
   - platform: ddwrt
     host: !secret ddwrt_host
+    ssl: true
+    verify_ssl: false
     username: !secret ddwrt_admin_username
     password: !secret ddwrt_admin_password
     interval_seconds: 15
@@ -61,6 +63,8 @@ device_tracker:
       track_new_devices: true
   - platform: ddwrt
     host: !secret ddwrt2_host
+    ssl: true
+    verify_ssl: false
     username: !secret ddwrt2_admin_username
     password: !secret ddwrt2_admin_password
     interval_seconds: 15
@@ -265,11 +269,8 @@ switch:
               | selectattr('state', 'eq', 'on') 
               | map(attribute='state') 
               | list)[0] == 'on'
-             ) or
-             is_state('binary_sensor.lil_bee_occupancy', 'on') or
-             is_state('binary_sensor.fridge_occupancy', 'on') or
-             is_state('binary_sensor.office_occupancy', 'on') or
-             is_state('binary_sensor.thermostat_occupancy', 'on')
+             ) or 
+             is_state('group.occupancy_sensors', 'on')
           }}
         icon_template: mdi:home-assistant
         turn_off:             

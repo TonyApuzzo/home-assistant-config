@@ -120,8 +120,6 @@ sensor:
         friendly_name: "OpenEVSE Session Energy (unfiltered)"
         icon_template: mdi:gauge
         unit_of_measurement: 'kWh'
-        entity_id:
-          - sensor.openevse_status
         value_template: >-
           {% set wattsec = state_attr('sensor.openevse_status', 'wattsec')
                            |float(-1) %}
@@ -135,8 +133,6 @@ sensor:
         friendly_name: "OpenEVSE Charging Current"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
-        entity_id:
-          - sensor.openevse_status
         value_template: >-
           {% set charge_rate = state_attr('sensor.openevse_status',
                                'charge_rate') | float(-1) %}
@@ -150,8 +146,6 @@ sensor:
         friendly_name: "OpenEVSE Pilot Current"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
-        entity_id:
-          - sensor.openevse_status
         value_template: >-
           {% set pilot = state_attr('sensor.openevse_status',
                                'pilot') | float(-1) %}
@@ -163,8 +157,6 @@ sensor:
 
       openevse_state:
         friendly_name: "OpenEVSE State"
-        entity_id:
-          - sensor.openevse_status
         icon_template: >-
           {%- if state_attr('sensor.openevse_status', 'state') | regex_match('^[01]$') -%}
             mdi:power-plug-off
