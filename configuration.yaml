@@ -36,6 +36,9 @@ config:
 
 api:
 
+# Enable mobile app integration
+mobile_app:
+
 # Cloud
 cloud:
 
@@ -133,6 +136,9 @@ map:
 
 # Track the sun
 sun:
+
+# Track people
+person:
 
 # Sensors
 sensor:

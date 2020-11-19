@@ -11,6 +11,8 @@ views:
         entities:
           - lock.kwikset_front_door
           - light.switch_front_porch_light
+          - entity: light.hank_electronics_ltd_hkzw_rgb01_rgb_bulb_level
+            name: Bulb
           - entity: sensor.front_porch_motion_sensor_temperature
             name: Temperature
           - entity: sensor.front_porch_motion_sensor_alarm_level
@@ -62,7 +64,7 @@ views:
           - remote.family_room_harmony_hub
           - media_player.downstairs_tx_rz820
           - media_player.shield
-          - media_player.chromecastultra9023
+          - media_player.chromecast
           - media_player.rz820
           - media_player.tonysroku3
           - switch.denon_cd_plug_switch
@@ -120,7 +122,8 @@ views:
         entities:
           - entity: light.master_bedroom_cove_lights
           - entity: switch.audioengine_a2_plug_switch
-          - entity: media_player.master_bedroom_acc
+          - entity: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
+          - entity: media_player.master_bedroom
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
 
@@ -171,92 +174,21 @@ views:
           - remote.tonys_office_roku
 
 # **START** Media Player Conditionals
-      - type: conditional
-        conditions:
-          - entity: media_player.downstairs_tx_rz820
-            state_not: "off"
-          - entity: media_player.downstairs_tx_rz820
-            state_not: "unknown"
-        card:
-          type: media-control
-          entity: media_player.downstairs_tx_rz820
-      - type: conditional
-        conditions:
-          - entity: media_player.everywhere
-            state_not: "off"
-          - entity: media_player.everywhere
-            state_not: "unknown"
-          - entity: media_player.everywhere
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.everywhere
-      - type: conditional
-        conditions:
-          - entity: media_player.tv_room_acc
-            state_not: "off"
-          - entity: media_player.tv_room_acc
-            state_not: "unknown"
-          - entity: media_player.tv_room_acc
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.tv_room_acc
-      - type: conditional 
-        conditions:
-          - entity: media_player.onkyo_tx_rz820_4f772a
-            state_not: "off"
-          - entity: media_player.onkyo_tx_rz820_4f772a
-            state_not: "unknown"
-          - entity: media_player.onkyo_tx_rz820_4f772a
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.onkyo_tx_rz820_4f772a
-      - type: conditional
-        conditions:
-          - entity: media_player.master_bedroom_acc
-            state_not: "off"
-          - entity: media_player.master_bedroom_acc
-            state_not: "unknown"
-          - entity: media_player.master_bedroom_acc
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.master_bedroom_acc
-      - type: conditional
-        conditions:
-          - entity: media_player.shield
-            state_not: "off"
-          - entity: media_player.shield
-            state_not: "unknown"
-          - entity: media_player.shield
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.shield
-      - type: conditional
-        conditions:
-          - entity: media_player.upstairs
-            state_not: "off"
-          - entity: media_player.upstairs
-            state_not: "unknown"
-          - entity: media_player.upstairs
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.upstairs
-      - type: conditional
-        conditions:
-          - entity: media_player.chromecastultra9023
-            state_not: "off"
-          - entity: media_player.chromecastultra9023
-            state_not: "unknown"
-          - entity: media_player.chromecastultra9023
-            state_not: "unavailable"
-        card:
-          type: media-control
-          entity: media_player.chromecastultra9023
+#
+# {% for state in states.media_player %}
+#       - type: conditional
+#         conditions:
+#           - entity: {{state.entity_id}}
+#             state_not: "off"
+#           - entity: {{state.entity_id}}
+#             state_not: "unknown"
+#           - entity: {{state.entity_id}}
+#             state_not: "unavailable"
+#         card:
+#           type: media-control
+#           entity: {{state.entity_id}}
+# {%- endfor %}
+#
       - type: conditional
         conditions:
           - entity: media_player.chromecast
@@ -270,22 +202,114 @@ views:
           entity: media_player.chromecast
       - type: conditional
         conditions:
-          - entity: media_player.rx_v475_a16974
+          - entity: media_player.downstairs
             state_not: "off"
-          - entity: media_player.rx_v475_a16974
+          - entity: media_player.downstairs
             state_not: "unknown"
+          - entity: media_player.downstairs
+            state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.rx_v475_a16974
+          entity: media_player.downstairs
       - type: conditional
         conditions:
-          - entity: media_player.samsung_pdp60_pn60f8500
+          - entity: media_player.downstairs_tx_rz820
             state_not: "off"
-          - entity: media_player.samsung_pdp60_pn60f8500
+          - entity: media_player.downstairs_tx_rz820
             state_not: "unknown"
+          - entity: media_player.downstairs_tx_rz820
+            state_not: "unavailable"
         card:
           type: media-control
-          entity: media_player.samsung_pdp60_pn60f8500
+          entity: media_player.downstairs_tx_rz820
+      - type: conditional
+        conditions:
+          - entity: media_player.downstairs_tx_rz820_zone_2
+            state_not: "off"
+          - entity: media_player.downstairs_tx_rz820_zone_2
+            state_not: "unknown"
+          - entity: media_player.downstairs_tx_rz820_zone_2
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.downstairs_tx_rz820_zone_2
+      - type: conditional
+        conditions:
+          - entity: media_player.downstairs_tx_rz820_zone_3
+            state_not: "off"
+          - entity: media_player.downstairs_tx_rz820_zone_3
+            state_not: "unknown"
+          - entity: media_player.downstairs_tx_rz820_zone_3
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.downstairs_tx_rz820_zone_3
+      - type: conditional
+        conditions:
+          - entity: media_player.everywhere
+            state_not: "off"
+          - entity: media_player.everywhere
+            state_not: "unknown"
+          - entity: media_player.everywhere
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.everywhere
+      - type: conditional
+        conditions:
+          - entity: media_player.home_assistant
+            state_not: "off"
+          - entity: media_player.home_assistant
+            state_not: "unknown"
+          - entity: media_player.home_assistant
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.home_assistant
+      - type: conditional
+        conditions:
+          - entity: media_player.kitchen_speaker
+            state_not: "off"
+          - entity: media_player.kitchen_speaker
+            state_not: "unknown"
+          - entity: media_player.kitchen_speaker
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.kitchen_speaker
+      - type: conditional
+        conditions:
+          - entity: media_player.master_bedroom
+            state_not: "off"
+          - entity: media_player.master_bedroom
+            state_not: "unknown"
+          - entity: media_player.master_bedroom
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.master_bedroom
+      - type: conditional
+        conditions:
+          - entity: media_player.not_the_bedroom
+            state_not: "off"
+          - entity: media_player.not_the_bedroom
+            state_not: "unknown"
+          - entity: media_player.not_the_bedroom
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.not_the_bedroom
+      - type: conditional
+        conditions:
+          - entity: media_player.office_chromecast
+            state_not: "off"
+          - entity: media_player.office_chromecast
+            state_not: "unknown"
+          - entity: media_player.office_chromecast
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.office_chromecast
       - type: conditional
         conditions:
           - entity: media_player.roku_stick
@@ -293,21 +317,77 @@ views:
           - entity: media_player.roku_stick
             state_not: "unknown"
           - entity: media_player.roku_stick
-            state_not: "idle"
+            state_not: "unavailable"
         card:
           type: media-control
           entity: media_player.roku_stick
       - type: conditional
         conditions:
+          - entity: media_player.rx_v475_a16974
+            state_not: "off"
+          - entity: media_player.rx_v475_a16974
+            state_not: "unknown"
+          - entity: media_player.rx_v475_a16974
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.rx_v475_a16974
+      - type: conditional
+        conditions:
+          - entity: media_player.rz820
+            state_not: "off"
+          - entity: media_player.rz820
+            state_not: "unknown"
+          - entity: media_player.rz820
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.rz820
+      - type: conditional
+        conditions:
+          - entity: media_player.samsung_pn60f8500
+            state_not: "off"
+          - entity: media_player.samsung_pn60f8500
+            state_not: "unknown"
+          - entity: media_player.samsung_pn60f8500
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.samsung_pn60f8500
+      - type: conditional
+        conditions:
+          - entity: media_player.shield
+            state_not: "off"
+          - entity: media_player.shield
+            state_not: "unknown"
+          - entity: media_player.shield
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.shield
+      - type: conditional
+        conditions:
           - entity: media_player.tonysroku3
             state_not: "off"
           - entity: media_player.tonysroku3
             state_not: "unknown"
           - entity: media_player.tonysroku3
-            state_not: "idle"
+            state_not: "unavailable"
         card:
           type: media-control
           entity: media_player.tonysroku3
+      - type: conditional
+        conditions:
+          - entity: media_player.upstairs
+            state_not: "off"
+          - entity: media_player.upstairs
+            state_not: "unknown"
+          - entity: media_player.upstairs
+            state_not: "unavailable"
+        card:
+          type: media-control
+          entity: media_player.upstairs
+
 # **END** Media Player Conditionals
 
   - title: Outside

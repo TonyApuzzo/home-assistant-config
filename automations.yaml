@@ -83,7 +83,7 @@
 - id: fb582d1acf324c77bcdd43f08fc2e4dd
   alias: Casting to Yamaha RX-V475
   trigger:
-  - entity_id: media_player.chromecast
+  - entity_id: media_player.office_chromecast
     platform: state
     to: playing
   condition:
@@ -98,8 +98,8 @@
   - condition: state
     entity_id: media_player.rx_v475_a16974
     state: 'off'
-  - data: {}
-    entity_id: media_player.rx_v475_a16974
+  - data:
+      entity_id: media_player.rx_v475_a16974
     service: media_player.turn_on
   initial_state: true
   mode: single
@@ -111,11 +111,11 @@
     to: 'off'
   condition:
   - condition: state
-    entity_id: media_player.chromecast
+    entity_id: media_player.office_chromecast
     state: playing
   action:
   - data: {}
-    entity_id: media_player.chromecast
+    entity_id: media_player.office_chromecast
     service: media_player.media_pause
   initial_state: true
   mode: single
@@ -151,16 +151,17 @@
       entity_id: remote.family_room_harmony_hub
       activity: SHIELD TV
   id: f9812165edca4dfeb19ca130fbaa00dc
-- alias: Casting to SHIELD ended from Harmony Hub
-  initial_state: true
+- id: a141efb59e9f429c9671c0033dcfe027
+  alias: Casting to SHIELD ended from Harmony Hub
   trigger:
   - platform: state
     entity_id: remote.family_room_harmony_hub
+    attribute: current_activity
+    from: SHIELD TV
   condition:
-    condition: template
-    value_template: "{{-\n  trigger is defined\n  and trigger.from_state is not none\n\
-      \  and trigger.from_state.attributes is not none\n  and trigger.from_state.attributes.current_activity\
-      \ == \"SHIELD TV\"\n-}}"
+  - condition: template
+    value_template: "{{-\n  trigger is defined\n  and trigger.to_state is not none\n\
+      \  and trigger.to_state.attributes.current_activity != \"SHIELD TV\"\n-}}"
   action:
   - service: media_player.media_stop
     data:
@@ -168,12 +169,13 @@
   - service: media_player.turn_off
     data:
       entity_id: media_player.shield
-  id: a141efb59e9f429c9671c0033dcfe027
+  initial_state: true
+  mode: single
 - alias: Casting to Family Room
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.chromecastultra9023
+    entity_id: media_player.chromecast
     to: playing
   condition:
     condition: template
@@ -196,14 +198,14 @@
       ''Chromecast'') -}}'
   condition:
     condition: template
-    value_template: "{{-\nis_state('media_player.chromecastultra9023', 'playing')\
+    value_template: "{{-\nis_state('media_player.chromecast', 'playing')\
       \ and\ntrigger is defined and\ntrigger.to_state.attributes.current_activity\
       \ != \"Chromecast\" and \ntrigger.from_state.attributes.current_activity ==\
       \ \"Chromecast\" \n-}}"
   action:
   - service: media_player.media_pause
     data:
-      entity_id: media_player.chromecastultra9023
+      entity_id: media_player.chromecast
   - service: persistent_notification.create
     data:
       notification_id: harmony_pause_chromecast
@@ -368,3 +370,21 @@
   action:
   - service_template: light.turn_{{- states("light.switch_kitchen_lights") -}}
     entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+- id: '1602622298053'
+  alias: sync-mbr-subwoofer
+  description: Master Bedroom Subwoofer should be on whenever the master bedroom chromecast
+    is playing.
+  trigger:
+  - platform: state
+    entity_id: media_player.master_bedroom
+  condition: []
+  action:
+  - delay: "{% if is_state('media_player.master_bedroom', 'playing') or\n    \
+      \  is_state('media_player.master_bedroom', 'paused')  %}\n  0\n{% else %}\n\
+      \  60\n{% endif %}\n"
+  - service: "{% if is_state('media_player.master_bedroom', 'playing') or\n  \
+      \    is_state('media_player.master_bedroom', 'paused')  %}\n  switch.turn_on\n\
+      {% else %}\n  switch.turn_off\n{% endif %}\n"
+    data:
+      entity_id: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
+  mode: restart

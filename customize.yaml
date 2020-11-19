@@ -1,10 +1,10 @@
-media_player.master_bedroom_acc:
+media_player.master_bedroom:
   icon: mdi:speaker-wireless
   hidden: yes
 media_player.everywhere:
   icon: mdi:speaker-multiple
   hidden: yes
-media_player.chromecastultra9023:
+media_player.chromecast:
   icon: mdi:cast
   hidden: yes
 media_player.onkyo_tx_rz820_4f772a:
@@ -37,7 +37,7 @@ media_player.tonysroku3:
 media_player.roku_stick:
   icon: mdi:alpha-r-box
   hidden: yes
-media_player.samsung_pdp60_pn60f8500:
+media_player.samsung_pn60f8500:
   icon: mdi:television
   hidden: yes
 

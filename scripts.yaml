@@ -1,1 +1,12 @@
-# Scripts
+computer_audio_on_rx_v475:
+  alias: Computer Audio on rx-v475
+  sequence:
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.rx_v475_a16974
+  - service: media_player.select_source
+    data:
+      source: AV1
+      entity_id: media_player.rx_v475_a16974
+  mode: single
+  icon: mdi:surround-sound

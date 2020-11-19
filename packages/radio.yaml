@@ -27,7 +27,8 @@ input_select:
       - RealXS Manchester
       - Custom Station
     values:
-      - http://stream-dc1.radioparadise.com/aac-320
+      #- http://stream-dc1.radioparadise.com/aac-320
+      - http://stream.radioparadise.com/flacm
       - https://nprdmp-stream02.akacast.akamaistream.net/7/940/364919/v1/npr.akacast.akamaistream.net/nprdmp_stream02
       - http://91.121.159.124:8000/eko-des-garrigues-max.flac
       - http://amp.cesnet.cz:8000/cro1.ogg
@@ -53,12 +54,12 @@ input_select:
     values:
       - media_player.downstairs
       - media_player.everywhere
-      - media_player.family_room_speaker
+      - media_player.chromecast
       - media_player.kitchen_speaker
-      - media_player.master_bedroom_acc
+      - media_player.master_bedroom
       - media_player.not_the_bedroom
       - media_player.office_chromecast
-      - media_player.onkyo_tx_rz820_4f772a
+      - media_player.rz820
       - media_player.shield
       - media_player.upstairs
     initial: Everywhere

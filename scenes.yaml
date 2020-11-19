@@ -1,8 +1,10 @@
 - name: Lock Front Door
   entities:
-    lock.kwikset_front_door: 
-      state: "locked"
+    lock.kwikset_front_door:
+      state: locked
+  id: 7a82e36dc4a2445cacb67c371e7908fd
 - name: Unlock Front Door
   entities:
     lock.kwikset_front_door:
-      state: "unlocked"
+      state: unlocked
+  id: c3026df8c7a341f1832f33c0a470366f
