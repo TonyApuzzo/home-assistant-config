@@ -27,15 +27,15 @@ input_select:
       - RealXS Manchester
       - Custom Station
     values:
-      #- http://stream-dc1.radioparadise.com/aac-320
-      - http://stream.radioparadise.com/flacm
+      - http://stream-dc1.radioparadise.com/aac-320
+      #- http://stream.radioparadise.com/flacm
       - https://nprdmp-stream02.akacast.akamaistream.net/7/940/364919/v1/npr.akacast.akamaistream.net/nprdmp_stream02
       - http://91.121.159.124:8000/eko-des-garrigues-max.flac
       - http://amp.cesnet.cz:8000/cro1.ogg
       - http://ccice.streamguys.com/holiday_kbco_96.mp3
       - http://network.absoluteradio.co.uk/core/audio/mp3/live.pls?service=vc
       - http://media-ice.musicradio.com/RealXSManchesterMP3
-      - http://custom
+      - __CUSTOM__
 
   chromecast_radio_speakers:
     name: 'Select Speakers'
@@ -86,7 +86,12 @@ sensor:
         value_template: >
           {% for option in state_attr("input_select.chromecast_radio_station", "options") -%}
             {% if is_state("input_select.chromecast_radio_station", option) -%}
-              {{ state_attr("input_select.chromecast_radio_station", 'values')[loop.index - 1] }}
+              {% set url = state_attr("input_select.chromecast_radio_station", 'values')[loop.index - 1] %}
+              {% if url == '__CUSTOM__' %}
+                {{ states('input_text.custom_station') }}
+              {% else %}
+                {{ url }}
+              {%- endif %}
             {%- endif %}
           {%- endfor %}
 
