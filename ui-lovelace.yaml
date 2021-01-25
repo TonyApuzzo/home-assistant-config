@@ -99,7 +99,7 @@ views:
           - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
           - light.office_lights
           - entity: switch.cable_modem_plug_switch
-          - media_player.chromecast
+          - media_player.office_chromecast
           - media_player.roku_stick
           - media_player.rx_v475_a16974
           - sensor.office_temperature
