@@ -320,7 +320,7 @@ input_select:
       - "2"
     icon: mdi:target
 
-automation old:
+automation openevse:
   - alias: Update OpenEVSE Min/Max Current
     id: update_openevse_min_max_current
     trigger:
