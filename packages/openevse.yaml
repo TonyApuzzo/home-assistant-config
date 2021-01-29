@@ -129,21 +129,49 @@ sensor:
             unknown
           {% endif %}
 
-      openevse_charging_current:
-        friendly_name: "OpenEVSE Charging Current"
+      openevse_charging_current_rest:
+        friendly_name: "OpenEVSE Charging Current (REST)"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
           {% set charge_rate = state_attr('sensor.openevse_status',
                                'charge_rate') | float(-1) %}
-          {% if charge_rate >= 0 %}
+          {%- if charge_rate >= 0 -%}
             {{ charge_rate }}
-          {% else %}
+          {%- else -%}
             unknown
-          {% endif %}
+          {%- endif -%}
 
+      # Combine both MQTT and REST sensors since neither ends up being super reliable
+      openevse_charging_current:
+        unique_id: openevse_charging_current
+        friendly_name: "OpenEVSE Charging Current"
+        icon_template: mdi:current-ac
+        unit_of_measurement: 'A'
+        value_template: >-
+          {{-
+            ([
+              state_attr('sensor.openevse_status','charge_rate') | float(0),
+              states('sensor.openevse_charging_current_mqtt') | float(0)
+            ] | max)
+          -}}
+
+      # Combine both MQTT and REST sensors since neither ends up being super reliable
       openevse_pilot_current:
+        unique_id: openevse_pilot_current
         friendly_name: "OpenEVSE Pilot Current"
+        icon_template: mdi:current-ac
+        unit_of_measurement: 'A'
+        value_template: >-
+          {{-
+            ([
+              state_attr('sensor.openevse_status','pilot') | float(0),
+              states('sensor.openevse_pilot_current_mqtt') | float(0)
+            ] | max)
+          -}}
+
+      openevse_pilot_current_rest:
+        friendly_name: "OpenEVSE Pilot Current (REST)"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
