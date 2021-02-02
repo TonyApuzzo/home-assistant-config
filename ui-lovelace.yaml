@@ -145,7 +145,7 @@ views:
           - entity: sensor.openevse_session_energy
           - entity: input_select.openevse_service_level
           - entity: input_number.openevse_current
-          - entity: automation.set_openevse_max_current
+          - entity: script.set_openevse_max_current
           - entity: switch.openevse_save_current
 
   - title: Media
