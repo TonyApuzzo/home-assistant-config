@@ -70,6 +70,20 @@ sensor:
     json_attributes: [ 'cmd', 'ret' ]
     value_template: >-
       {{- value_json.ret -}}
+      
+  - platform: rest
+    name: "OpenEVSE RAPI $GG"
+    resource: !secret OPENEVSE_REST_GET_CHARGING_CURRENT_AND_VOLTAGE
+    force_update: no
+    authentication: basic
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    headers:
+        User-Agent: Home Assistant
+        Content-Type: application/json
+    json_attributes: [ 'cmd', 'ret' ]
+    value_template: >-
+      {{- value_json.ret -}}
 
   - platform: rest
     name: "OpenEVSE Status"
@@ -139,18 +153,15 @@ sensor:
             unknown
           {% endif %}
 
+      # Charging current from REST API
       openevse_charging_current_rest:
+        unique_id: openevse_charging_current_rest
         friendly_name: "OpenEVSE Charging Current (REST)"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
-          {% set charge_rate = state_attr('sensor.openevse_status',
-                               'charge_rate') | float(-1) %}
-          {%- if charge_rate >= 0 -%}
-            {{ charge_rate }}
-          {%- else -%}
-            unknown
-          {%- endif -%}
+          {{- states('sensor.openevse_rapi_gg') |
+              regex_replace('^\$OK ([0-9]+) (-?[0-9]+).*', '\\1') | float(0) / 1000 -}}
 
       # Combine both MQTT and REST sensors since neither ends up being super reliable
       openevse_charging_current:
@@ -326,6 +337,7 @@ switch:
 input_boolean:
   # This boolean when true causes pilot current changes to be persisted
   # into the OpenEVSE firmware (otherwise saving pilot current is temporary)
+  # when this is OFF then the volitile setting is sent when changing the current
   openevse_save_current:
     initial: on
     icon: mdi:sync
