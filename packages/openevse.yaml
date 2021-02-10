@@ -1,28 +1,34 @@
 ---
+#
+# Control an OpenEVSE Electric Car Charger
+#
+# Requires version 2.9.1 of OpenEVSE WiFi module, both MQTT and REST APIs are
+# used because each provides different capabilities.
+#
 # In order to use this, you must have the following configurations created in
 # the base configuration.yaml:
 #   MQTT
 #
-# You must also be using the "openevse" topic in the
-# OpenEVSE control panel (or edit secrets per below.)
+# Required custom components:
+#   input_number (allows dynamic adjustment of min/max values)
+#   input_select (allows label/value to be separately set)
 #
-# Required Secret  -->  Example:
-#   OPENEVSE_HOST:      "myhost"
-#   OPENEVSE_USERNAME:  "myuser"
-#   OPENEVSE_PASSWORD:  "mypasswd"
-#   OPENEVSE_R_GC:      'http://myhost/r?json=1&rapi=$GC'
-#   OPENEVSE_R_GE:      'http://myhost/r?json=1&rapi=$GE'
-#   OPENEVSE_R_STATUS:  'http://myhost/status'
-#   OPENEVSE_T_TEMP1:   "openevse/temp1"
-#   OPENEVSE_T_AMP:     "openevse/amp"
-#   OPENEVSE_T_PILOT:   "openevse/pilot"
-#   OPENEVSE_T_WH:      "openevse/wh"
-#   OPENEVSE_T_STATE:   "openevse/state"
-#   OPENEVSE_T_IFS:     "openevse/rapi/in/$FS"
-#   OPENEVSE_T_IFE:     "openevse/rapi/in/$FE"
-#   OPENEVSE_T_ISC:     "openevse/rapi/in/$SC"
-#   OPENEVSE_T_ISL:     "openevse/rapi/in/$SL"
-#   OPENEVSE_T_DIVERT:  'openevse/divertmode/set'
+# Required secrets
+#   See '../secrets-example.yaml' for required secrets
+#
+# You must configure the OpenEVSE wifi control panel Services Tab:
+#
+#   - Enable MQTT:  Checked
+#   - Host:         Your hassio IP address where the MQTT broker is running
+#   - Port:         MQTT broker port (1883)
+#   - Username:     MQTT username for OpenEVSE (e.g. "openevse")
+#   - Password:     MQTT password for OpenEVSE
+#   - Base-topic:   openevse (or edit secrets)
+#   - Voltage-topic: Unused
+#
+# Optional Solar PV divert (this is poorly tested as I don't have a PV setup)
+#   - Enable Solar PV divert: checked
+#   - Feed:          openevse_solar
 #
 # For RAPI Details, see:
 #   https://github.com/OpenEVSE/open_evse/blob/stable/firmware/open_evse/rapi_proc.h
@@ -41,7 +47,7 @@ rest_command:
 # Sensors
 sensor:
 
-  # Get OpenEVSE min/max current from RAPI
+  # Get OpenEVSE min/max current via REST
   - platform: rest
     name: "OpenEVSE RAPI $GC"
     resource: !secret OPENEVSE_REST_GET_CURRENT_CAPACITY_RANGE
@@ -56,7 +62,7 @@ sensor:
     value_template: >-
       {{- value_json.ret -}}
 
-  # Get OpenEVSE Current Settings
+  # Get OpenEVSE Current Settings via REST
   - platform: rest
     name: "OpenEVSE RAPI $GE"
     resource: !secret OPENEVSE_R_GE
@@ -315,30 +321,12 @@ switch:
         value_template: >-
           {{- state_attr('sensor.openevse_status', 'divertmode') | regex_match('^2$') -}}
       
-      openevse_save_current:
-        friendly_name: "OpenEVSE Persist Current"
-        turn_off:
-          - service: input_boolean.turn_off
-            data:
-              entity_id: input_boolean.openevse_save_current
-        turn_on:
-          - service: input_boolean.turn_on
-            data:
-              entity_id: input_boolean.openevse_save_current
-        icon_template: >-
-          {%- if is_state('input_boolean.openevse_save_current', 'on') -%}
-            mdi:sync
-          {%- else -%}
-            mdi:sync-off
-          {%- endif -%}
-        value_template: >-
-          {{- is_state('input_boolean.openevse_save_current', 'on') -}}
-
 input_boolean:
-  # This boolean when true causes pilot current changes to be persisted
-  # into the OpenEVSE firmware (otherwise saving pilot current is temporary)
-  # when this is OFF then the volitile setting is sent when changing the current
+  # When true causes pilot current changes to be persisted into the OpenEVSE
+  # firmware (otherwise saving pilot current is temporary) when this is OFF
+  # then the volatile parameter is sent when changing the current
   openevse_save_current:
+    name: "OpenEVSE Persist Current"
     initial: on
     icon: mdi:sync
 
@@ -356,9 +344,9 @@ input_select:
   openevse_service_level:
     name: OpenEVSE Service Level
     options:
-      - Auto
-      - Level 1
-      - Level 2
+      - "Auto"
+      - "Level 1"
+      - "Level 2"
     values:
       - "A"
       - "1"
@@ -403,6 +391,10 @@ automation openevse:
             {{- [40, v[1]|int]|min -}}
 
   - id: update_input_number_openevse_current
+    alias: Update input_number OpenEVSE Current
+    description: >-
+      Reflect changes made to pilot current on OpenEVSE back to the input_number
+      slider position.
     trigger:
       platform: state
       entity_id: sensor.openevse_pilot_current
@@ -410,9 +402,9 @@ automation openevse:
       condition: template
       value_template: >-
         {{
-           states('sensor.openevse_pilot_current')|int >= state_attr('input_number.openevse_current', 'min')|int
+           (states('sensor.openevse_pilot_current')|int >= state_attr('input_number.openevse_current', 'min')|int)
            and
-           states('sensor.openevse_pilot_current')|int <= state_attr('input_number.openevse_current', 'max')|int
+           (states('sensor.openevse_pilot_current')|int <= state_attr('input_number.openevse_current', 'max')|int)
         }}
     action:
       - service: input_number.set_value
@@ -422,6 +414,8 @@ automation openevse:
     
   - alias: Update OpenEVSE Service Level
     id: update_openevse_service_level
+    description: >-
+      Reflect changes made to service level on the OpenEVSE back to Home Assistant.
     trigger:
       platform: mqtt
       topic: !secret OPENEVSE_T_ISL

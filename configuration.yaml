@@ -317,8 +317,8 @@ light:
   - platform: group
     name: Office Lights
     entities:
+      - light.office_sconce
       - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
-      - light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
   - platform: template
     lights:
       switch_front_foyer_chandelier:

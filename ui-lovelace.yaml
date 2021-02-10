@@ -95,7 +95,7 @@ views:
         show_header_toggle: false
         type: entities
         entities:
-          - light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
+          - light.office_sconce
           - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
           - light.office_lights
           - entity: switch.cable_modem_plug_switch
@@ -146,7 +146,7 @@ views:
           - entity: input_select.openevse_service_level
           - entity: input_number.openevse_current
           - entity: script.set_openevse_max_current
-          - entity: switch.openevse_save_current
+          - entity: input_boolean.openevse_save_current
 
   - title: Media
     cards:
