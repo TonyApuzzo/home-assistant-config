@@ -39,7 +39,8 @@
 # or set both `host` and `rapi` variables. `url` has precedence
 rest_command:
   openevse_rapi:
-    method: get
+    method: post
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     url: "{{ url | default('http://' ~ host ~ '/r?json=1&rapi=' ~ rapi, true) }}"
@@ -52,7 +53,7 @@ sensor:
     name: "OpenEVSE RAPI $GC"
     resource: !secret OPENEVSE_REST_GET_CURRENT_CAPACITY_RANGE
     force_update: no
-    authentication: basic
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     headers:
@@ -67,7 +68,7 @@ sensor:
     name: "OpenEVSE RAPI $GE"
     resource: !secret OPENEVSE_R_GE
     force_update: no
-    authentication: basic
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     headers:
@@ -80,8 +81,8 @@ sensor:
   - platform: rest
     name: "OpenEVSE RAPI $GG"
     resource: !secret OPENEVSE_REST_GET_CHARGING_CURRENT_AND_VOLTAGE
-    force_update: no
-    authentication: basic
+    force_update: yes
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     headers:
@@ -94,8 +95,8 @@ sensor:
   - platform: rest
     name: "OpenEVSE Status"
     resource: !secret OPENEVSE_R_STATUS
-    force_update: yes
-    authentication: basic
+    force_update: no
+    authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     headers:

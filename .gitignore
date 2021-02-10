@@ -10,9 +10,13 @@
 !*.md
 !options.xml
 !*.j2
-!./custom_components/
+!custom_components/
+!custom_components/**
 !packages/
 !*example.yaml
+
+# Ignore cached python files
+__pycache__
 
 # Ignore folders.
 .storage

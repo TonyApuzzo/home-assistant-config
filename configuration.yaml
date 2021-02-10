@@ -7,6 +7,8 @@ homeassistant:
 logger:
   default: warn
   logs:
+    homeassistant.components.rest: debug
+    homeassistant.components.rest_command: debug
     homeassistant.components.mqtt: info
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
