@@ -1,23 +1,26 @@
 ---
 #
-# Control an OpenEVSE Electric Car Charger
+# Control an OpenEVSE Electric Car Charging Station.
 #
-# Requires version 2.9.1 of OpenEVSE WiFi module, both MQTT and REST APIs are
+# There are unfortunately quite a few pre-requisites needed to work with
+# OpenEVSE.
+#
+## REQUIREMENTS ##
+#
+# Version 2.9.1 of OpenEVSE WiFi module, both MQTT and REST APIs are
 # used because each provides different capabilities.
 #
-# In order to use this, you must have the following configurations created in
-# the base configuration.yaml:
-#   MQTT
+# You must have MQTT setup in Home Assistant.
 #
 # Required custom components:
 #   input_number (allows dynamic adjustment of min/max values)
 #   input_select (allows label/value to be separately set)
+#   rest_command (supports HTTP DIGEST authentication required by OpenEVSE)
 #
 # Required secrets
 #   See '../secrets-example.yaml' for required secrets
 #
 # You must configure the OpenEVSE wifi control panel Services Tab:
-#
 #   - Enable MQTT:  Checked
 #   - Host:         Your hassio IP address where the MQTT broker is running
 #   - Port:         MQTT broker port (1883)
