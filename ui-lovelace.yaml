@@ -140,11 +140,11 @@ views:
           - entity: switch.openevse_enable
           - entity: switch.openevse_divertmode
           - entity: sensor.openevse_state
-          - entity: sensor.openevse_charging_current
+          - entity: sensor.openevse_current_now
           - entity: sensor.openevse_session_energy
           - entity: input_select.openevse_service_level
-          - entity: sensor.openevse_pilot_current
-          - entity: input_number.openevse_current
+          - entity: sensor.openevse_pilot
+          - entity: input_number.openevse_pilot
           - entity: script.set_openevse_max_current
           - entity: input_boolean.openevse_save_current
 

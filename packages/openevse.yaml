@@ -164,9 +164,9 @@ sensor:
           {% endif %}
 
       # Charging current from REST API
-      openevse_charging_current_rest:
-        unique_id: openevse_charging_current_rest
-        friendly_name: "OpenEVSE Charging Current (REST)"
+      openevse_current_now_rest:
+        unique_id: openevse_current_now_rest
+        friendly_name: "OpenEVSE Current Now (REST)"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
@@ -174,35 +174,35 @@ sensor:
               regex_replace('^\$OK ([0-9]+) (-?[0-9]+).*', '\\1') | float(0) / 1000 -}}
 
       # Combine both MQTT and REST sensors since neither ends up being super reliable
-      openevse_charging_current:
-        unique_id: openevse_charging_current
-        friendly_name: "OpenEVSE Charging Current"
+      openevse_current_now:
+        unique_id: openevse_current_now
+        friendly_name: "OpenEVSE Current Now"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
           {{-
             ([
               state_attr('sensor.openevse_status','charge_rate') | float(0),
-              states('sensor.openevse_charging_current_mqtt') | float(0)
+              states('sensor.openevse_current_now_mqtt') | float(0)
             ] | max)
           -}}
 
       # Combine both MQTT and REST sensors since neither ends up being super reliable
-      openevse_pilot_current:
-        unique_id: openevse_pilot_current
-        friendly_name: "OpenEVSE Pilot Current"
+      openevse_pilot:
+        unique_id: openevse_pilot
+        friendly_name: "OpenEVSE Pilot"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: >-
           {{-
             ([
               state_attr('sensor.openevse_status','pilot') | float(0),
-              states('sensor.openevse_pilot_current_mqtt') | float(0)
+              states('sensor.openevse_pilot_mqtt') | float(0)
             ] | max)
           -}}
 
-      openevse_pilot_current_rest:
-        friendly_name: "OpenEVSE Pilot Current (REST)"
+      openevse_pilot_rest:
+        friendly_name: "OpenEVSE Pilot (REST)"
         icon_template: mdi:current-ac
         unit_of_measurement: 'A'
         value_template: "{{ state_attr('sensor.openevse_status', 'pilot') | float(-1) }}" 
@@ -256,7 +256,7 @@ sensor:
       {{- C2F(value|float)|float -}}
 
   - platform: mqtt
-    name: "OpenEVSE Charging Current (MQTT)"
+    name: "OpenEVSE Current Now (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_AMP
     unit_of_measurement: "A"
@@ -264,7 +264,7 @@ sensor:
       {{- (value|float / 1000.0) | round(1) -}}
 
   - platform: mqtt
-    name: "OpenEVSE Pilot Current (MQTT)"
+    name: "OpenEVSE Pilot (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_PILOT
     unit_of_measurement: "A"
@@ -335,7 +335,7 @@ input_boolean:
     icon: mdi:sync
 
 input_number:
-  openevse_current:
+  openevse_pilot:
     name: "OpenEVSE Current"
     unit_of_measurement: "A"
     min: 10
@@ -365,7 +365,7 @@ script:
       - service: rest_command.openevse_rapi
         data:
           host: !secret OPENEVSE_HOST
-          rapi: "{{ '$SC ' ~ (states('input_number.openevse_current')|int) ~ (' V' if not is_state('input_boolean.openevse_save_current', 'on')) }}"
+          rapi: "{{ '$SC ' ~ (states('input_number.openevse_pilot')|int) ~ (' V' if not is_state('input_boolean.openevse_save_current', 'on')) }}"
 
 automation openevse:
   - alias: Update OpenEVSE Min/Max Current
@@ -380,7 +380,7 @@ automation openevse:
     action:
       - service: input_number.set_range
         data_template:
-          entity_id: input_number.openevse_current
+          entity_id: input_number.openevse_pilot
           # Restrict the min to 6A - 10A
           min: >-
             {%- set ret = state_attr('sensor.openevse_rapi_gc', 'ret') -%}
@@ -394,27 +394,27 @@ automation openevse:
             {%- set v = ret | regex_findall_index(rgx) -%}
             {{- [40, v[1]|int]|min -}}
 
-  - id: update_input_number_openevse_current
+  - id: update_input_number_openevse_pilot
     alias: Update input_number OpenEVSE Current
     description: >-
       Reflect changes made to pilot current on OpenEVSE back to the input_number
       slider position.
     trigger:
       platform: state
-      entity_id: sensor.openevse_pilot_current
+      entity_id: sensor.openevse_pilot
     condition:
       condition: template
       value_template: >-
         {{
-           (states('sensor.openevse_pilot_current')|int >= state_attr('input_number.openevse_current', 'min')|int)
+           (states('sensor.openevse_pilot')|int >= state_attr('input_number.openevse_pilot', 'min')|int)
            and
-           (states('sensor.openevse_pilot_current')|int <= state_attr('input_number.openevse_current', 'max')|int)
+           (states('sensor.openevse_pilot')|int <= state_attr('input_number.openevse_pilot', 'max')|int)
         }}
     action:
       - service: input_number.set_value
         data:
-          entity_id: input_number.openevse_current
-          value: "{{ states('sensor.openevse_pilot_current')|int }}"
+          entity_id: input_number.openevse_pilot
+          value: "{{ states('sensor.openevse_pilot')|int }}"
     
   - alias: Update OpenEVSE Service Level
     id: update_openevse_service_level
