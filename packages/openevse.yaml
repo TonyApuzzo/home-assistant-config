@@ -40,6 +40,7 @@
 # RAPI Service
 # When calling this, set service data for either the full URL in `url`
 # or set both `host` and `rapi` variables. `url` has precedence
+# This requires a rest_command that supports http digest auth
 rest_command:
   openevse_rapi:
     method: post
@@ -47,6 +48,23 @@ rest_command:
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     url: "{{ url | default('http://' ~ host ~ '/r?json=1&rapi=' ~ rapi, true) }}"
+
+# RAPI Service
+# NOTE: The HASS 'rest_command' service cannot use digest authentication,
+#       testing the notification platform to call our HTTP REST endpoints
+#       this isn't great because it doesn't support the flexibility of
+#       rest_command.
+notify:
+  - name: openevse_rapi
+    platform: rest
+    resource: http://openevse.lan/r
+    method: POST
+    message_param_name: rapi
+    authentication: digest
+    username: !secret OPENEVSE_USERNAME
+    password: !secret OPENEVSE_PASSWORD
+    data:
+      json: 1
 
 # Sensors
 sensor:
@@ -153,6 +171,7 @@ sensor:
       openevse_session_energy_raw:
         friendly_name: "OpenEVSE Session Energy (unfiltered)"
         icon_template: mdi:gauge
+        device_class: energy
         unit_of_measurement: 'kWh'
         value_template: >-
           {% set wattsec = state_attr('sensor.openevse_status', 'wattsec')
@@ -168,6 +187,7 @@ sensor:
         unique_id: openevse_current_now_rest
         friendly_name: "OpenEVSE Current Now (REST)"
         icon_template: mdi:current-ac
+        device_class: current
         unit_of_measurement: 'A'
         value_template: >-
           {{- states('sensor.openevse_rapi_gg') |
@@ -178,6 +198,7 @@ sensor:
         unique_id: openevse_current_now
         friendly_name: "OpenEVSE Current Now"
         icon_template: mdi:current-ac
+        device_class: current
         unit_of_measurement: 'A'
         value_template: >-
           {{-
@@ -192,6 +213,7 @@ sensor:
         unique_id: openevse_pilot
         friendly_name: "OpenEVSE Pilot"
         icon_template: mdi:current-ac
+        device_class: current
         unit_of_measurement: 'A'
         value_template: >-
           {{-
@@ -204,6 +226,7 @@ sensor:
       openevse_pilot_rest:
         friendly_name: "OpenEVSE Pilot (REST)"
         icon_template: mdi:current-ac
+        device_class: current
         unit_of_measurement: 'A'
         value_template: "{{ state_attr('sensor.openevse_status', 'pilot') | float(-1) }}" 
 
@@ -259,6 +282,7 @@ sensor:
     name: "OpenEVSE Current Now (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_AMP
+    device_class: current
     unit_of_measurement: "A"
     value_template: >-
       {{- (value|float / 1000.0) | round(1) -}}
@@ -267,6 +291,7 @@ sensor:
     name: "OpenEVSE Pilot (MQTT)"
     icon: mdi:current-ac
     state_topic: !secret OPENEVSE_T_PILOT
+    device_class: current
     unit_of_measurement: "A"
     value_template: >-
       {{- value|int -}}
@@ -275,6 +300,7 @@ sensor:
     name: "OpenEVSE Total Energy"
     icon: mdi:gauge-full
     state_topic: !secret OPENEVSE_T_WH
+    device_class: energy
     unit_of_measurement: "kWh"
     value_template: >-
       {{- value|float / 1000 | round(2) -}}

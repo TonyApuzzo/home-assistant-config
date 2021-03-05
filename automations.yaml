@@ -198,10 +198,10 @@
       ''Chromecast'') -}}'
   condition:
     condition: template
-    value_template: "{{-\nis_state('media_player.chromecast', 'playing')\
-      \ and\ntrigger is defined and\ntrigger.to_state.attributes.current_activity\
-      \ != \"Chromecast\" and \ntrigger.from_state.attributes.current_activity ==\
-      \ \"Chromecast\" \n-}}"
+    value_template: "{{-\nis_state('media_player.chromecast', 'playing') and\ntrigger\
+      \ is defined and\ntrigger.to_state.attributes.current_activity != \"Chromecast\"\
+      \ and \ntrigger.from_state.attributes.current_activity == \"Chromecast\" \n\
+      -}}"
   action:
   - service: media_player.media_pause
     data:
@@ -379,12 +379,26 @@
     entity_id: media_player.master_bedroom
   condition: []
   action:
-  - delay: "{% if is_state('media_player.master_bedroom', 'playing') or\n    \
-      \  is_state('media_player.master_bedroom', 'paused')  %}\n  0\n{% else %}\n\
-      \  60\n{% endif %}\n"
-  - service: "{% if is_state('media_player.master_bedroom', 'playing') or\n  \
-      \    is_state('media_player.master_bedroom', 'paused')  %}\n  switch.turn_on\n\
-      {% else %}\n  switch.turn_off\n{% endif %}\n"
+  - delay: "{% if is_state('media_player.master_bedroom', 'playing') or\n      is_state('media_player.master_bedroom',\
+      \ 'paused')  %}\n  0\n{% else %}\n  60\n{% endif %}\n"
+  - service: "{% if is_state('media_player.master_bedroom', 'playing') or\n      is_state('media_player.master_bedroom',\
+      \ 'paused')  %}\n  switch.turn_on\n{% else %}\n  switch.turn_off\n{% endif %}\n"
     data:
       entity_id: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
+  mode: restart
+- id: '1614326736837'
+  alias: Motion activated range hood
+  description: Turn on the range hood light at night when motion is detected
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.thermostat_occupancy
+  condition:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  action:
+  - data:
+      entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    service: "{% if trigger.to_state.state == \"on\" %}\n  light.turn_on\n{% else\
+      \ %}\n  light.turn_off\n{% endif %}\n"
   mode: restart

@@ -9,10 +9,10 @@ logger:
   logs:
     homeassistant.components.rest: debug
     homeassistant.components.rest_command: debug
-    homeassistant.components.mqtt: info
+    homeassistant.components.mqtt: warn
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
-    homeassistant.components.zwave: info
+    homeassistant.components.zwave: warn
 
 # Enables the frontend
 frontend:
