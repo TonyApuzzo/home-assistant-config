@@ -85,7 +85,7 @@ views:
         type: entities
         entities:
           - light.living_room_table
-          - light.switch_living_room_floor_lamp
+          - light.living_room_floor_lamp
           - sensor.thermostat_current_temperature
           - sensor.thermostat_current_humidity
           - binary_sensor.thermostat_occupancy

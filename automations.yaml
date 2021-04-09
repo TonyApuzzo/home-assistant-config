@@ -292,8 +292,7 @@
   alias: Autolock Front Door
   trigger:
   - entity_id: lock.kwikset_front_door
-    for:
-      minutes: 10
+    for: 0:05:00
     platform: state
     to: unlocked
   condition:
@@ -301,10 +300,12 @@
     entity_id: lock.kwikset_front_door
     state: unlocked
   action:
-  - data:
-      entity_id: lock.kwikset_front_door
+  - data: {}
     service: lock.lock
+    target:
+      entity_id: lock.kwikset_front_door
   initial_state: true
+  mode: restart
 - alias: Turn on Porch Light when motion detected
   id: outdoor_motion
   initial_state: true

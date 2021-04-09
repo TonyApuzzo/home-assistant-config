@@ -50,6 +50,7 @@ alexa:
       include_entities:
         - light.office_lights
         - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+        - light.living_room_floor_lamp
 
 # Monitor system health
 system_health:
@@ -355,19 +356,19 @@ light:
 
   - platform: template
     lights:
-      switch_living_room_floor_lamp:
+      living_room_floor_lamp:
         friendly_name: Living Room_Floor Lamp
-        level_template: '{{- 255 if is_state("switch.vesync", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.vesync", "on") -}}'
+        level_template: '{{- 255 if is_state("switch.zooz_zen25_s2_double_plug_switch", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.zooz_zen25_s2_double_plug_switch", "on") -}}'
         turn_on:
           service: switch.turn_on
-          entity_id: switch.vesync
+          entity_id: switch.zooz_zen25_s2_double_plug_switch
         turn_off:
           service: switch.turn_off
-          entity_id: switch.vesync
+          entity_id: switch.zooz_zen25_s2_double_plug_switch
         set_level:
-          service_template: switch.turn_'{{- "off" if brightness == 0 else "on" -}}'
-          entity_id: switch.vesync
+          service_template: '{{- "switch.turn_" ~ ( "off" if brightness == 0 else "on") -}}'
+          entity_id: switch.zooz_zen25_s2_double_plug_switch
 
   - platform: template
     lights:
