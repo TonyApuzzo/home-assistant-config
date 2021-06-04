@@ -23,7 +23,7 @@
   condition:
   - condition: template
     value_template: "{{- is_state_attr(\"climate.thermostat\", \"hvac_action\", \"\
-      cooling\") or \n    (states('sensor.office_temperature')|float >= 77.0)\n-}}"
+      cooling\") or \n    (states('sensor.office_temperature')|float >= 75.5)\n-}}"
   - condition: device
     device_id: ad80753855d64fbfb84fa35223d54bb5
     domain: switch
@@ -41,7 +41,7 @@
   condition:
   - condition: template
     value_template: '{{- (not is_state_attr("climate.thermostat", "hvac_action", "cooling")
-      | int) and ( states(''sensor.office_temperature'')|float < 77.0 ) -}}'
+      ) and ( states(''sensor.office_temperature'')|float < 75.0 ) -}}'
   - condition: device
     device_id: ad80753855d64fbfb84fa35223d54bb5
     domain: switch

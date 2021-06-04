@@ -106,6 +106,7 @@ views:
           - binary_sensor.office_occupancy
           - switch.register_booster_plug_switch
           - automation.auto_start_register_booster
+          - switch.honeywell_unknown_type_4f50_id_3034_switch_2
 
       - title: Top of Stairs
         id: top_of_stairs
