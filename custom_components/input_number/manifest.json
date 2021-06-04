@@ -1,6 +1,7 @@
 {
   "domain": "input_number",
   "name": "Input number",
+  "version": "1.0.0-tapuzzo",
   "documentation": "https://www.home-assistant.io/components/input_number",
   "requirements": [],
   "dependencies": [],
