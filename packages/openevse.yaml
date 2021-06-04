@@ -15,7 +15,7 @@
 # Required custom components:
 #   input_number (allows dynamic adjustment of min/max values)
 #   input_select (allows label/value to be separately set)
-#   rest_command (supports HTTP DIGEST authentication required by OpenEVSE)
+#   rest_cmd (supports HTTP DIGEST authentication required by OpenEVSE)
 #
 # Required secrets
 #   See '../secrets-example.yaml' for required secrets
@@ -40,31 +40,14 @@
 # RAPI Service
 # When calling this, set service data for either the full URL in `url`
 # or set both `host` and `rapi` variables. `url` has precedence
-# This requires a rest_command that supports http digest auth
-rest_command:
+# This requires a rest_cmd that supports http digest auth
+rest_cmd:
   openevse_rapi:
     method: post
     authentication: digest
     username: !secret OPENEVSE_USERNAME
     password: !secret OPENEVSE_PASSWORD
     url: "{{ url | default('http://' ~ host ~ '/r?json=1&rapi=' ~ rapi, true) }}"
-
-# RAPI Service
-# NOTE: The HASS 'rest_command' service cannot use digest authentication,
-#       testing the notification platform to call our HTTP REST endpoints
-#       this isn't great because it doesn't support the flexibility of
-#       rest_command.
-notify:
-  - name: openevse_rapi
-    platform: rest
-    resource: http://openevse.lan/r
-    method: POST
-    message_param_name: rapi
-    authentication: digest
-    username: !secret OPENEVSE_USERNAME
-    password: !secret OPENEVSE_PASSWORD
-    data:
-      json: 1
 
 # Sensors
 sensor:
@@ -312,11 +295,11 @@ switch:
       openevse_enable:
         friendly_name: "OpenEVSE Enable"
         turn_off:
-          - service: rest_command.openevse_rapi
+          - service: rest_cmd.openevse_rapi
             data:
               url: !secret OPENEVSE_REST_DISABLE
         turn_on:
-          - service: rest_command.openevse_rapi
+          - service: rest_cmd.openevse_rapi
             data:
               url: !secret OPENEVSE_REST_ENABLE
         icon_template: >-
@@ -388,7 +371,7 @@ script:
     icon: mdi:content-save
     alias: OpenEVSE Set Pilot
     sequence:
-      - service: rest_command.openevse_rapi
+      - service: rest_cmd.openevse_rapi
         data:
           host: !secret OPENEVSE_HOST
           rapi: "{{ '$SC ' ~ (states('input_number.openevse_pilot')|int) ~ (' V' if not is_state('input_boolean.openevse_save_current', 'on')) }}"
@@ -466,7 +449,7 @@ automation openevse:
       platform: state
       entity_id: input_select.openevse_service_level
     action:
-      service: rest_command.openevse_rapi
+      service: rest_cmd.openevse_rapi
       data_template:
         host: !secret OPENEVSE_HOST
         rapi: >-

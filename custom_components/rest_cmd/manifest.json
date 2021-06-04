@@ -1,6 +1,6 @@
 {
-  "domain": "rest_command",
-  "name": "RESTful Command",
+  "domain": "rest_cmd",
+  "name": "RESTful Command that supports authentication",
   "documentation": "https://www.home-assistant.io/integrations/rest_command",
   "codeowners": []
 }

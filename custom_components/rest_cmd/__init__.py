@@ -26,7 +26,7 @@ from homeassistant.helpers.httpx_client import get_async_client
 
 import homeassistant.helpers.config_validation as cv
 
-DOMAIN = "rest_command"
+DOMAIN = "rest_cmd"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ async def async_setup(hass, config):
     """Set up the REST command component."""
 
     @callback
-    def async_register_rest_command(name, command_config):
+    def async_register_rest_cmd(name, command_config):
         """Create service for rest command."""
         async_client = get_async_client(hass, command_config.get(CONF_VERIFY_SSL))
         timeout = command_config[CONF_TIMEOUT]
@@ -150,6 +150,6 @@ async def async_setup(hass, config):
         hass.services.async_register(DOMAIN, name, async_service_handler)
 
     for command, command_config in config[DOMAIN].items():
-        async_register_rest_command(command, command_config)
+        async_register_rest_cmd(command, command_config)
 
     return True
