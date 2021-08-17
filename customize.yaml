@@ -21,6 +21,7 @@ media_player.shield:
   hidden: yes
 media_player.rx_v475_a16974:
   icon: mdi:surround-sound
+  friendly_name: Yamaha RX-V475
   hidden: yes
 media_player.downstairs_tx_rz820:
   icon: mdi:surround-sound
