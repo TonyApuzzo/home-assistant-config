@@ -385,7 +385,9 @@
   - service: "{% if is_state('media_player.master_bedroom', 'playing') or\n      is_state('media_player.master_bedroom',\
       \ 'paused')  %}\n  switch.turn_on\n{% else %}\n  switch.turn_off\n{% endif %}\n"
     data:
-      entity_id: switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
+      entity_id:
+      - switch.audioengine_a2_plug_switch
+      - switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
   mode: restart
 - id: '1614326736837'
   alias: Motion activated range hood
@@ -403,3 +405,21 @@
     service: "{% if trigger.to_state.state == \"on\" %}\n  light.turn_on\n{% else\
       \ %}\n  light.turn_off\n{% endif %}\n"
   mode: restart
+- id: '1629143869166'
+  alias: Chromecast Volume Management - Office
+  description: ''
+  use_blueprint:
+    path: tonyapuzzo/chromecast_volume_management.yaml
+    input:
+      trigger_chromecast: media_player.office_chromecast
+      target_receiver: media_player.rx_v475_a16974
+      in_max_threshold: '0.90'
+      in_min_threshold: '0.25'
+- id: '1629145968232'
+  alias: Chromecast Volume Management - TV
+  description: ''
+  use_blueprint:
+    path: tonyapuzzo/chromecast_volume_management.yaml
+    input:
+      trigger_chromecast: media_player.chromecast
+      target_receiver: media_player.downstairs_tx_rz820

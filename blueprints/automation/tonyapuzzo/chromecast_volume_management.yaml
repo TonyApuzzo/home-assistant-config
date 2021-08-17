@@ -1,0 +1,81 @@
+blueprint:
+  name: Chromecast Volume Management
+  description: Adjust receiver volume when Chromecast volume is above or below threshold
+  source_url: >
+    https://github.com/TonyApuzzo/home-assistant-config/blob/master/blueprints/automation/tonyapuzzo/chromecast_volume_management.yaml
+  domain: automation
+  input:
+    trigger_chromecast:
+      name: Chromecast
+      description: >
+        The Chromecast (or other media player) who's volume range should be
+        adjusted when the Chromecast's volume limits are encountered.
+      selector:
+        entity:
+          domain: media_player
+    target_receiver:
+      name: Receiver
+      description: >
+        The Receiver that the Chromecast is plugged into. This entity's volume
+        will be increased / decreased when the Chromecast's volume is set above
+        or below the target threshold respectively.
+      selector:
+        entity:
+          domain: media_player
+    in_min_threshold:
+      name: Minimum Threshold
+      description: >
+        When the Chromecast volume is set below minimum threshold, then the
+        Receiver's volume will be turned down and the Chromecast's volume reset
+        to the threshold. Chromecast volumes are floating-point numbers ranging
+        from 0.00 to 1.00
+      default: 0.05
+    in_max_threshold:
+      name: Maximum Threshold
+      description: >
+        When the Chromecast volume is set above maximum threshold, then the
+        Receiver's volume will be turned up and the Chromecast's volume reset
+        to the threshold. Chromecast volumes are floating-point numbers ranging
+        from 0.00 to 1.00
+      default: 0.95
+
+variables:
+  input_min_threshold: !input in_min_threshold
+  input_max_threshold: !input in_max_threshold
+  range: "{{ [input_min_threshold, input_max_threshold ] }}"
+  min_threshold: "{{ range | min | float }}"
+  max_threshold: "{{ range | max | float }}"
+
+trigger:
+  - platform: state
+    entity_id: !input trigger_chromecast
+    attribute: volume_level
+
+condition:
+  condition: template
+  value_template: >
+    {{ state_attr(trigger.entity_id, 'volume_level') < min_threshold 
+       or state_attr(trigger.entity_id, 'volume_level') > max_threshold }}
+
+action:
+  - service: media_player.volume_set
+    target:
+      entity_id: '{{ trigger.entity_id }}'
+    data:
+      volume_level: |
+        {% if trigger.to_state.attributes.volume_level | float < (min_threshold|float) %}
+          {{ min_threshold | float }}
+        {% else %}
+          {{ max_threshold | float }}
+        {% endif %}
+  - service: |
+      {% if trigger.to_state.attributes.volume_level | float < (min_threshold|float) %}
+        media_player.volume_down
+      {% else %}
+        media_player.volume_up
+      {% endif %}
+    target:
+      entity_id: !input target_receiver
+
+mode: restart
+
