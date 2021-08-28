@@ -1,0 +1,13 @@
+sensor:
+  - platform: mqtt
+    state_topic: !secret ENERGY_METER_01_TOPIC
+    name: "Electric Meter"
+    unique_id: electric_meter_01
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: measurement
+    availability_topic: amr/status/availability
+    last_reset_topic: amr/status/last_reset
+    value_template: "{{ value_json.Message.Consumption }}"
+    json_attributes_template: "{{ value_json.Message | tojson }}"
+    json_attributes_topic: "amr/reading/SCM/4/60155156/message"

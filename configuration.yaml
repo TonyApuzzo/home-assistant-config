@@ -17,6 +17,9 @@ logger:
 # Enables the frontend
 frontend:
 
+# Enable energy management
+energy:
+
 lovelace:
   mode: storage
   dashboards:

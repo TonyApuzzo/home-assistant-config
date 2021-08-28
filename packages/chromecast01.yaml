@@ -2,7 +2,7 @@
 # Emulated Roku to Chromecast to be able to control the Chromecast using a Harmony Remote
 #
 
-automation old:
+automation chromecast01:
 - id: ha_em_chromecast_play
   trigger:
   - platform: event
