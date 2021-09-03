@@ -52,10 +52,15 @@ trigger:
     attribute: volume_level
 
 condition:
-  condition: template
-  value_template: >
-    {{ state_attr(trigger.entity_id, 'volume_level') < min_threshold 
-       or state_attr(trigger.entity_id, 'volume_level') > max_threshold }}
+  condition: and
+  conditions:
+    - condition: template
+      value_template: >
+        {{ not(state_attr(trigger.entity_id, 'volume_level') is none()) }}
+    - condition: template
+      value_template: >
+        {{ state_attr(trigger.entity_id, 'volume_level') < min_threshold 
+           or state_attr(trigger.entity_id, 'volume_level') > max_threshold }}
 
 action:
   - service: media_player.volume_set
@@ -63,13 +68,13 @@ action:
       entity_id: '{{ trigger.entity_id }}'
     data:
       volume_level: |
-        {% if trigger.to_state.attributes.volume_level | float < (min_threshold|float) %}
+        {% if (trigger.to_state.attributes.volume_level|float) < (min_threshold|float) %}
           {{ min_threshold | float }}
         {% else %}
           {{ max_threshold | float }}
         {% endif %}
   - service: |
-      {% if trigger.to_state.attributes.volume_level | float < (min_threshold|float) %}
+      {% if (trigger.to_state.attributes.volume_level|float) < (min_threshold|float) %}
         media_player.volume_down
       {% else %}
         media_player.volume_up
