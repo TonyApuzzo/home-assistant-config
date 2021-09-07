@@ -284,10 +284,9 @@ sensor:
     unique_id: openevse_total_energy_01
     icon: mdi:gauge-full
     state_topic: !secret OPENEVSE_T_WH
-    state_class: measurement
+    state_class: total_increasing
     device_class: energy
     unit_of_measurement: kWh
-    last_reset_topic: amr/status/last_reset
     value_template: >-
       {{- value|float / 1000 | round(2) -}}
 
