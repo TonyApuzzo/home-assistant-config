@@ -140,16 +140,16 @@ views:
         type: entities
         show_header_toggle: false
         entities:
-          - entity: switch.openevse_enable
-          - entity: switch.openevse_divertmode
+          - entity: switch.openevse_enablement
           - entity: sensor.openevse_state
           - entity: sensor.openevse_current_now
           - entity: sensor.openevse_session_energy
-          - entity: input_select.openevse_service_level
+          - entity: sensor.openevse_service_level
           - entity: sensor.openevse_pilot
-          - entity: input_number.openevse_pilot
-          - entity: script.set_openevse_max_current
-          - entity: input_boolean.openevse_save_current
+          - entity: number.openevse_pilot
+          - entity: sensor.openevse_energy_limit
+          - entity: number.openevse_charge_limit
+          - entity: script.openevse_rapi_gh
 
   - title: Media
     cards:

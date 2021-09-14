@@ -1,0 +1,297 @@
+###
+# OpenEVSE package for Home Assistant
+# Supports ONLY MQTT interactions
+# Author: Tony Apuzzo
+#
+# Eventually this will replace my original OpenEVSE integration
+# This version uses only MQTT and no REST interactions to reduce
+# configuration complexity.
+# 
+# Some things are a lot harder through MQTT than through REST,
+# so this package may get somewhat large and complex, but it
+# won't require custom_components or extensive customization
+#
+# The eventual goal is to create a blueprint from this to 
+# publish for others to use
+###
+
+number:
+  - platform: mqtt
+    name: OpenEVSE Pilot
+    command_topic: openevse/rapi/in/$SC
+    min: 6
+    max: 40
+    state_topic: openevse/pilot
+    icon: mdi:current-ac
+  - platform: mqtt
+    name: OpenEVSE Charge Limit
+    min: 0
+    max: 200
+    command_topic: openevse/rapi/in/$SH
+
+sensor:
+  - platform: mqtt
+    name: OpenEVSE Current Now
+    icon: mdi:current-ac
+    state_topic: >-
+      openevse/amp
+    device_class: current
+    state_class: measurement
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- (value|float / 1000.0) | round(1) -}}
+  - platform: mqtt
+    name: OpenEVSE Voltage
+    icon: mdi:flash
+    state_topic: >-
+      openevse/voltage
+    device_class: voltage
+    state_class: measurement
+    unit_of_measurement: "V"
+    value_template: >-
+      {{- value | float -}}
+  - platform: mqtt
+    name: OpenEVSE Temperature
+    icon: mdi:thermometer
+    state_topic: >-
+      openevse/temp1
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: '°C'
+    value_template: >-
+      {{- (value | float / 10.0) | round(0) -}}
+  - platform: mqtt
+    name: OpenEVSE Pilot
+    icon: mdi:current-ac
+    state_topic: >-
+      openevse/pilot
+    device_class: current
+    unit_of_measurement: "A"
+    value_template: >-
+      {{- value | int -}}
+  - platform: mqtt
+    name: OpenEVSE Total Energy
+    state_topic: >-
+      openevse/wh
+    device_class: energy
+    state_class: total_increasing
+    unit_of_measurement: "kWh"
+    value_template: >-
+      {{- (value | float / 1000.0) | round(0) -}}
+template:
+  - trigger:
+    - platform: mqtt
+      topic: 'openevse/rapi/in/#'
+    sensor:
+      - name: OpenEVSE RAPI In
+        state: '{{- trigger.topic.split("/") | last -}}'
+        attributes:
+          topic: '{{- trigger.topic -}}'
+          payload: '{{- trigger.payload -}}'
+  - trigger:
+    - platform: mqtt
+      topic: 'openevse/rapi/out'
+    sensor:
+      - name: OpenEVSE RAPI Out
+        state: >-
+          {{- trigger.payload | regex_replace('^\$([^ ]+) ?(.*)\^[0-9A-F]*$', '\\2') }}
+        attributes:
+          ok: >-
+            {{- trigger.payload | regex_replace('^\$([^ ]+) ?(.*)\^[0-9A-F]*$', '\\1') == 'OK' -}}
+          topic: '{{- trigger.topic -}}'
+          payload: '{{- trigger.payload -}}'
+          command: '{{- states("sensor.openevse_rapi_in") -}}'
+        icon: >-
+          {{ "mdi:eye" if trigger.payload is match('\$OK') else "mdi:alert" }}
+  - trigger:
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: command
+      to: '$GH'
+    sensor:
+      - name: OpenEVSE Energy Limit
+        device_class: energy
+        unit_of_measurement: "kWh"
+        state: >-
+          {{- states('sensor.openevse_rapi_out') | int -}}
+
+  - trigger:
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: command
+      to: '$GU'
+    sensor:
+      - name: OpenEVSE Session Energy
+        device_class: energy
+        state_class: measurement
+        unit_of_measurement: "kWh"
+        # '41660042 1328789'
+        state: >-
+          {{- (states('sensor.openevse_rapi_out').split(' ')[0]
+              | float / 3600000.0) | round(2) -}}
+  - trigger:
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: command
+      to: '$GE'
+    sensor:
+      - name: OpenEVSE Service Level
+        # Bitfield
+        #  Bit 1: Off = Level 1
+        #  Bit 1: On  = Level 2
+        #  Bit 6: Off = Use Level designation from bit 1
+        #  Bit 6: On  = Automaticly determine service level
+        state: >-
+          {%- set flags = states('sensor.openevse_rapi_out').split(' ')[1] | int(0, 16) -%}
+          {%- if (flags | bitwise_and(0x20)) == 0 -%}
+            Auto
+          {%- elif flags | bitwise_and(0x1) -%}
+            L2
+          {%- else -%}
+            L1
+          {%- endif -%}
+  - trigger:
+    - platform: mqtt
+      topic: openevse/state
+    sensor:
+      - name: OpenEVSE State
+        state: >-
+          {%- set value = trigger.payload -%}
+          {%- if value | regex_match('^[01]$') -%}
+            Not Connected
+          {%- elif value | regex_match('^2$') -%}
+            Connected
+          {%- elif value | regex_match('^3$') -%}
+            Charging
+          {%- elif value | regex_match('^([456789]|10)$') -%}
+            Error ({{- value -}})
+          {%- elif value | regex_match('^254$') -%}
+            Sleeping
+          {%- elif value | regex_match('^255$') -%}
+            Disabled
+          {%- else -%}
+            Unknown ({{- value -}})
+          {%- endif -%}
+        icon: >-
+          {%- set value = trigger.payload -%}
+          {%- if value | regex_match('^[01]$') -%}
+            mdi:power-plug-off
+          {%- elif value | regex_match('^2$') -%}
+            mdi:car-electric
+          {%- elif value | regex_match('^3$') -%}
+            mdi:battery-charging
+          {%- elif value | regex_match('^([456789]|10)$') -%}
+            mdi:battery-alert
+          {%- elif value | regex_match('^254$') -%}
+            mdi:sleep
+          {%- elif value | regex_match('^255$') -%}
+            mdi:power-off
+          {%- else -%}
+            mdi:battery-unknown
+          {%- endif -%}
+        attributes:
+          topic: '{{- trigger.topic -}}'
+          payload: '{{- trigger.payload -}}'
+
+switch:
+  - platform: template
+    switches:
+      openevse_enablement:
+        friendly_name: OpenEVSE Disable/Enable
+        icon_template: mdi:power
+        value_template: >-
+          {{- not(
+            is_state_attr('sensor.openevse_state', 'payload', 254) or
+            is_state_attr('sensor.openevse_state', 'payload', 255))
+          -}}
+        turn_on:
+          service: mqtt.publish
+          data:
+            topic: 'openevse/rapi/in/$FE'
+        turn_off:
+          service: mqtt.publish
+          data:
+            topic: 'openevse/rapi/in/$FD'
+
+script:
+  openevse_rapi_ge:
+    alias: OpenEVSE Get Settings
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$GE'
+  openevse_rapi_gu:
+    alias: OpenEVSE Get Energy Usage
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$GU'
+  openevse_rapi_gh:
+    alias: OpenEVSE Get Energy Limit
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$GH'
+
+automation openevse:
+  - alias: Request update of settings flags
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.openevse_state
+      - platform: state
+        entity_id: sensor.openevse_pilot
+    action:
+      - service: script.openevse_rapi_gh
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.openevse_rapi_out
+            attribute: command
+            to: '$GH'
+            for: '00:00:01'
+      - service: script.openevse_rapi_gu
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.openevse_rapi_out
+            attribute: command
+            to: '$GU'
+            for: '00:00:01'
+      - service: script.openevse_rapi_ge
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.openevse_rapi_out
+            attribute: command
+            to: '$GE'
+            for: '00:00:01'
+
+  - alias: Enforce charge limit
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.openevse_state
+        to: 
+          - Connected
+          - Charging
+    action:
+      - service: mqtt.publish
+        data:
+          topic: 'openevse/rapi/in/$SH'
+          payload_template: >-
+            {{- states('number.openevse_charge_limit') -}}
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.openevse_rapi_out
+            attribute: command
+            to: '$SH'
+            for: '00:00:01'
+      - service: script.openevse_rapi_gh
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.openevse_rapi_out
+            attribute: command
+            to: '$GH'
+            for: '00:00:01'
+
+
+
+

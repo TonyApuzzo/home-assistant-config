@@ -1,7 +1,0 @@
-{
-  "domain": "rest_cmd",
-  "name": "RESTful Command that supports authentication",
-  "version": "1.0.0-tapuzzo",
-  "documentation": "https://www.home-assistant.io/integrations/rest_command",
-  "codeowners": []
-}
