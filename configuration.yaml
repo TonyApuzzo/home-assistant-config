@@ -1,3 +1,6 @@
+---
+default_config:
+
 homeassistant:
   # Load packages
   packages: !include_dir_named packages
@@ -9,16 +12,11 @@ logger:
   logs:
     homeassistant.components.rest: warn
     homeassistant.components.rest_command: warn
+    homeassistant.components.rest_cmd: debug
     homeassistant.components.mqtt: warn
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
     homeassistant.components.zwave: warn
-
-# Enables the frontend
-frontend:
-
-# Enable energy management
-energy:
 
 lovelace:
   mode: storage
@@ -36,16 +34,7 @@ panel_custom:
     sidebar_icon: mdi:access-point-network
     url_path: zwave
 
-# Enables configuration UI
-config:
-
 api:
-
-# Enable mobile app integration
-mobile_app:
-
-# Cloud
-cloud:
 
 alexa:
   smart_home:
@@ -89,15 +78,6 @@ device_tracker:
 # https://www.home-assistant.io/components/http/
 http: !include secret.http.yaml
 
-# Checks for available updates
-# Note: This component will send some information about your system to
-# the developers to assist with development of Home Assistant.
-# For more information, please see:
-# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
-updater:
-  # Optional, allows Home Assistant developers to focus on popular components.
-  # include_used_components: true
-
 timer:
   outdoor_motion:
     duration: '00:00:15'
@@ -105,10 +85,6 @@ timer:
 # Discover some devices automatically
 discovery:
   ignore: []
-
-zeroconf:
-
-ssdp:
 
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
@@ -130,21 +106,6 @@ recorder:
   #     - weather
   #     - zwave
   #   entities: {}
-
-# Enables support for tracking state changes over time
-history:
-
-# View all events in a logbook
-logbook:
-
-# Enables a map showing the location of tracked devices
-map:
-
-# Track the sun
-sun:
-
-# Track people
-person:
 
 # Sensors
 sensor:
@@ -234,6 +195,19 @@ media_player:
 
 # Switches
 switch:
+  - platform: wake_on_lan
+    name: Tony PC
+    host: TONY-PC.lan
+    mac: !secret tony_mac1
+  - platform: wake_on_lan
+    name: Tony GW
+    host: TONY-PC.lan
+    mac: !secret tony_mac2
+  - platform: wake_on_lan
+    name: Karen PC
+    host: KAREN-PC.lan
+    mac: !secret karen_mac1
+    
   - platform: template
     switches:
       front_door_lock:

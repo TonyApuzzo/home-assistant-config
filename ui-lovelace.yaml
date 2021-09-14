@@ -107,6 +107,8 @@ views:
           - switch.register_booster_plug_switch
           - automation.auto_start_register_booster
           - switch.honeywell_unknown_type_4f50_id_3034_switch_2
+          - switch.karen_pc
+          - switch.tony_pc
 
       - title: Top of Stairs
         id: top_of_stairs
@@ -393,11 +395,16 @@ views:
 
   - title: Outside
     cards:
+      - title: Weather from Ecobee
+        id: weather-ecobee
+        type: weather-forecast
+        entity: weather.thermostat
       - title: Outside
         id: outside
         type: entities
         entities:
           - sun.sun
+          - sensor.airnow_aqi
 
   - title: System
     cards:
