@@ -92,14 +92,32 @@ template:
     - platform: mqtt
       topic: 'openevse/rapi/out'
     sensor:
+      # This RegEx created 4 groups from the RAPI output response
+      # '^\$(OK|NK) ?(.*?)(?: ?:([0-9A-F]{2}))?\^([0-9A-F]{2})$'
+      # 1: OK or NK
+      # 2: Response value (or empty if no response value)
+      # 3: Optional Sequence ID
+      # 4: Checksum or response (unused by this package)
       - name: OpenEVSE RAPI Out
         state: >-
-          {{- trigger.payload | regex_replace('^\$([^ ]+) ?(.*)\^[0-9A-F]*$', '\\2') }}
+          {{- (trigger.payload | regex_findall_index(
+            '^\$(OK|NK) ?(.*?)(?: ?:([0-9A-F]{2}))?\^([0-9A-F]{2})$')
+          )[1] -}}
         attributes:
-          ok: >-
-            {{- trigger.payload | regex_replace('^\$([^ ]+) ?(.*)\^[0-9A-F]*$', '\\1') == 'OK' -}}
-          topic: '{{- trigger.topic -}}'
           payload: '{{- trigger.payload -}}'
+          ok: >-
+            {{- (trigger.payload | regex_findall_index(
+              '^\$(OK|NK) ?(.*?)(?: ?:([0-9A-F]{2}))?\^([0-9A-F]{2})$')
+            )[0] == 'OK' -}}
+          topic: '{{- trigger.topic -}}'
+          sequence_id: >-
+            {{- (trigger.payload | regex_findall_index(
+              '^\$(OK|NK) ?(.*?)(?: ?:([0-9A-F]{2}))?\^([0-9A-F]{2})$')
+            )[2] -}}
+          checksum: >-
+            {{- (trigger.payload | regex_findall_index(
+              '^\$(OK|NK) ?(.*?)(?: ?:([0-9A-F]{2}))?\^([0-9A-F]{2})$')
+            )[3] -}}
           command: '{{- states("sensor.openevse_rapi_in") -}}'
         icon: >-
           {{ "mdi:eye" if trigger.payload is match('\$OK') else "mdi:alert" }}
@@ -108,6 +126,10 @@ template:
       entity_id: sensor.openevse_rapi_out
       attribute: command
       to: '$GH'
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: sequence_id
+      to: 'AD'
     sensor:
       - name: OpenEVSE Energy Limit
         device_class: energy
@@ -120,6 +142,10 @@ template:
       entity_id: sensor.openevse_rapi_out
       attribute: command
       to: '$GU'
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: sequence_id
+      to: 'B3'
     sensor:
       - name: OpenEVSE Session Energy
         device_class: energy
@@ -134,6 +160,10 @@ template:
       entity_id: sensor.openevse_rapi_out
       attribute: command
       to: '$GE'
+    - platform: state
+      entity_id: sensor.openevse_rapi_out
+      attribute: sequence_id
+      to: 'AA'
     sensor:
       - name: OpenEVSE Service Level
         # Bitfield
@@ -200,42 +230,54 @@ switch:
         friendly_name: OpenEVSE Disable/Enable
         icon_template: mdi:power
         value_template: >-
-          {{- not(
-            is_state_attr('sensor.openevse_state', 'payload', 254) or
-            is_state_attr('sensor.openevse_state', 'payload', 255))
+          {{-
+            not state_attr('sensor.openevse_state', 'payload') in (254, 255)
           -}}
         turn_on:
-          service: mqtt.publish
-          data:
-            topic: 'openevse/rapi/in/$FE'
+          service: script.openevse_rapi_fe
         turn_off:
-          service: mqtt.publish
-          data:
-            topic: 'openevse/rapi/in/$FD'
+          service: script.openevse_rapi_fd
 
 script:
+  openevse_rapi_fd:
+    alias: OpenEVSE Disable
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$FD'
+        payload: ':A1'
+  openevse_rapi_fe:
+    alias: OpenEVSE Enable
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$FE'
+        payload: ':A2'
   openevse_rapi_ge:
-    alias: OpenEVSE Get Settings
+    alias: OpenEVSE Get Energy Settings Flags
     sequence:
       service: mqtt.publish
       data:
         topic: 'openevse/rapi/in/$GE'
-  openevse_rapi_gu:
-    alias: OpenEVSE Get Energy Usage
-    sequence:
-      service: mqtt.publish
-      data:
-        topic: 'openevse/rapi/in/$GU'
+        payload: ':AA'
   openevse_rapi_gh:
     alias: OpenEVSE Get Energy Limit
     sequence:
       service: mqtt.publish
       data:
         topic: 'openevse/rapi/in/$GH'
+        payload: ':AD'
+  openevse_rapi_gu:
+    alias: OpenEVSE Get Energy Usage
+    sequence:
+      service: mqtt.publish
+      data:
+        topic: 'openevse/rapi/in/$GU'
+        payload: ':B3'
 
 automation openevse:
   - alias: Request update of settings flags
-    mode: single
+    mode: queued
     trigger:
       - platform: state
         entity_id: sensor.openevse_state
@@ -246,23 +288,20 @@ automation openevse:
       - wait_for_trigger:
           - platform: state
             entity_id: sensor.openevse_rapi_out
-            attribute: command
-            to: '$GH'
-            for: '00:00:01'
+            attribute: sequence_id
+            to: 'AD'
       - service: script.openevse_rapi_gu
       - wait_for_trigger:
           - platform: state
             entity_id: sensor.openevse_rapi_out
-            attribute: command
-            to: '$GU'
-            for: '00:00:01'
+            attribute: sequence_id
+            to: 'B3'
       - service: script.openevse_rapi_ge
       - wait_for_trigger:
           - platform: state
             entity_id: sensor.openevse_rapi_out
-            attribute: command
-            to: '$GE'
-            for: '00:00:01'
+            attribute: sequence_id
+            to: 'AA'
 
   - alias: Enforce charge limit
     mode: single
@@ -292,6 +331,64 @@ automation openevse:
             to: '$GH'
             for: '00:00:01'
 
+###
+### RAPI Command Documentation:
+###   https://github.com/OpenEVSE/ESP8266_WiFi_v2.x/blob/master/Developers_Guides/Developers%20Guide_MQTT.pdf
+###
+### Note:
+###   I predefine an ID for each API just for this package because
+###   otherwise it is impossible to ensure 1-to-1 linkage from commands to
+###   responses. Ideally the sequence IDs would be dynamic but that's not
+###   possible with basic Home Assistant configuration
+###
+
+# --- FUNCTIONS ---
+#	ID	CMD	Description
+#	A0	$FB	LCD Backlight Color (0-7)
+#	A1	$FD	Disable EVSE
+#	A2	$FE	Enable EVSE
+#	A3	$FP	Output text at x y position text to LCD (x y text)
+#	A4	$FR	Reset EVSE
+#	A5	$FS	Put EVSE to sleep
+
+# --- GET ---
+#	ID	CMD	Description
+#	A6	$G3	Get Charge Time Limit, 15-minutes (1), 30-minutes (2), etc...
+#	A7	$GA	Get Ammeter Scale/Offset, scale offset
+#	A8	$GC	Get current capacity range, integers
+#	A9	$GD	Get delay timer, starthr startmin endhr endmin
+#	AA	$GE	Get settings, amps flags
+#	AB	$GF	Get fault counters, gfi ground stuck (in hex)
+#	AC	$GG	Get charge current and voltage, milliamps millivolts
+#	AD	$GH	Get charge limit in kWh, integer
+#	AE	$GM	Get Voltmeter Scale/Offset, scale offset
+#	AF	$GO	Get Overtemperature thresholds, ambient infrared
+#	B0	$GP	Get Temperatures, LCD mcp9808 infrared (all integers, Celsius * 10)
+#	B1	$GS	Get EVSE State, state elapsed_seconds
+#	B2	$GT	Get time, year month day hour minute second
+#	B3	$GU	Get Energy usage, wattseconds watt_hour_accumulated
+#	B4	$GV	Get Versions, evse_firmware protocol_version
+
+# --- SET ---
+#	ID	CMD	Description
+#	B5	$S0	Set LCD Type, Monochrome (0), Color (1)
+#	B6	$S1	Set RTC Year Month Day Hour Minute Second (all 2-digit max)
+#	B7	$S2	Enable (1)/ Disable (0) Ammeter Calibration Mode
+#	B8	$S3	Set Charge Time Limit, 15-minutes (1), 30-minutes (2), etc...
+#	B9	$SA	Set Ammeter Scale/Offset, scale offset
+#	BA	$SC	Set current capacity, integer
+#	BB	$SD	Enable (1) / Disable (0) Diode self-check
+#	BC	$SF	Enable (1) / Disable (0) GFI self-check
+#	BD	$SG	Enable (1) / Disable (0) Ground check
+#	BE	$SH	Set charge limit in kWh, integer
+#	BF	$SK	Set accumulated Wh, integer
+#	C0	$SL	Set service level (1/2/A)
+#	C1	$SM	Set Voltmeter Scale/Offset, scale offset
+#	C2	$SO	Set Overtemperature thresholds, ambient infrared
+#	C3	$SR	Enable (1) / Disable (0) Stuck-relay check
+#	C4	$SS	Enable (1) / Disable (0) GFI self-check
+#	C5	$ST	Set timer, start_hour start_min end_hour end_min
+#	C6	$SV	Enable (1) / Disable (0) vent required check
 
 
 
