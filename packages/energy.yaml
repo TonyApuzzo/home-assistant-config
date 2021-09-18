@@ -6,7 +6,7 @@ sensor:
     unit_of_measurement: kWh
     device_class: energy
     state_class: total_increasing
-    availability_topic: amr/status/availability
+    availability_topic: !secret AMR_AVAILABILITY
     value_template: "{{ value_json.Message.Consumption | float }}"
     json_attributes_template: "{{ value_json.Message | tojson }}"
     json_attributes_topic: !secret ENERGY_METER_01_TOPIC
@@ -15,11 +15,13 @@ sensor:
     state_topic: !secret GAS_METER_01_TOPIC
     name: "Gas Meter"
     unique_id: gas_meter_01
-    unit_of_measurement: m³
+    unit_of_measurement: 'm³'
     device_class: gas
     state_class: total_increasing
-    availability_topic: amr/status/availability
+    availability_topic: !secret AMR_AVAILABILITY
     # My meter reads in cubic feet, convert to cubic meters
-    value_template: "{{ value_json.Message.Consumption | float * 0.02832 }}"
-    json_attributes_template: "{{ value_json.Message | tojson }}"
+    value_template: >-
+      {{- value_json.Message.Consumption | float * 0.02832 -}}
+    json_attributes_template: >-
+      {{- value_json.Message | tojson -}}
     json_attributes_topic: !secret GAS_METER_01_TOPIC

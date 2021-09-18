@@ -70,6 +70,7 @@ sensor:
     value_template: >-
       {{- value | int -}}
   - platform: mqtt
+    unique_id: openevse_total_energy
     name: OpenEVSE Total Energy
     state_topic: >-
       openevse/wh
