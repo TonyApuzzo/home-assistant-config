@@ -11,8 +11,6 @@ views:
         entities:
           - lock.kwikset_front_door
           - light.switch_front_porch_light
-          - entity: light.hank_electronics_ltd_hkzw_rgb01_rgb_bulb_level
-            name: Bulb
           - entity: sensor.front_porch_motion_sensor_temperature
             name: Temperature
           - entity: sensor.front_porch_motion_sensor_alarm_level
@@ -107,8 +105,6 @@ views:
           - switch.register_booster_plug_switch
           - automation.auto_start_register_booster
           - switch.honeywell_unknown_type_4f50_id_3034_switch_2
-          - switch.karen_pc
-          - switch.tony_pc
 
       - title: Top of Stairs
         id: top_of_stairs
@@ -412,6 +408,8 @@ views:
         id: system
         type: entities
         entities:
+          - switch.karen_pc
+          - switch.tony_pc
           - entity: sensor.load_1m
           - entity: sensor.load_5m
           - entity: sensor.load_15m
