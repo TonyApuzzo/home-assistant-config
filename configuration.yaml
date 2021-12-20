@@ -43,6 +43,7 @@ alexa:
         - light.office_lights
         - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
         - light.living_room_floor_lamp
+        - scene.media
 
 # Monitor system health
 system_health:
@@ -270,23 +271,27 @@ switch:
         turn_on:
 
       thermostat_fan_mode:
-        friendly_name: "Thermostat Fan Mode"
+        friendly_name: "Thermostat Fan"
         value_template: >-
-          {{- state_attr('climate.thermostat_2', 'fan_min_on_time') is not none
-              and state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5 -}}
+          {{- is_state_attr('climate.thermostat_2', 'fan_mode', 'on') or
+              (state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5) -}}
         icon_template: >-
-          {%- if state_attr('climate.thermostat_2', 'fan_min_on_time') is not none
-              and state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5 -%}
+          {%- if is_state_attr('climate.thermostat_2', 'fan_mode', 'on') or
+              (state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5) -%}
             mdi:fan
           {%- else -%}
             mdi:fan-off
           {%- endif -%}
         turn_on:
-          - service: ecobee.set_fan_min_on_time
+          - service: climate.set_fan_mode
             data:
               entity_id: climate.thermostat_2
-              fan_min_on_time: 60
+              fan_mode: on
         turn_off:
+          - service: climate.set_fan_mode
+            data:
+              entity_id: climate.thermostat_2
+              fan_mode: auto
           - service: ecobee.set_fan_min_on_time
             data:
               entity_id: climate.thermostat_2

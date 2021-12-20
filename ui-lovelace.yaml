@@ -56,7 +56,7 @@ views:
         show_header_toggle: false
         type: entities
         entities:
-          - scene.tv_lights
+          - scene.media
           - light.family_room_floor_lamp
           - light.family_room_landing
           - remote.family_room_harmony_hub
@@ -129,7 +129,7 @@ views:
       - title: Thermostat
         id: thermostat
         type: thermostat
-        entity: climate.thermostat
+        entity: climate.thermostat_2
 
       - title: OpenEVSE
         id: openevse

@@ -1,20 +1,20 @@
 - alias: Normalize Temperature
-  initial_state: true
+  id: normalize_temperature
+  initial_state: false
   trigger:
   - entity_id: sensor.ecobee_spread
     platform: state
   condition:
   - condition: numeric_state
     entity_id: sensor.ecobee_spread
-    above: 2.0
+    above: 3.0
   action:
   - service: climate.set_fan_mode
     data_template:
-      entity_id: climate.thermostat
-      fan_mode: "{%- if (state_attr('climate.thermostat', 'current_temperature')|float\
-        \ >= 67.0)\n    and (states('sensor.ecobee_spread')|float > 3.0) -%}\n  on\n\
-        {%- else -%}\n  off\n{%- endif -%}"
-  id: normalize_temperature
+      entity_id: climate.thermostat_2
+      fan_mode: "{%- if (state_attr('climate.thermostat_2', 'current_temperature')|float\
+        \ >= 67.0)\n  and (states('sensor.ecobee_spread')|float > 4.0) -%}\n  on\n\
+        {%- else -%}\n  auto\n{%- endif -%}"
 - id: auto_start_register_booster
   alias: Auto Start Register Booster
   trigger:
@@ -423,3 +423,29 @@
     input:
       trigger_chromecast: media_player.chromecast
       target_receiver: media_player.downstairs_tx_rz820
+- id: '1635372798806'
+  alias: Ecobee Mix
+  description: ''
+  use_blueprint:
+    path: tonyapuzzo/ecobee_mix.yaml
+    input:
+      in_thermostat: climate.thermostat_2
+      in_sensors:
+        entity_id:
+        - sensor.thermostat_temperature
+        - sensor.lil_bee_temperature_2
+        - sensor.office_temperature_2
+- id: '1638737979994'
+  alias: ecobee fan example
+  description: ''
+  trigger:
+  - platform: template
+    value_template: states('sensor.bedroom_temperature')|float - states('sensor.office_temperature')|float
+      < -1.5
+  condition: []
+  action:
+  - service: ecobee.set_fan_min_on_time
+    data:
+      fan_min_on_time: 60
+      entity_id: climate.thermostat_2
+  mode: single

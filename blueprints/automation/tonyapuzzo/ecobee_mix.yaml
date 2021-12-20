@@ -1,0 +1,69 @@
+blueprint:
+  name: Ecobee Mix
+  description: Turn on the system fan base on sensor divergence
+  #source_url: ''
+  domain: automation
+  input:
+    in_thermostat:
+      name: Ecobee Thermostat
+      description: >
+        The ecobee thermostat entity
+      selector:
+        entity:
+          integration: ecobee
+          domain: climate
+    in_threshold:
+      name: Temperature Threshold
+      description: >
+        When the sensors' temperatures diverge by more than this value, the fan will run
+      selector:
+        number:
+          min: 1
+          max: 10
+          unit_of_measurement: Δ°
+      default: 4
+    in_sensors:
+      name: Temperature Sensors
+      selector:
+        target:
+          entity:
+            integration: ecobee
+            domain: sensor
+            device_class: temperature
+variables:
+  thermostat: !input in_thermostat
+  threshold: !input in_threshold
+  temp_sensors: !input in_sensors
+trigger:
+  - platform: template
+    value_template: >-
+      {% set range = expand([
+        temp_sensors.entity_id,
+        temp_sensors.device_id,
+        temp_sensors.area_id])
+          | map(attribute='state') 
+          | map('float', None) 
+          | select('number') 
+          | list %}
+      {% set spread = (range|max) - (range|min) %}
+      {{ spread > (threshold - 1.0) }}
+action:
+  - service: climate.set_fan_mode
+    data:
+      entity_id: '{{ thermostat }}'
+      fan_mode: >-
+        {% set range = expand([
+          temp_sensors.entity_id,
+          temp_sensors.device_id,
+          temp_sensors.area_id])
+            | map(attribute='state') 
+            | map('float', None) 
+            | select('number') 
+            | list %}
+        {% set spread = (range|max) - (range|min) %}
+        {%- if spread > threshold -%}
+          on
+        {%- else -%}
+          auto
+        {%- endif -%}
+mode: restart
