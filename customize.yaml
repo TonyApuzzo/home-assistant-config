@@ -35,9 +35,6 @@ media_player.downstairs_tx_rz820_zone_3:
 media_player.tonysroku3:
   icon: mdi:alpha-r-box
   hidden: yes
-media_player.roku_stick:
-  icon: mdi:alpha-r-box
-  hidden: yes
 media_player.samsung_pn60f8500:
   icon: mdi:television
   hidden: yes

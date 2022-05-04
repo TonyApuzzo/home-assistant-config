@@ -39,7 +39,6 @@ media_player_avr:
 media_player_roku:
   entities:
     - media_player.tonysroku3
-    - media_player.roku_stick
 
 # I hate to type
 template:

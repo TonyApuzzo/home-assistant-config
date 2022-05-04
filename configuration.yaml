@@ -16,7 +16,6 @@ logger:
     homeassistant.components.mqtt: warn
     homeassistant.components.harmony: warn
     homeassistant.components.lutron_caseta: warn
-    homeassistant.components.zwave: warn
 
 lovelace:
   mode: storage
@@ -28,12 +27,6 @@ lovelace:
       show_in_sidebar: true
       filename: ui-lovelace.yaml
 
-panel_custom:
-  - name: zwavegraph2
-    sidebar_title: Z-Wave Graph
-    sidebar_icon: mdi:access-point-network
-    url_path: zwave
-
 api:
 
 alexa:
@@ -43,6 +36,7 @@ alexa:
         - light.office_lights
         - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
         - light.living_room_floor_lamp
+        - light.christmas_tree
         - scene.media
 
 # Monitor system health
@@ -105,7 +99,6 @@ recorder:
   #     - sun
   #     - timer
   #     - weather
-  #     - zwave
   #   entities: {}
 
 # Sensors
@@ -197,9 +190,9 @@ media_player:
 # Switches
 switch:
   - platform: wake_on_lan
-    name: Tony PC
-    host: TONY-PC.lan
-    mac: !secret tony_mac1
+    name: Alder PC
+    host: alder.lan
+    mac: !secret alder_mac1
   - platform: wake_on_lan
     name: Tony GW
     host: TONY-PC.lan
@@ -338,19 +331,34 @@ light:
 
   - platform: template
     lights:
-      living_room_floor_lamp:
-        friendly_name: Living Room_Floor Lamp
-        level_template: '{{- 255 if is_state("switch.zooz_zen25_s2_double_plug_switch", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.zooz_zen25_s2_double_plug_switch", "on") -}}'
+      christmas_tree:
+        friendly_name: Christmas Tree
+        level_template: '{{- 255 if is_state("switch.double_plug_left", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.double_plug_left", "on") -}}'
+        icon_template: mdi-pine-tree
         turn_on:
           service: switch.turn_on
-          entity_id: switch.zooz_zen25_s2_double_plug_switch
+          entity_id: switch.double_plug_left
         turn_off:
           service: switch.turn_off
-          entity_id: switch.zooz_zen25_s2_double_plug_switch
+          entity_id: switch.double_plug_left
         set_level:
           service_template: '{{- "switch.turn_" ~ ( "off" if brightness == 0 else "on") -}}'
-          entity_id: switch.zooz_zen25_s2_double_plug_switch
+          entity_id: switch.double_plug_left
+      living_room_floor_lamp:
+        friendly_name: Living Room Floor Lamp
+        level_template: '{{- 255 if is_state("switch.double_plug_right", "on") else 0 -}}'
+        value_template: '{{- is_state("switch.double_plug_right", "on") -}}'
+        icon_template: mdi-floor-lamp
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.double_plug_right
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.double_plug_right
+        set_level:
+          service_template: '{{- "switch.turn_" ~ ( "off" if brightness == 0 else "on") -}}'
+          entity_id: switch.double_plug_right
 
   - platform: template
     lights:

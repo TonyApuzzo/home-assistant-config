@@ -306,47 +306,6 @@
       entity_id: lock.kwikset_front_door
   initial_state: true
   mode: restart
-- alias: Turn on Porch Light when motion detected
-  id: outdoor_motion
-  initial_state: true
-  trigger:
-    platform: numeric_state
-    entity_id: sensor.front_porch_motion_sensor_alarm_level
-    above: 0
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: sun.sun
-      state: below_horizon
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id: light.switch_front_porch_light
-        state: 'off'
-      - condition: state
-        entity_id: timer.outdoor_motion
-        state: active
-  action:
-  - service: light.turn_on
-    data:
-      entity_id: light.switch_front_porch_light
-  - service: timer.start
-    data:
-      entity_id: timer.outdoor_motion
-      duration: 00:05:00
-- alias: Turn off Porch Light after motion timeout
-  id: motion_timeout
-  initial_state: true
-  trigger:
-    platform: event
-    event_type: timer.finished
-    event_data:
-      entity_id: timer.outdoor_motion
-  action:
-  - service: light.turn_off
-    data:
-      entity_id: light.switch_front_porch_light
 - id: propagate_kitchen_light
   trigger:
   - platform: event
@@ -389,22 +348,6 @@
       - switch.audioengine_a2_plug_switch
       - switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
   mode: restart
-- id: '1614326736837'
-  alias: Motion activated range hood
-  description: Turn on the range hood light at night when motion is detected
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.thermostat_occupancy
-  condition:
-  - condition: sun
-    before: sunrise
-    after: sunset
-  action:
-  - data:
-      entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-    service: "{% if trigger.to_state.state == \"on\" %}\n  light.turn_on\n{% else\
-      \ %}\n  light.turn_off\n{% endif %}\n"
-  mode: restart
 - id: '1629143869166'
   alias: Chromecast Volume Management - Office
   description: ''
@@ -435,17 +378,13 @@
         - sensor.thermostat_temperature
         - sensor.lil_bee_temperature_2
         - sensor.office_temperature_2
-- id: '1638737979994'
-  alias: ecobee fan example
+- id: '1647999535304'
+  alias: Motion-activated Light
   description: ''
-  trigger:
-  - platform: template
-    value_template: states('sensor.bedroom_temperature')|float - states('sensor.office_temperature')|float
-      < -1.5
-  condition: []
-  action:
-  - service: ecobee.set_fan_min_on_time
-    data:
-      fan_min_on_time: 60
-      entity_id: climate.thermostat_2
-  mode: single
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.motion_sensor_home_security_motion_detection
+      light_target:
+        entity_id: light.switch_front_porch_light
+      no_motion_wait: 300
