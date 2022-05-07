@@ -44,6 +44,3 @@ group.media_player_cast:
 
 switch.denon_cd_plug_switch:
   icon: mdi:disc-player
-  
-sensor.fridge_temperature:
-  icon: mdi:fridge-outline

@@ -1,235 +1,3 @@
-- alias: Normalize Temperature
-  id: normalize_temperature
-  initial_state: false
-  trigger:
-  - entity_id: sensor.ecobee_spread
-    platform: state
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.ecobee_spread
-    above: 3.0
-  action:
-  - service: climate.set_fan_mode
-    data_template:
-      entity_id: climate.thermostat_2
-      fan_mode: "{%- if (state_attr('climate.thermostat_2', 'current_temperature')|float\
-        \ >= 67.0)\n  and (states('sensor.ecobee_spread')|float > 4.0) -%}\n  on\n\
-        {%- else -%}\n  auto\n{%- endif -%}"
-- id: auto_start_register_booster
-  alias: Auto Start Register Booster
-  trigger:
-  - entity_id: climate.thermostat
-    platform: state
-  condition:
-  - condition: template
-    value_template: "{{- is_state_attr(\"climate.thermostat\", \"hvac_action\", \"\
-      cooling\") or \n    (states('sensor.office_temperature')|float >= 75.5)\n-}}"
-  - condition: device
-    device_id: ad80753855d64fbfb84fa35223d54bb5
-    domain: switch
-    entity_id: switch.register_booster_plug_switch
-    type: is_off
-  action:
-  - entity_id: switch.register_booster_plug_switch
-    service: switch.turn_on
-  initial_state: true
-- id: auto_stop_register_booster
-  alias: Auto Stop Register Booster
-  trigger:
-  - entity_id: climate.thermostat
-    platform: state
-  condition:
-  - condition: template
-    value_template: '{{- (not is_state_attr("climate.thermostat", "hvac_action", "cooling")
-      ) and ( states(''sensor.office_temperature'')|float < 75.0 ) -}}'
-  - condition: device
-    device_id: ad80753855d64fbfb84fa35223d54bb5
-    domain: switch
-    entity_id: switch.register_booster_plug_switch
-    type: is_on
-  action:
-  - entity_id: switch.register_booster_plug_switch
-    service: switch.turn_off
-  initial_state: true
-- alias: Listen to CDs started from Harmony Hub
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: remote.family_room_harmony_hub
-  condition:
-    condition: template
-    value_template: "{{-\n  trigger is defined and trigger.to_state is not none\n\
-      \  and trigger.to_state.attributes is not none\n  and trigger.to_state.attributes.current_activity\
-      \ == \"Listen to CDs\"\n-}}"
-  action:
-    service: switch.turn_on
-    entity_id: switch.denon_cd_plug_switch
-  id: 0135cb5921284e4787091873eb245f06
-- alias: Listen to CDs ended from Harmony Hub
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: remote.family_room_harmony_hub
-  condition:
-    condition: template
-    value_template: "{{- \n  trigger is defined \n  and trigger.from_state is not\
-      \ none\n  and trigger.from_state.attributes is not none \n  and trigger.from_state.attributes.current_activity\
-      \ == \"Listen to CDs\"  and trigger.to_state.attributes.current_activity !=\
-      \ \"Listen to CDs\"  \n-}}"
-  action:
-    service: switch.turn_off
-    entity_id: switch.denon_cd_plug_switch
-  id: 689ac6077a2f43578a4078871d416a75
-- id: fb582d1acf324c77bcdd43f08fc2e4dd
-  alias: Casting to Yamaha RX-V475
-  trigger:
-  - entity_id: media_player.office_chromecast
-    platform: state
-    to: playing
-  condition:
-  - condition: template
-    value_template: "{{-\n  trigger is defined\n  and trigger.from_state is defined\n\
-      \  and trigger.from_state.state != 'playing'\n-}}"
-  action:
-  - data:
-      entity_id: media_player.rx_v475_a16974
-      source: HDMI1
-    service: media_player.select_source
-  - condition: state
-    entity_id: media_player.rx_v475_a16974
-    state: 'off'
-  - data:
-      entity_id: media_player.rx_v475_a16974
-    service: media_player.turn_on
-  initial_state: true
-  mode: single
-- id: 6a964c94c92f49b699d258c2a018e1e3
-  alias: Powering off Yamaha RX-V475
-  trigger:
-  - entity_id: media_player.rx_v475_a16974
-    platform: state
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: media_player.office_chromecast
-    state: playing
-  action:
-  - data: {}
-    entity_id: media_player.office_chromecast
-    service: media_player.media_pause
-  initial_state: true
-  mode: single
-- alias: Casting to Onkyo TX-RZ820
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: media_player.onkyo_txrz820_4f772a
-    to: playing
-  condition:
-    condition: template
-    value_template: "{{-\n  not is_state_attr(\"remote.family_room_harmony_hub\",\
-      \ \"current_activity\", \"Network Music\")\n-}}"
-  action:
-    service: remote.turn_on
-    data:
-      entity_id: remote.family_room_harmony_hub
-      activity: Network Music
-  id: df5f52f3006d4b1ca9d64ecbded66987
-- alias: Casting to SHIELD
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: media_player.shield
-    to: playing
-  condition:
-    condition: template
-    value_template: "{{-\n  not is_state_attr(\"remote.family_room_harmony_hub\",\
-      \ \"current_activity\",\n  \"SHIELD TV\")\n-}}"
-  action:
-    service: remote.turn_on
-    data:
-      entity_id: remote.family_room_harmony_hub
-      activity: SHIELD TV
-  id: f9812165edca4dfeb19ca130fbaa00dc
-- id: a141efb59e9f429c9671c0033dcfe027
-  alias: Casting to SHIELD ended from Harmony Hub
-  trigger:
-  - platform: state
-    entity_id: remote.family_room_harmony_hub
-    attribute: current_activity
-    from: SHIELD TV
-  condition:
-  - condition: template
-    value_template: "{{-\n  trigger is defined\n  and trigger.to_state is not none\n\
-      \  and trigger.to_state.attributes.current_activity != \"SHIELD TV\"\n-}}"
-  action:
-  - service: media_player.media_stop
-    data:
-      entity_id: media_player.shield
-  - service: media_player.turn_off
-    data:
-      entity_id: media_player.shield
-  initial_state: true
-  mode: single
-- alias: Casting to Family Room
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: media_player.chromecast
-    to: playing
-  condition:
-    condition: template
-    value_template: '{{- not is_state_attr("remote.family_room_harmony_hub", "current_activity",
-      "Chromecast") -}}'
-  action:
-    service: remote.turn_on
-    data:
-      entity_id: remote.family_room_harmony_hub
-      activity: Chromecast
-  id: 123e9a5ea0d24d8982760adf1a5bf685
-- alias: Casting to Family Room ended from Harmony Hub
-  initial_state: true
-  trigger:
-    platform: template
-    value_template: '{{- is_state_attr(''remote.family_room_harmony_hub'', ''last_activity'',
-      ''Chromecast'') and
-
-      not is_state_attr(''remote.family_room_harmony_hub'', ''current_activity'',
-      ''Chromecast'') -}}'
-  condition:
-    condition: template
-    value_template: "{{-\nis_state('media_player.chromecast', 'playing') and\ntrigger\
-      \ is defined and\ntrigger.to_state.attributes.current_activity != \"Chromecast\"\
-      \ and \ntrigger.from_state.attributes.current_activity == \"Chromecast\" \n\
-      -}}"
-  action:
-  - service: media_player.media_pause
-    data:
-      entity_id: media_player.chromecast
-  - service: persistent_notification.create
-    data:
-      notification_id: harmony_pause_chromecast
-      message: Automation Triggered Pause at {{now().strftime('%c')}}!
-      title: Harmony Pause
-  id: 580aacc8e53241ae94ff165b2a9e6469
-- alias: Fridge Temperature Warning
-  id: fridge_alarm
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: sensor.fridge_temperature
-  condition:
-    condition: template
-    value_template: "{%- if is_state('sensor.fridge_temperature', 'unknown') -%}\n\
-      \  false\n{%- else -%}\n  {%- set t = states('sensor.fridge_temperature')|float\
-      \ -%}\n  {{- 33.0 > t or t > 42.0 -}}\n{%- endif -%}\""
-  action:
-    service: persistent_notification.create
-    data:
-      notification_id: warning_fridge_temperature
-      message: Fridge temperature  {{states.sensor.fridge_temperature.state_with_unit}}
-        at {{now().strftime('%c')}}!
-      title: Fridge Temp out of Range!
 - alias: Garage Warning
   id: garage_warning
   initial_state: true
@@ -251,140 +19,40 @@
         }}!
       message: The garage door has been {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
         }} for at least 15 minutes, consider closing it.
-- id: sync_front_door_unlocked
+- id: '1651765993517'
+  alias: Evening Lights
+  description: ''
   trigger:
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '19'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '22'
-  condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: locked
-  action:
-  - data:
-      entity_id: lock.kwikset_front_door
-    service: lock.unlock
-  initial_state: true
-- id: sync_front_door_locked
-  trigger:
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '18'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '21'
-  - entity_id: sensor.kwikset_front_door_alarm_type
-    platform: state
-    to: '27'
-  condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: unlocked
-  action:
-    data:
-      entity_id: lock.kwikset_front_door
-    service: lock.lock
-  initial_state: true
-- id: autolock_front_door
-  alias: Autolock Front Door
-  trigger:
-  - entity_id: lock.kwikset_front_door
-    for: 0:05:00
-    platform: state
-    to: unlocked
-  condition:
-  - condition: state
-    entity_id: lock.kwikset_front_door
-    state: unlocked
-  action:
-  - data: {}
-    service: lock.lock
-    target:
-      entity_id: lock.kwikset_front_door
-  initial_state: true
-  mode: restart
-- id: propagate_kitchen_light
-  trigger:
-  - platform: event
-    event_type: automation_reloaded
-  - platform: state
-    entity_id: light.switch_kitchen_lights
-    from: 'off'
-    to: 'on'
-  - platform: state
-    entity_id: light.switch_kitchen_lights
-    from: 'on'
-    to: 'off'
-  condition:
-    condition: or
-    conditions:
-    - condition: state
-      entity_id: light.switch_kitchen_lights
-      state: 'on'
-    - condition: state
-      entity_id: light.switch_kitchen_lights
-      state: 'off'
-  action:
-  - service_template: light.turn_{{- states("light.switch_kitchen_lights") -}}
-    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-- id: '1602622298053'
-  alias: sync-mbr-subwoofer
-  description: Master Bedroom Subwoofer should be on whenever the master bedroom chromecast
-    is playing.
-  trigger:
-  - platform: state
-    entity_id: media_player.master_bedroom
+  - platform: sun
+    event: sunset
+    offset: 0
   condition: []
   action:
-  - delay: "{% if is_state('media_player.master_bedroom', 'playing') or\n      is_state('media_player.master_bedroom',\
-      \ 'paused')  %}\n  0\n{% else %}\n  60\n{% endif %}\n"
-  - service: "{% if is_state('media_player.master_bedroom', 'playing') or\n      is_state('media_player.master_bedroom',\
-      \ 'paused')  %}\n  switch.turn_on\n{% else %}\n  switch.turn_off\n{% endif %}\n"
-    data:
-      entity_id:
-      - switch.audioengine_a2_plug_switch
-      - switch.hank_electronics_ltd_hkzw_so03_smart_plug_switch
-  mode: restart
-- id: '1629143869166'
-  alias: Chromecast Volume Management - Office
+  - type: turn_on
+    device_id: 0d9946c2190640cfbaa6f500cd12b34a
+    entity_id: light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
+    domain: light
+    brightness_pct: 100
+  - type: turn_on
+    device_id: 5168fdea679d481588b002a302bc8fbd
+    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    domain: light
+    brightness_pct: 100
+  mode: single
+- id: '1651766173796'
+  alias: Bedtime Lights
   description: ''
-  use_blueprint:
-    path: tonyapuzzo/chromecast_volume_management.yaml
-    input:
-      trigger_chromecast: media_player.office_chromecast
-      target_receiver: media_player.rx_v475_a16974
-      in_max_threshold: '0.90'
-      in_min_threshold: '0.25'
-- id: '1629145968232'
-  alias: Chromecast Volume Management - TV
-  description: ''
-  use_blueprint:
-    path: tonyapuzzo/chromecast_volume_management.yaml
-    input:
-      trigger_chromecast: media_player.chromecast
-      target_receiver: media_player.downstairs_tx_rz820
-- id: '1635372798806'
-  alias: Ecobee Mix
-  description: ''
-  use_blueprint:
-    path: tonyapuzzo/ecobee_mix.yaml
-    input:
-      in_thermostat: climate.thermostat_2
-      in_sensors:
-        entity_id:
-        - sensor.thermostat_temperature
-        - sensor.lil_bee_temperature_2
-        - sensor.office_temperature_2
-- id: '1647999535304'
-  alias: Motion-activated Light
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.motion_sensor_home_security_motion_detection
-      light_target:
-        entity_id: light.switch_front_porch_light
-      no_motion_wait: 300
+  trigger:
+  - platform: time
+    at: '22:45:00'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 5168fdea679d481588b002a302bc8fbd
+    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    domain: light
+  - type: turn_off
+    device_id: 0d9946c2190640cfbaa6f500cd12b34a
+    entity_id: light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
+    domain: light
+  mode: single

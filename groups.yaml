@@ -1,40 +1,23 @@
 # This group is exposed in the HassIQ Widget on my garmin watch
 hassiq:
   entities:
-    - switch.front_door_lock
     - cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
-    - switch.front_porch_light
-    - switch.occupancy
-    - switch.all_audio
+    - light.living_room_floor_lamp
+    - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+    - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
 
 media_player_cast:
   entities:
-    - media_player.downstairs
     - media_player.everywhere
-    - media_player.family_room_speaker
-    - media_player.garage_speaker
     - media_player.kitchen_speaker
-    - media_player.master_bedroom
-    - media_player.not_the_bedroom
-    - media_player.chromecast
     - media_player.shield
-    - media_player.upstairs
-    - media_player.onkyo_txrz820_4f772a
-
-occupancy_sensors:
-  entities:
-    - binary_sensor.lil_bee_occupancy
-    - binary_sensor.thermostat_occupancy
-    - binary_sensor.office_occupancy
 
 media_player_avr:
   entities:
-    - media_player.downstairs_tx_rz820
+    #- media_player.downstairs_tx_rz820
     #- media_player.downstairs_tx_rz820_zone_2
     #- media_player.downstairs_tx_rz820_zone_3
     - media_player.rx_v475_a16974
-    #- media_player.upstairs_tx8050
-    #- media_player.upstairs_tx8050_zone_2
 
 media_player_roku:
   entities:

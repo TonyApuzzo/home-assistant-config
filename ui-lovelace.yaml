@@ -4,17 +4,6 @@ views:
     title: Home
     cards:
 
-      - title: Front Porch
-        id: front_porch
-        show_header_toggle: false
-        type: entities
-        entities:
-          - lock.kwikset_front_door
-          - light.switch_front_porch_light
-          - entity: sensor.front_porch_motion_sensor_temperature
-            name: Temperature
-          - entity: binary_sensor.motion_sensor_home_security_motion_detection
-            name: Motion
 
       - title: Garage
         id: garage
@@ -29,58 +18,8 @@ views:
         entities:        
           - entity: switch.occupancy
           - entity: switch.all_audio
-          - entity: scene.exterior_on
-          - entity: scene.interior_on
-          - entity: scene.lights_out
-          - entity: sensor.ecobee_spread
-          - entity: automation.normalize_temperature_2
           - entity: switch.thermostat_fan_mode
           - entity: media_player.everywhere
-
-      - title: Thermostat
-        id: thermostat
-        type: thermostat
-        entity: climate.thermostat_2
-
-      - title: Entryway
-        id: entryway
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.switch_front_foyer_chandelier
-
-      - title: Kitchen
-        id: kitchen
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.switch_kitchen_lights
-          - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-
-      - title: Dining Room
-        id: dining_room
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.dining_room_chandelier
-
-      - title: Family Room
-        id: family_room
-        show_header_toggle: false
-        type: entities
-        entities:
-          - scene.media
-          - light.family_room_floor_lamp
-          - light.family_room_landing
-          - remote.family_room_harmony_hub
-          - media_player.downstairs_tx_rz820
-          - media_player.shield
-          - media_player.chromecast
-          - media_player.rz820
-          - media_player.tonysroku3
-          - switch.denon_cd_plug_switch
-          - entity: sensor.family_room_temperature
-          - entity: binary_sensor.family_room_occupancy
 
       - title: Living Room
         id: living_room
@@ -102,22 +41,6 @@ views:
           - light.upstairs_hallway_landing
           - media_player.upstairs
 
-      - title: Office
-        id: office
-        show_header_toggle: false
-        type: entities
-        entities:
-          - light.office_sconce
-          - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
-          - light.office_lights
-          - entity: switch.cable_modem_plug_switch
-          - media_player.office_chromecast
-          - media_player.rx_v475_a16974
-          - sensor.office_temperature
-          - binary_sensor.office_occupancy
-          - switch.register_booster_plug_switch
-          - automation.auto_start_register_booster
-          - switch.honeywell_unknown_type_4f50_id_3034_switch_2
 
       - type: entities
         title: Master Bedroom
@@ -131,21 +54,6 @@ views:
           - entity: sensor.lil_bee_temperature
           - entity: binary_sensor.lil_bee_occupancy
 
-      - title: OpenEVSE
-        id: openevse
-        type: entities
-        show_header_toggle: false
-        entities:
-          - entity: switch.openevse_enablement
-          - entity: sensor.openevse_state
-          - entity: sensor.openevse_current_now
-          - entity: sensor.openevse_session_energy
-          - entity: sensor.openevse_service_level
-          - entity: sensor.openevse_pilot
-          - entity: number.openevse_pilot
-          - entity: sensor.openevse_energy_limit
-          - entity: number.openevse_charge_limit
-          - entity: script.openevse_rapi_gh
 
   - title: Media
     cards:

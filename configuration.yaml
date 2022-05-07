@@ -33,11 +33,9 @@ alexa:
   smart_home:
     filter:
       include_entities:
-        - light.office_lights
-        - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
         - light.living_room_floor_lamp
-        - light.christmas_tree
-        - scene.media
+        - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+        - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
 
 # Monitor system health
 system_health:
@@ -50,16 +48,6 @@ device_tracker:
     verify_ssl: false
     username: !secret ddwrt_admin_username
     password: !secret ddwrt_admin_password
-    interval_seconds: 15
-    consider_home: 180
-    new_device_defaults:
-      track_new_devices: true
-  - platform: ddwrt
-    host: !secret ddwrt2_host
-    ssl: true
-    verify_ssl: false
-    username: !secret ddwrt2_admin_username
-    password: !secret ddwrt2_admin_password
     interval_seconds: 15
     consider_home: 180
     new_device_defaults:
@@ -87,19 +75,6 @@ conversation:
 recorder:
   purge_keep_days: 8
   db_url: !secret recorder_db_url
-  # exclude:
-  #   domains:
-  #     - automation
-  #     - device_tracker
-  #     - weblink
-  #     - updater
-  #     - group
-  #     - scene
-  #     - script
-  #     - sun
-  #     - timer
-  #     - weather
-  #   entities: {}
 
 # Sensors
 sensor:
@@ -107,7 +82,7 @@ sensor:
   #- platform: yr
 
   # Track the moon
-  #- platform: moon
+  - platform: moon
 
   # Raspberry Pi System Resources
   - platform: systemmonitor
@@ -126,66 +101,10 @@ sensor:
         friendly_name: 'Environment'
         value_template: !secret ENVIRONMENT
 
-      thermostat_current_humidity:
-        value_template: '{{ (state_attr("climate.thermostat", "current_humidity") | int ) }}' 
-        friendly_name: 'Current Humidity'
-        unit_of_measurement: '%'
-        icon_template: mdi:water-percent
-
-      thermostat_current_temperature:
-        value_template: '{{ (state_attr("climate.thermostat", "current_temperature") | int ) }}' 
-        friendly_name: 'Current Temperature'
-        unit_of_measurement: '°F'
-        device_class: temperature
-
-      # Difference between max and minimum temperature in the house
-      ecobee_spread:
-        friendly_name: 'Temperature Spread'
-        unit_of_measurement: 'Δ°F'
-        device_class: temperature
-        value_template: >-
-          {% set t = [
-            states('sensor.lil_bee_temperature'),
-            states('sensor.office_temperature'),
-            states('sensor.thermostat_current_temperature'),
-            ] | map('regex_replace', '(^[-+]?[0-9]*\.?[0-9]+$)|.*', '\\1') 
-              | reject('eq', '') 
-              | map('float')
-              | list %}
-          {% set spread = t|max - t|min if t else 0 %}
-          {{ spread | round(2) }}
-
 # Text to speech
 tts:
   - platform: google_translate
     service_name: google_say
-
-# Lutron Caseta
-lutron_caseta:
-  host: !secret LUTRON_CASETA_HOST
-  keyfile: /ssl/caseta.key
-  certfile: /ssl/caseta.crt
-  ca_certs: /ssl/caseta-bridge.crt
-
-# Media Players
-media_player:
-  - platform: onkyo
-    host: tx-rz820.lan.
-    name: Downstairs TX-RZ820
-    sources:
-      am: Tuner (AM)
-      aux: AUX
-      bd-dvd: Bluray (BD/DVD)
-      bluetooth: Bluetooth
-      cbl-sat: TiVo (CBL/SAT)
-      cd: CD
-      fm: Tuner (FM)
-      game: Shield (GAME)
-      net: NET
-      pc: Chromecast Audio (PC)
-      phono: PHONO
-      strm-box: Roku (STRM BOX)
-      tv: TV
 
 # Switches
 switch:
@@ -194,35 +113,15 @@ switch:
     host: alder.lan
     mac: !secret alder_mac1
   - platform: wake_on_lan
-    name: Tony GW
-    host: TONY-PC.lan
-    mac: !secret tony_mac2
+    name: Trogdor PC
+    host: trogdor.lan
+    mac: !secret trogdor_mac1
   - platform: wake_on_lan
     name: Karen PC
     host: KAREN-PC.lan
     mac: !secret karen_mac1
-    
   - platform: template
     switches:
-      front_door_lock:
-        friendly_name: "Front Door"
-        icon_template: >-
-          {%- if is_state('lock.kwikset_front_door', 'locked') -%}
-            mdi:lock-outline
-          {%- else -%}
-            mdi:lock-open-outline
-          {%- endif -%}
-        value_template: >-
-          {{ is_state('lock.kwikset_front_door', 'locked') }}
-        turn_off:
-          - service: lock.unlock
-            data_template:
-              entity_id: lock.kwikset_front_door
-        turn_on:
-          - service: lock.lock
-            data_template:
-              entity_id: lock.kwikset_front_door
-
       all_audio:
         friendly_name: "All Audio"
         value_template: >-
@@ -232,7 +131,6 @@ switch:
           - service: homeassistant.turn_off
             data_template:
               entity_id:
-                - remote.family_room_harmony_hub
                 - group.media_player_avr
                 - group.media_player_cast
         turn_on:
@@ -240,141 +138,6 @@ switch:
             data_template:
               entity_id: 
                 - group.media_player_avr
-
-      occupancy:
-        friendly_name: "Occupancy"
-        value_template: >-
-          {{ is_state('switch.all_audio', 'on') or
-             ((states.light 
-              | selectattr('state', 'eq', 'on') 
-              | map(attribute='state') 
-              | list)[0] == 'on'
-             ) or 
-             is_state('group.occupancy_sensors', 'on')
-          }}
-        icon_template: mdi:home-assistant
-        turn_off:             
-          - service: homeassistant.turn_off
-            data_template:
-              entity_id:
-                - switch.all_audio
-          - service: light.turn_off
-            data:
-              entity_id: all
-        turn_on:
-
-      thermostat_fan_mode:
-        friendly_name: "Thermostat Fan"
-        value_template: >-
-          {{- is_state_attr('climate.thermostat_2', 'fan_mode', 'on') or
-              (state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5) -}}
-        icon_template: >-
-          {%- if is_state_attr('climate.thermostat_2', 'fan_mode', 'on') or
-              (state_attr('climate.thermostat_2', 'fan_min_on_time')|int > 5) -%}
-            mdi:fan
-          {%- else -%}
-            mdi:fan-off
-          {%- endif -%}
-        turn_on:
-          - service: climate.set_fan_mode
-            data:
-              entity_id: climate.thermostat_2
-              fan_mode: on
-        turn_off:
-          - service: climate.set_fan_mode
-            data:
-              entity_id: climate.thermostat_2
-              fan_mode: auto
-          - service: ecobee.set_fan_min_on_time
-            data:
-              entity_id: climate.thermostat_2
-              fan_min_on_time: 0
-
-# Lights
-light:
-  - platform: group
-    name: Office Lights
-    entities:
-      - light.office_sconce
-      - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
-  - platform: template
-    lights:
-      switch_front_foyer_chandelier:
-        friendly_name: Front Foyer_Chandelier
-        level_template: '{{- 255 if is_state("switch.front_foyer_chandelier", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.front_foyer_chandelier", "on") -}}'
-        turn_on:
-          service: switch.turn_on
-          entity_id: switch.front_foyer_chandelier
-        turn_off:
-          service: switch.turn_off
-          entity_id: switch.front_foyer_chandelier
-        set_level:
-          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
-          entity_id: switch.front_foyer_chandelier
-
-  - platform: template
-    lights:
-      switch_front_porch_light:
-        friendly_name: Front Porch_Light
-        level_template: '{{- 255 if is_state("switch.front_porch_light", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.front_porch_light", "on") -}}'
-        turn_on:
-          service: switch.turn_on
-          entity_id: switch.front_porch_light
-        turn_off:
-          service: switch.turn_off
-          entity_id: switch.front_porch_light
-        set_level:
-          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
-          entity_id: switch.front_porch_light
-
-  - platform: template
-    lights:
-      christmas_tree:
-        friendly_name: Christmas Tree
-        level_template: '{{- 255 if is_state("switch.double_plug_left", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.double_plug_left", "on") -}}'
-        icon_template: mdi-pine-tree
-        turn_on:
-          service: switch.turn_on
-          entity_id: switch.double_plug_left
-        turn_off:
-          service: switch.turn_off
-          entity_id: switch.double_plug_left
-        set_level:
-          service_template: '{{- "switch.turn_" ~ ( "off" if brightness == 0 else "on") -}}'
-          entity_id: switch.double_plug_left
-      living_room_floor_lamp:
-        friendly_name: Living Room Floor Lamp
-        level_template: '{{- 255 if is_state("switch.double_plug_right", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.double_plug_right", "on") -}}'
-        icon_template: mdi-floor-lamp
-        turn_on:
-          service: switch.turn_on
-          entity_id: switch.double_plug_right
-        turn_off:
-          service: switch.turn_off
-          entity_id: switch.double_plug_right
-        set_level:
-          service_template: '{{- "switch.turn_" ~ ( "off" if brightness == 0 else "on") -}}'
-          entity_id: switch.double_plug_right
-
-  - platform: template
-    lights:
-      switch_kitchen_lights:
-        friendly_name: Kitchen_Lights
-        level_template: '{{- 255 if is_state("switch.kitchen_lights", "on") else 0 -}}'
-        value_template: '{{- is_state("switch.kitchen_lights", "on") -}}'
-        turn_on:
-          service: switch.turn_on
-          entity_id: switch.kitchen_lights
-        turn_off:
-          service: switch.turn_off
-          entity_id: switch.kitchen_lights
-        set_level:
-          service_template: 'switch.turn_{{- "off" if brightness == 0 else "on" -}}'
-          entity_id: switch.kitchen_lights
 
 group: !include groups.yaml
 automation: !include automations.yaml
