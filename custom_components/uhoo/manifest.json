@@ -1,0 +1,11 @@
+{
+  "domain": "uhoo",
+  "name": "uHoo",
+  "documentation": "https://github.com/csacca/uhoo-homeassistant",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/csacca/uhoo-homeassistant/issues",
+  "version": "0.0.4",
+  "config_flow": true,
+  "codeowners": ["@csacca"],
+  "requirements": ["pyuhoo==0.0.5"]
+}

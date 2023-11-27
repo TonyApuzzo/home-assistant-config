@@ -18,24 +18,28 @@ logger:
     homeassistant.components.lutron_caseta: warn
 
 lovelace:
-  mode: storage
-  dashboards:
-    ho-me:
-      mode: yaml
-      title: Dashboard
-      icon: mdi:script
-      show_in_sidebar: true
-      filename: ui-lovelace.yaml
 
 api:
 
 alexa:
   smart_home:
     filter:
-      include_entities:
-        - light.living_room_floor_lamp
-        - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
-        - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+      include_domains:
+        - switch
+        - light
+        - climate
+
+# aarlo:
+#   username: !secret ARLO_USERNAME
+#   password: !secret ARLO_PASSWORD
+#   tfa_host: 'imap.gmail.com'
+#   tfa_username: !secret ARLO_IMAP_USERNAME
+#   tfa_password: !secret ARLO_IMAP_PASSWORD
+#   # refresh_devices_every: 1
+#   # stream_timeout: 120
+#   # reconnect_every: 90
+#   # stream_snapshot_stop: 0
+#   # save_media_to: "/config/www/arlo/{m}/{T}"
 
 # Monitor system health
 system_health:
@@ -65,10 +69,6 @@ timer:
   outdoor_motion:
     duration: '00:00:15'
 
-# Discover some devices automatically
-discovery:
-  ignore: []
-
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
 
@@ -82,7 +82,7 @@ sensor:
   #- platform: yr
 
   # Track the moon
-  - platform: moon
+  #- platform: moon
 
   # Raspberry Pi System Resources
   - platform: systemmonitor

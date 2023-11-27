@@ -8,3 +8,175 @@
     lock.kwikset_front_door:
       state: unlocked
   id: c3026df8c7a341f1832f33c0a470366f
+- id: '1670371401203'
+  name: Evening Lighting (Main Floor)
+  entities:
+    light.office_desk_light:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6493
+      min_mireds: 154
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 2652
+      color_temp: 377
+      hs_color:
+      - 28.502
+      - 67.279
+      rgb_color:
+      - 255
+      - 164
+      - 83
+      xy_color:
+      - 0.532
+      - 0.387
+      off_with_transition: false
+      off_brightness:
+      icon: mdi:desk-lamp
+      friendly_name: Desk Lamp
+      supported_features: 40
+      state: 'on'
+    light.bedroom_floor:
+      supported_color_modes:
+      - brightness
+      off_with_transition: false
+      off_brightness:
+      icon: mdi:floor-lamp-torchiere
+      friendly_name: Bedroom Floor Light
+      supported_features: 40
+      color_mode: brightness
+      brightness: 254
+      state: 'on'
+    light.silicon_labs_ezsp_living_room_zha_group_0x0005:
+      supported_color_modes:
+      - color_temp
+      - xy
+      friendly_name: Silicon Labs EZSP Living Room
+      supported_features: 40
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6493
+      min_mireds: 154
+      max_mireds: 500
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 2702
+      color_temp: 370
+      hs_color:
+      - 28.391
+      - 65.659
+      rgb_color:
+      - 255
+      - 166
+      - 87
+      xy_color:
+      - 0.526
+      - 0.387
+      off_with_transition: false
+      state: 'on'
+    light.bedroom_hall_bulb:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6493
+      min_mireds: 154
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      off_with_transition: false
+      off_brightness:
+      icon: mdi:light-recessed
+      friendly_name: Bedroom Hall Bulb
+      supported_features: 40
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 2732
+      color_temp: 366
+      hs_color:
+      - 28.327
+      - 64.71
+      rgb_color:
+      - 255
+      - 167
+      - 89
+      xy_color:
+      - 0.524
+      - 0.387
+      state: 'on'
+  icon: mdi:lightbulb-night
+  metadata:
+    light.office_desk_light:
+      entity_only: true
+    light.bedroom_floor:
+      entity_only: true
+    light.silicon_labs_ezsp_living_room_zha_group_0x0005:
+      entity_only: true
+- id: '1670371667729'
+  name: Daytime Lighting (Basement)
+  entities:
+    light.silicon_labs_ezsp_basement_zha_group_0x0003:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6493
+      min_mireds: 154
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 254
+      color_temp_kelvin: 4000
+      color_temp: 250
+      hs_color:
+      - 26.812
+      - 34.87
+      rgb_color:
+      - 255
+      - 205
+      - 166
+      xy_color:
+      - 0.421
+      - 0.364
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Silicon Labs EZSP Basement_zha_group_0x0003
+      supported_features: 40
+      state: 'on'
+  icon: mdi:ceiling-light-multiple
+  metadata:
+    light.silicon_labs_ezsp_basement_zha_group_0x0003:
+      entity_only: true
+- id: '1670893262792'
+  name: Evening Lighting (Basement)
+  entities:
+    light.silicon_labs_ezsp_basement_zha_group_0x0003:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6493
+      min_mireds: 154
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 181
+      color_temp_kelvin: 2808
+      color_temp: 356
+      hs_color:
+      - 28.172
+      - 62.378
+      rgb_color:
+      - 255
+      - 170
+      - 95
+      xy_color:
+      - 0.516
+      - 0.386
+      off_with_transition: false
+      off_brightness:
+      friendly_name: Silicon Labs EZSP Basement_zha_group_0x0003
+      supported_features: 40
+      state: 'on'
+  icon: mdi:lightbulb-night
+  metadata:
+    light.silicon_labs_ezsp_basement_zha_group_0x0003:
+      entity_only: true

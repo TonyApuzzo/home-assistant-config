@@ -1,58 +1,294 @@
-- alias: Garage Warning
-  id: garage_warning
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label
-    to: open
-    for:
-      minutes: 15
-  condition:
-    condition: template
-    value_template: "{{-\n  not is_state(\n    \"cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label\"\
-      ,\n    \"closed\")\n-}}"
-  action:
-    service: persistent_notification.create
-    data_template:
-      notification_id: garage_warning
-      title: Garage Door is {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')|title
-        }}!
-      message: The garage door has been {{ states('cover.linear_nortek_security_control_llc_gd00z_4_garage_door_opener_remote_controller_barrier_state_label')
-        }} for at least 15 minutes, consider closing it.
-- id: '1651765993517'
-  alias: Evening Lights
+- id: '1652162131079'
+  alias: Sunset
   description: ''
   trigger:
   - platform: sun
     event: sunset
-    offset: 0
   condition: []
   action:
-  - type: turn_on
-    device_id: 0d9946c2190640cfbaa6f500cd12b34a
-    entity_id: light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
-    domain: light
-    brightness_pct: 100
-  - type: turn_on
-    device_id: 5168fdea679d481588b002a302bc8fbd
-    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-    domain: light
-    brightness_pct: 100
+  - service: scene.turn_on
+    target:
+      entity_id: scene.evening_lighting
+    metadata: {}
+  - service: scene.turn_on
+    target:
+      entity_id: scene.evening_lighting_basement
+    metadata: {}
+  - service: light.turn_on
+    data:
+      kelvin: 2500
+      brightness_pct: 75
+    target:
+      device_id: 3a9e080a6228660d899041afb5e25595
   mode: single
-- id: '1651766173796'
-  alias: Bedtime Lights
+- id: '1652162215891'
+  alias: Bedtime
   description: ''
   trigger:
   - platform: time
     at: '22:45:00'
   condition: []
   action:
+  - service: light.turn_off
+    data:
+      transition: 120
+    target:
+      entity_id:
+      - light.living_room_floor_1_light
+      - light.living_room_floor_2_light
+      - light.office_desk_light
+  mode: single
+- id: '1652241689516'
+  alias: Chromecast Volume
+  description: ''
+  use_blueprint:
+    path: tonyapuzzo/chromecast_volume_management.yaml
+    input:
+      trigger_chromecast: media_player.shield
+      target_receiver: media_player.rx_v475_a16974
+      in_min_threshold: '0.10'
+      in_max_threshold: '0.9'
+- id: '1653540301666'
+  alias: Thermostat Night
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.nighttime
+    to: 'on'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      target_temp_high: 72
+      target_temp_low: 62
+      hvac_mode: heat_cool
+    target:
+      entity_id: climate.z_wave_plus_thermostat
+  mode: single
+- id: '1653540448323'
+  alias: Thermostat Day
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.nighttime
+    to: 'off'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      target_temp_high: 75
+      target_temp_low: 68
+      hvac_mode: heat_cool
+    target:
+      entity_id: climate.z_wave_plus_thermostat
+  mode: single
+- id: '1653775009277'
+  alias: Run Fan for comfort
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: []
+  condition: []
+  action:
+  - service: climate.set_fan_mode
+    data:
+      fan_mode: "{% set targetHigh = state_attr('climate.z_wave_plus_thermostat',
+        'target_temp_high')|float + 0.25 %} {% set targetLow = state_attr('climate.z_wave_plus_thermostat',
+        'target_temp_low')|float - 1 %} {% set t = (states.sensor.z_wave_plus_thermostat_air_temperature,\n
+        \ states.sensor.bedroom_sensor_air_temperature,\n  states.sensor.basement_sensor_air_temperature)
+        \n  | map('attr', 'state') | map('float')\n  | list\n%} {% set needFan = ((t
+        | select('>', targetHigh) | list) \n               + (t | select('<', targetLow)
+        | list)) | length > 0 %}\n{% set fan = state_attr('climate.z_wave_plus_thermostat',
+        'fan_modes')[-1 if\n             needFan else 0] %}\n{{- fan -}}\n"
+    target:
+      entity_id: climate.z_wave_plus_thermostat
+  mode: restart
+- id: '1653970051493'
+  alias: Garage Door Warning
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.garage_door_controller
+    from: Closed
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.persistent_notification
+    data:
+      message: Garage Door is Open
+  mode: single
+- id: '1653970547377'
+  alias: Close Garage Door
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.garage_door_controller
+    from: closed
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: cover.garage_door_controller
+      state: closed
+      for:
+        hours: 0
+        minutes: 59
+        seconds: 0
+    - condition: sun
+      before: sunrise
+      after: sunset
+  action:
+  - device_id: 3e80623019573d68e0f046f35246783f
+    domain: cover
+    entity_id: 6cc4aa9cb6fab047674b639cd97b57b0
+    type: close
+  mode: single
+- id: '1654373737108'
+  alias: Master Bedroom Speaker Power Off
+  description: ''
+  trigger:
+  - platform: device
+    device_id: c0df3058b2ef74babc4ad6951007c25b
+    domain: media_player
+    entity_id: media_player.master_bedroom
+    type: idle
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - platform: device
+    device_id: c0df3058b2ef74babc4ad6951007c25b
+    domain: media_player
+    entity_id: media_player.master_bedroom
+    type: turned_off
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  condition:
+  - condition: device
+    type: is_on
+    device_id: ddc57722b14d8e878a698446da1ae02e
+    entity_id: switch.audioengine_a2_plug_switch
+    domain: switch
+  action:
   - type: turn_off
-    device_id: 5168fdea679d481588b002a302bc8fbd
-    entity_id: light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
-    domain: light
-  - type: turn_off
-    device_id: 0d9946c2190640cfbaa6f500cd12b34a
-    entity_id: light.cree_connected_a_19_60w_equivalent_dbaa0afe_level_on_off
-    domain: light
+    device_id: ddc57722b14d8e878a698446da1ae02e
+    entity_id: switch.audioengine_a2_plug_switch
+    domain: switch
+  mode: restart
+- id: '1654373873888'
+  alias: Master Bedroom Speaker Power On
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{{- not ( states(''media_player.master_bedroom'') in [''idle'',
+      ''off'', ''unavailable''] ) -}}
+
+      '
+  condition:
+  - condition: device
+    type: is_off
+    device_id: ddc57722b14d8e878a698446da1ae02e
+    entity_id: switch.audioengine_a2_plug_switch
+    domain: switch
+  action:
+  - type: turn_on
+    device_id: ddc57722b14d8e878a698446da1ae02e
+    entity_id: switch.audioengine_a2_plug_switch
+    domain: switch
+  mode: restart
+- id: '1654486209506'
+  alias: Bedroom Motion Lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bedroom_sensor_home_security_motion_detection
+    from: 'off'
+    to: 'on'
+  condition:
+  - type: is_illuminance
+    condition: device
+    device_id: 102dd2855e7101d52d38c22c245d9098
+    entity_id: sensor.bedroom_sensor_illuminance
+    domain: sensor
+    below: 15
+  action:
+  - service: light.turn_on
+    target:
+      entity_id:
+      - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+      - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    data: {}
+  - wait_for_trigger:
+      platform: state
+      entity_id: binary_sensor.bedroom_sensor_home_security_motion_detection
+      from: 'on'
+      to: 'off'
+  - delay: 120
+  - service: light.turn_off
+    target:
+      entity_id:
+      - light.cree_connected_a_19_60w_equivalent_663b0afe_level_on_off
+      - light.cree_connected_a_19_60w_equivalent_c11b0bfe_level_on_off
+    data: {}
+  mode: restart
+  max_exceeded: silent
+- id: '1658930596824'
+  alias: Thermostat Evening
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.evening
+    to: 'on'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      target_temp_high: 75
+      target_temp_low: 66.5
+      hvac_mode: heat_cool
+    target:
+      entity_id: climate.z_wave_plus_thermostat
+  mode: single
+- id: '1693849529636'
+  alias: Red Alert Color Loop
+  description: ''
+  use_blueprint:
+    path: mdolnik/color_loop.yaml
+    input:
+      light: light.office_desk_light
+      helper_toggle: input_boolean.red_alert
+      color_1:
+      - 255
+      - 0
+      - 0
+      color_2:
+      - 192
+      - 192
+      - 192
+- id: '1700083377681'
+  alias: Turn off Porch Light
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.porch_bulb
   mode: single
